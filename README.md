@@ -1,0 +1,1 @@
+# Singulink.Globalization.Currency
