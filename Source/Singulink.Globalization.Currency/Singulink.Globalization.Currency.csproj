@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <Version>1.0</Version>
+    <PackageProjectUrl>https://github.com/Singulink/Singulink.Globalization.Currency</PackageProjectUrl>
+    <Description>Widely useful highly optimized collections that are missing from .NET like Map, ListDictionary and HashSetDictionary.</Description>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageTags>Money; Currency; Conversion;</PackageTags>
+    <RootNamespace>Singulink.Globalization</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
+  </ItemGroup>
+</Project>

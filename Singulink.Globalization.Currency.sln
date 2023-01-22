@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{DBA8BA65-D53C-41A8-9534-EAB6AE159CCB}"
+	ProjectSection(SolutionItems) = preProject
+		Source\Directory.Build.props = Source\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2CD9744C-7FC1-485B-BB89-406676D56D25}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Singulink.Globalization.Currency.Tests", "Tests\Singulink.Globalization.Currency.Tests\Singulink.Globalization.Currency.Tests.csproj", "{1366049E-2437-4184-9C76-7C95D51B9634}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3BB957CF-6088-4929-82FB-354DDBB2E167}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		Directory.Build.props = Directory.Build.props
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Singulink.Globalization.Currency", "Source\Singulink.Globalization.Currency\Singulink.Globalization.Currency.csproj", "{FE384100-51BA-42C4-B269-F0C3BCF5A6BE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source Items", "Source Items", "{97D96E55-E2D9-4076-8D71-BA319A703C06}"
+	ProjectSection(SolutionItems) = preProject
+		Source\Directory.Build.props = Source\Directory.Build.props
+		Source\Directory.Build.targets = Source\Directory.Build.targets
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test Items", "Test Items", "{4028E49D-6194-47FA-AEA9-5B046F8013D2}"
+	ProjectSection(SolutionItems) = preProject
+		Tests\.editorconfig = Tests\.editorconfig
+		Tests\Directory.Build.props = Tests\Directory.Build.props
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1366049E-2437-4184-9C76-7C95D51B9634}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1366049E-2437-4184-9C76-7C95D51B9634}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1366049E-2437-4184-9C76-7C95D51B9634}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1366049E-2437-4184-9C76-7C95D51B9634}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE384100-51BA-42C4-B269-F0C3BCF5A6BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE384100-51BA-42C4-B269-F0C3BCF5A6BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE384100-51BA-42C4-B269-F0C3BCF5A6BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE384100-51BA-42C4-B269-F0C3BCF5A6BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1366049E-2437-4184-9C76-7C95D51B9634} = {2CD9744C-7FC1-485B-BB89-406676D56D25}
+		{FE384100-51BA-42C4-B269-F0C3BCF5A6BE} = {DBA8BA65-D53C-41A8-9534-EAB6AE159CCB}
+		{97D96E55-E2D9-4076-8D71-BA319A703C06} = {DBA8BA65-D53C-41A8-9534-EAB6AE159CCB}
+		{4028E49D-6194-47FA-AEA9-5B046F8013D2} = {2CD9744C-7FC1-485B-BB89-406676D56D25}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {06D2E21A-73BC-4E56-B817-7147C8D79C05}
+	EndGlobalSection
+EndGlobal
