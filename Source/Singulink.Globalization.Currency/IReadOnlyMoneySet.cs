@@ -36,7 +36,7 @@ public interface IReadOnlyMoneySet : IEnumerable<Money>
 
     public bool TryGetAmount(Currency currency, out decimal amount);
 
-    public bool TryGetAmount(string currencyCode, out decimal value);
+    public bool TryGetAmount(string currencyCode, out decimal amount);
 
     public bool TryGetValue(Currency currency, out Money value);
 

@@ -93,18 +93,21 @@ public class MoneySet : IReadOnlyMoneySet, IFormattable
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(Currency, out decimal)"/>
     public bool TryGetAmount(Currency currency, out decimal amount)
     {
+        // TODO: Implement this
         throw new NotImplementedException();
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(Currency, out Money)"/>
     public bool TryGetValue(Currency currency, out Money value)
     {
+        // TODO: Implement this
         throw new NotImplementedException();
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(string, out Money)"/>
     public bool TryGetValue(string currencyCode, out Money value)
     {
+        // TODO: Implement this
         throw new NotImplementedException();
     }
 
@@ -136,6 +139,30 @@ public class MoneySet : IReadOnlyMoneySet, IFormattable
         {
             throw new ArgumentException($"The currency '{currency}' is not present in the set's currency registry.", paramName);
         }
+    }
+
+    public bool TryGetAmount(string currencyCode, out decimal amount)
+    {
+        // TODO: Implement this
+        throw new NotImplementedException();
+    }
+
+    public IEnumerator<Money> GetEnumerator()
+    {
+        // TODO: Implement this
+        throw new NotImplementedException();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        // TODO: Implement this
+        throw new NotImplementedException();
+    }
+
+    public string ToString(string? format, IFormatProvider? formatProvider)
+    {
+        // TODO: Implement this
+        throw new NotImplementedException();
     }
 
     #region Explicit Interface Implementations
