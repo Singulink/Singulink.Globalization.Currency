@@ -625,6 +625,12 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// <inheritdoc cref="GetEnumerator"/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    public bool TryGetAmount(string currencyCode, out decimal amount)
+    {
+        // TODO: Implement TryGetAmount
+        throw new NotImplementedException();
+    }
+
     #endregion
 
     /// <summary>
