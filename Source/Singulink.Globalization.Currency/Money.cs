@@ -22,14 +22,14 @@ public readonly struct Money : IFormattable, IComparable<Money>, IEquatable<Mone
     /// <summary>
     /// Initializes a new instance of the <see cref="Money"/> struct.
     /// </summary>
-    public Money(string? currencyCode, decimal amount) : this(currencyCode == null ? null : Currency.Get(currencyCode), amount)
+    public Money(decimal amount, string? currencyCode) : this(amount, currencyCode == null ? null : Currency.Get(currencyCode))
     {
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Money"/> struct.
     /// </summary>
-    public Money(Currency? currency, decimal amount)
+    public Money(decimal amount, Currency? currency)
     {
         if (currency == null && amount != 0)
             Throw();
@@ -97,33 +97,33 @@ public readonly struct Money : IFormattable, IComparable<Money>, IEquatable<Mone
         return x._amount >= y._amount;
     }
 
-    public static Money operator +(Money x, Money y) => new(CombineCurrencies(x._currency, y._currency), x._amount + y._amount);
+    public static Money operator +(Money x, Money y) => new(x._amount + y._amount, CombineCurrencies(x._currency, y._currency));
 
-    public static Money operator +(Money x, decimal y) => new(x._currency, x._amount + y);
+    public static Money operator +(Money x, decimal y) => new(x._amount + y, x._currency);
 
     public static Money operator +(decimal x, Money y) => y + x;
 
-    public static Money operator -(Money x, Money y) => new(CombineCurrencies(x._currency, y._currency), x._amount - y._amount);
+    public static Money operator -(Money x, Money y) => new(x._amount - y._amount, CombineCurrencies(x._currency, y._currency));
 
-    public static Money operator -(Money x, decimal y) => new(x._currency, x._amount - y);
+    public static Money operator -(Money x, decimal y) => new(x._amount - y, x._currency);
 
-    public static Money operator -(decimal x, Money y) => new(y._currency, x - y._amount);
+    public static Money operator -(decimal x, Money y) => new(x - y._amount, y._currency);
 
-    public static Money operator *(Money x, decimal y) => new(x._currency, x._amount * y);
+    public static Money operator *(Money x, decimal y) => new(x._amount * y, x._currency);
 
     public static Money operator *(decimal x, Money y) => y * x;
 
-    public static Money operator /(Money x, decimal y) => new(x._currency, x._amount / y);
+    public static Money operator /(Money x, decimal y) => new(x._amount / y, x._currency);
 
-    public static Money operator /(decimal x, Money y) => new(y._currency, x / y._amount);
+    public static Money operator /(decimal x, Money y) => new(x / y._amount, y._currency);
 
-    public static Money operator ++(Money value) => new(value._currency, value.Amount + 1);
+    public static Money operator ++(Money value) => new(value.Amount + 1, value._currency);
 
-    public static Money operator --(Money value) => new(value._currency, value.Amount - 1);
+    public static Money operator --(Money value) => new(value.Amount - 1, value._currency);
 
     public static Money operator +(Money value) => value;
 
-    public static Money operator -(Money value) => new(value._currency, -value.Amount);
+    public static Money operator -(Money value) => new(-value.Amount, value._currency);
 
 #pragma warning restore CS1591
 
@@ -140,7 +140,7 @@ public readonly struct Money : IFormattable, IComparable<Money>, IEquatable<Mone
     /// </summary>
     public Money RoundToCurrencyDigits(MidpointRounding mode)
     {
-        return _currency == null ? this : new Money(Currency, Math.Round(_amount, _currency.DecimalDigits, mode));
+        return _currency == null ? this : new Money(Math.Round(_amount, _currency.DecimalDigits, mode), Currency);
     }
 
     /// <summary>
@@ -196,7 +196,7 @@ public readonly struct Money : IFormattable, IComparable<Money>, IEquatable<Mone
         if (x is null)
             return y;
 
-        if (y is null)
+        if (y is not null)
             Throw();
 
         return x;

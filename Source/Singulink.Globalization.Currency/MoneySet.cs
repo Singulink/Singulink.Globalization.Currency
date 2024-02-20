@@ -66,7 +66,7 @@ public class MoneySet : IReadOnlyMoneySet, IFormattable
             var currency = _registry[currencyCode];
 
             if (_amountLookup.TryGetValue(currency, out decimal amount))
-                return new Money(currency, amount);
+                return new Money(amount, currency);
 
             return default;
         }
@@ -79,7 +79,7 @@ public class MoneySet : IReadOnlyMoneySet, IFormattable
             EnsureCurrencyAllowed(currency, nameof(currency));
 
             if (_amountLookup.TryGetValue(currency, out decimal amount))
-                return new Money(currency, amount);
+                return new Money(amount, currency);
 
             return default;
         }

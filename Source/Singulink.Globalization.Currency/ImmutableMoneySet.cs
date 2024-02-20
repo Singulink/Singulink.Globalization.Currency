@@ -126,7 +126,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
             var currency = _registry[currencyCode];
 
             if (_amountLookup.TryGetValue(currency, out decimal amount))
-                return new Money(currency, amount);
+                return new Money(amount, currency);
 
             return default;
         }
@@ -139,7 +139,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
             EnsureCurrencyAllowed(currency, nameof(currency));
 
             if (_amountLookup.TryGetValue(currency, out decimal amount))
-                return new Money(currency, amount);
+                return new Money(amount, currency);
 
             return default;
         }
@@ -174,7 +174,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// <summary>
     /// Adds the specified currency and amount to this set and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet Add(string currencyCode, decimal amount)
+    public ImmutableMoneySet Add(decimal amount, string currencyCode)
     {
         var currency = _registry[currencyCode];
         return AddInternal(currency, amount);
@@ -183,7 +183,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// <summary>
     /// Adds the specified currency and amount to this set and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet Add(Currency currency, decimal amount)
+    public ImmutableMoneySet Add(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
         return AddInternal(currency, amount);
@@ -265,7 +265,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
 
         foreach (var kvp in _amountLookup)
         {
-            if (predicate(new Money(kvp.Key, kvp.Value)))
+            if (predicate(new Money(kvp.Value, kvp.Key)))
             {
                 builder ??= _amountLookup.ToBuilder();
                 builder.Remove(kvp.Key);
@@ -300,17 +300,17 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
         if (currency == null)
             return this;
 
-        return SetAmount(currency, value.Amount);
+        return SetAmount(value.Amount, currency);
     }
 
-    public ImmutableMoneySet SetAmount(string currencyCode, decimal amount)
+    public ImmutableMoneySet SetAmount(decimal amount, string currencyCode)
     {
         var currency = _registry[currencyCode];
         var updatedLookup = _amountLookup.SetItem(currency, amount);
         return updatedLookup == _amountLookup ? this : new ImmutableMoneySet(_registry, updatedLookup);
     }
 
-    public ImmutableMoneySet SetAmount(Currency currency, decimal amount)
+    public ImmutableMoneySet SetAmount(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
 
@@ -329,12 +329,12 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// <summary>
     /// Subtracts the specified currency and amount from this set and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet Subtract(string currencyCode, decimal amount) => Add(currencyCode, -amount);
+    public ImmutableMoneySet Subtract(decimal amount, string currencyCode) => Add(-amount, currencyCode);
 
     /// <summary>
     /// Adds the specified currency and amount to this set and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet Subtract(Currency currency, decimal amount)
+    public ImmutableMoneySet Subtract(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
         return AddInternal(currency, amount);
@@ -372,7 +372,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
         if (Count == 0)
             return this;
 
-        return new ImmutableMoneySet(_registry, _amountLookup.Select(kvp => new Money(kvp.Key, transform(kvp.Value))), false);
+        return new ImmutableMoneySet(_registry, _amountLookup.Select(kvp => new Money(transform(kvp.Value), kvp.Key)), false);
     }
 
     /// <summary>
@@ -438,7 +438,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
 
         if (_amountLookup.TryGetValue(currency, out decimal amount))
         {
-            value = new Money(currency, amount);
+            value = new Money(amount, currency);
             return true;
         }
 
@@ -453,7 +453,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
 
         if (_amountLookup.TryGetValue(currency, out decimal amount))
         {
-            value = new Money(currency, amount);
+            value = new Money(amount, currency);
             return true;
 
         }
@@ -643,7 +643,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
         /// <summary>
         /// Gets the element at the current position of the enumerator.
         /// </summary>
-        public Money Current => new(_amountLookupEnumerator.Current.Key, _amountLookupEnumerator.Current.Value);
+        public Money Current => new(_amountLookupEnumerator.Current.Value, _amountLookupEnumerator.Current.Key);
 
         /// <inheritdoc cref="Current"/>
         object? IEnumerator.Current => Current;
