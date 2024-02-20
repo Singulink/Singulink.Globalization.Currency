@@ -33,7 +33,7 @@ public class Currency : IFormattable
     /// <summary>
     /// Gets a monetary amount representing the minor unit of the currency based on the number of decimal digits it has (i.e. USD will return <c>USD 0.01</c>).
     /// </summary>
-    public Money MinorUnit => new Money(this, new decimal(1, 0, 0, false, (byte)DecimalDigits));
+    public Money MinorUnit => new Money(new decimal(1, 0, 0, false, (byte)DecimalDigits), this);
 
     /// <summary>
     /// Gets a list containing language identifers and currency names.
@@ -188,6 +188,11 @@ public class Currency : IFormattable
         foreach (var culture in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
         {
             var region = new RegionInfo(culture.Name);
+
+            // Skip regions that don't have a valid ISO currency.
+            // New ICU data contains at least a few such regions, "World", "Europe", "Latin America", etc.
+            if (region.ISOCurrencySymbol.Length != 3)
+                continue;
 
             if (!lookup.TryGetValue(region.ISOCurrencySymbol, out var currency))
             {
