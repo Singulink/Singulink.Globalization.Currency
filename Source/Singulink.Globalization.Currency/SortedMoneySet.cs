@@ -9,43 +9,43 @@ namespace Singulink.Globalization;
 /// <summary>
 /// Represents a set of money that can contain values in multiple currencies.
 /// </summary>
-public class MoneySet : IReadOnlyMoneySet, IFormattable
+public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
 {
     private readonly CurrencyRegistry _registry;
     private readonly SortedDictionary<Currency, decimal> _amountLookup = new(CurrencyByCodeComparer.Default);
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry.
+    /// Initializes a new instance of the <see cref="SortedMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry.
     /// </summary>
-    public MoneySet() : this(CurrencyRegistry.Default)
+    public SortedMoneySet() : this(CurrencyRegistry.Default)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MoneySet"/> class with the specified currency registry.
+    /// Initializes a new instance of the <see cref="SortedMoneySet"/> class with the specified currency registry.
     /// </summary>
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public MoneySet(CurrencyRegistry registry)
+    public SortedMoneySet(CurrencyRegistry registry)
     {
         _registry = registry;
     }
 
-    /// <inheritdoc cref="ImmutableMoneySet(Money[])"/>
-    public MoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values)
+    /// <inheritdoc cref="ImmutableSortedMoneySet(Money[])"/>
+    public SortedMoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values)
     {
     }
 
-    /// <inheritdoc cref="ImmutableMoneySet(CurrencyRegistry?, Money[])"/>
-    public MoneySet(CurrencyRegistry registry, IEnumerable<Money> values) : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry)
+    /// <inheritdoc cref="ImmutableSortedMoneySet(CurrencyRegistry?, Money[])"/>
+    public SortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values) : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MoneySet"/> class. Trusted internal constructor.
+    /// Initializes a new instance of the <see cref="SortedMoneySet"/> class. Trusted internal constructor.
     /// </summary>
-    internal MoneySet(CurrencyRegistry registry, IEnumerable<Money> values, bool ensureValuesInRegistry) : this(registry)
+    internal SortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values, bool ensureValuesInRegistry) : this(registry)
     {
         AddRangeInternal(values, ensureValuesInRegistry);
     }
@@ -88,7 +88,7 @@ public class MoneySet : IReadOnlyMoneySet, IFormattable
     /// <summary>
     /// Copies the values in this set to a new immutable set that uses the same registry as this set.
     /// </summary>
-    public ImmutableMoneySet ToImmutableSet() => new ImmutableMoneySet(_registry, this, false);
+    public ImmutableSortedMoneySet ToImmutableSet() => new ImmutableSortedMoneySet(_registry, this, false);
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(Currency, out decimal)"/>
     public bool TryGetAmount(Currency currency, out decimal amount)

@@ -19,7 +19,7 @@ namespace Singulink.Globalization;
 /// Money sets never contain any default <see cref="Money"/> values (i.e. zero amount values that are not associated with any currency). Default values are
 /// ignored when being added to or subtracted from a set.</para>
 /// </remarks>
-public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableMoneySet>, IFormattable
+public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableSortedMoneySet>, IFormattable
 {
     private static readonly ImmutableSortedDictionary<Currency, decimal> EmptyLookup = ImmutableSortedDictionary.Create<Currency, decimal>(CurrencyByCodeComparer.Default);
 
@@ -27,40 +27,40 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     private readonly ImmutableSortedDictionary<Currency, decimal> _amountLookup;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry.
+    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry.
     /// </summary>
-    public ImmutableMoneySet() : this(CurrencyRegistry.Default)
+    public ImmutableSortedMoneySet() : this(CurrencyRegistry.Default)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry and
+    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry and
     /// specified value.
     /// </summary>
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public ImmutableMoneySet(Money value) : this(CurrencyRegistry.Default, value) { }
+    public ImmutableSortedMoneySet(Money value) : this(CurrencyRegistry.Default, value) { }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableMoneySet"/> class with the specified currency registry.
+    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the specified currency registry.
     /// </summary>
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public ImmutableMoneySet(CurrencyRegistry registry)
+    public ImmutableSortedMoneySet(CurrencyRegistry registry)
     {
         _registry = registry;
         _amountLookup = EmptyLookup;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableMoneySet"/> class with the specified currency registry and value.
+    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the specified currency registry and value.
     /// </summary>
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public ImmutableMoneySet(CurrencyRegistry registry, Money value) : this(registry)
+    public ImmutableSortedMoneySet(CurrencyRegistry registry, Money value) : this(registry)
     {
         var currency = value.CurrencyOrDefault;
 
@@ -72,49 +72,49 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry and adds all
+    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry and adds all
     /// the specified values.
     /// </summary>
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public ImmutableMoneySet(params Money[] values) : this(CurrencyRegistry.Default, values, true)
+    public ImmutableSortedMoneySet(params Money[] values) : this(CurrencyRegistry.Default, values, true)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableMoneySet"/> class with the specified currency registry and adds all the specified values.
+    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the specified currency registry and adds all the specified values.
     /// </summary>
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public ImmutableMoneySet(CurrencyRegistry registry, params Money[] values) : this(registry, values, true)
+    public ImmutableSortedMoneySet(CurrencyRegistry registry, params Money[] values) : this(registry, values, true)
     {
     }
 
-    /// <inheritdoc cref="ImmutableMoneySet(Money[])"/>
-    public ImmutableMoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values)
+    /// <inheritdoc cref="ImmutableSortedMoneySet(Money[])"/>
+    public ImmutableSortedMoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values)
     {
     }
 
-    /// <inheritdoc cref="ImmutableMoneySet(CurrencyRegistry?, Money[])"/>
-    public ImmutableMoneySet(CurrencyRegistry registry, IEnumerable<Money> values) : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry)
+    /// <inheritdoc cref="ImmutableSortedMoneySet(CurrencyRegistry?, Money[])"/>
+    public ImmutableSortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values) : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableMoneySet"/> class. Trusted private constructor.
+    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class. Trusted private constructor.
     /// </summary>
-    private ImmutableMoneySet(CurrencyRegistry registry, ImmutableSortedDictionary<Currency, decimal> amountLookup)
+    private ImmutableSortedMoneySet(CurrencyRegistry registry, ImmutableSortedDictionary<Currency, decimal> amountLookup)
     {
         _registry = registry;
         _amountLookup = amountLookup;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableMoneySet"/> class. Trusted internal constructor.
+    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class. Trusted internal constructor.
     /// </summary>
-    internal ImmutableMoneySet(CurrencyRegistry registry, IEnumerable<Money> values, bool ensureValuesInRegistry) : this(registry)
+    internal ImmutableSortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values, bool ensureValuesInRegistry) : this(registry)
     {
         _amountLookup = AddRangeInternal(values, ensureValuesInRegistry);
     }
@@ -160,7 +160,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// <remarks>
     /// Default values that are not associated with any currency are ignored.
     /// </remarks>
-    public ImmutableMoneySet Add(Money value)
+    public ImmutableSortedMoneySet Add(Money value)
     {
         var currency = value.CurrencyOrDefault;
 
@@ -174,7 +174,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// <summary>
     /// Adds the specified currency and amount to this set and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet Add(decimal amount, string currencyCode)
+    public ImmutableSortedMoneySet Add(decimal amount, string currencyCode)
     {
         var currency = _registry[currencyCode];
         return AddInternal(currency, amount);
@@ -183,7 +183,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// <summary>
     /// Adds the specified currency and amount to this set and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet Add(decimal amount, Currency currency)
+    public ImmutableSortedMoneySet Add(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
         return AddInternal(currency, amount);
@@ -195,11 +195,11 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// <remarks>
     /// Default values that are not associated with any currency are ignored.
     /// </remarks>
-    public ImmutableMoneySet AddRange(IEnumerable<Money> values)
+    public ImmutableSortedMoneySet AddRange(IEnumerable<Money> values)
     {
         bool ensureCurrenciesInRegistry = values is not IReadOnlyMoneySet s || s.Registry != _registry;
         var newAmountLookup = AddRangeInternal(values, ensureCurrenciesInRegistry);
-        return new ImmutableMoneySet(_registry, newAmountLookup);
+        return new ImmutableSortedMoneySet(_registry, newAmountLookup);
     }
 
     /// <summary>
@@ -210,17 +210,17 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// <summary>
     /// Removes the value with the given currency code and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet Remove(string currencyCode)
+    public ImmutableSortedMoneySet Remove(string currencyCode)
     {
         var currency = _registry[currencyCode];
         var updatedLookup = _amountLookup.Remove(currency);
-        return updatedLookup == _amountLookup ? this : new ImmutableMoneySet(_registry, updatedLookup);
+        return updatedLookup == _amountLookup ? this : new ImmutableSortedMoneySet(_registry, updatedLookup);
     }
 
     /// <summary>
     /// Removes the value with the given currency and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet Remove(Currency currency)
+    public ImmutableSortedMoneySet Remove(Currency currency)
     {
         var updatedLookup = _amountLookup.Remove(currency);
 
@@ -230,13 +230,13 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
             return this;
         }
 
-        return new ImmutableMoneySet(_registry, updatedLookup);
+        return new ImmutableSortedMoneySet(_registry, updatedLookup);
     }
 
     /// <summary>
     /// Removes all the values from this set that match the specified currencies and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet RemoveAll(IEnumerable<Currency> currencies)
+    public ImmutableSortedMoneySet RemoveAll(IEnumerable<Currency> currencies)
     {
         ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
 
@@ -253,13 +253,13 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
             }
         }
 
-        return builder != null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
+        return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
     /// <summary>
     /// Removes all the values from this set that match the specified predicate and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet RemoveAll(Func<Money, bool> predicate)
+    public ImmutableSortedMoneySet RemoveAll(Func<Money, bool> predicate)
     {
         ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
 
@@ -272,28 +272,28 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
             }
         }
 
-        return builder != null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
+        return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
     /// <summary>
     /// Rounds each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using <see cref="MidpointRounding.ToEven"/> midpoint rounding
     /// (i.e. "banker's rounding") and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet RoundToCurrencyDigits() => RoundToCurrencyDigits(MidpointRounding.ToEven);
+    public ImmutableSortedMoneySet RoundToCurrencyDigits() => RoundToCurrencyDigits(MidpointRounding.ToEven);
 
     /// <summary>
     /// Rounts each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using the specified midpoint rounding mode and returns the resulting
     /// set.
     /// </summary>
-    public ImmutableMoneySet RoundToCurrencyDigits(MidpointRounding mode)
+    public ImmutableSortedMoneySet RoundToCurrencyDigits(MidpointRounding mode)
     {
         if (Count == 0)
             return this;
 
-        return new ImmutableMoneySet(_registry, this.Select(v => v.RoundToCurrencyDigits(mode)), false);
+        return new ImmutableSortedMoneySet(_registry, this.Select(v => v.RoundToCurrencyDigits(mode)), false);
     }
 
-    public ImmutableMoneySet SetValue(Money value)
+    public ImmutableSortedMoneySet SetValue(Money value)
     {
         var currency = value.CurrencyOrDefault;
 
@@ -303,19 +303,19 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
         return SetAmount(value.Amount, currency);
     }
 
-    public ImmutableMoneySet SetAmount(decimal amount, string currencyCode)
+    public ImmutableSortedMoneySet SetAmount(decimal amount, string currencyCode)
     {
         var currency = _registry[currencyCode];
         var updatedLookup = _amountLookup.SetItem(currency, amount);
-        return updatedLookup == _amountLookup ? this : new ImmutableMoneySet(_registry, updatedLookup);
+        return updatedLookup == _amountLookup ? this : new ImmutableSortedMoneySet(_registry, updatedLookup);
     }
 
-    public ImmutableMoneySet SetAmount(decimal amount, Currency currency)
+    public ImmutableSortedMoneySet SetAmount(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
 
         var updatedLookup = _amountLookup.SetItem(currency, amount);
-        return updatedLookup == _amountLookup ? this : new ImmutableMoneySet(_registry, updatedLookup);
+        return updatedLookup == _amountLookup ? this : new ImmutableSortedMoneySet(_registry, updatedLookup);
     }
 
     /// <summary>
@@ -324,17 +324,17 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// <remarks>
     /// Default values that are not associated with any currency are ignored.
     /// </remarks>
-    public ImmutableMoneySet Subtract(Money value) => Add(-value);
+    public ImmutableSortedMoneySet Subtract(Money value) => Add(-value);
 
     /// <summary>
     /// Subtracts the specified currency and amount from this set and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet Subtract(decimal amount, string currencyCode) => Add(-amount, currencyCode);
+    public ImmutableSortedMoneySet Subtract(decimal amount, string currencyCode) => Add(-amount, currencyCode);
 
     /// <summary>
     /// Adds the specified currency and amount to this set and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet Subtract(decimal amount, Currency currency)
+    public ImmutableSortedMoneySet Subtract(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
         return AddInternal(currency, amount);
@@ -346,39 +346,39 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// <remarks>
     /// Default values that are not associated with any currency are ignored.
     /// </remarks>
-    public ImmutableMoneySet SubtractRange(IEnumerable<Money> values)
+    public ImmutableSortedMoneySet SubtractRange(IEnumerable<Money> values)
     {
         bool ensureCurrenciesInRegistry = values is not IReadOnlyMoneySet s || s.Registry != _registry;
         var newAmountLookup = SubtractRangeInternal(values, ensureCurrenciesInRegistry);
-        return new ImmutableMoneySet(_registry, newAmountLookup);
+        return new ImmutableSortedMoneySet(_registry, newAmountLookup);
     }
 
     /// <summary>
     /// Applies the specified transformation to all the values in this set and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet TransformValues(Func<Money, Money> transform)
+    public ImmutableSortedMoneySet TransformValues(Func<Money, Money> transform)
     {
         if (Count == 0)
             return this;
 
-        return new ImmutableMoneySet(_registry, this.Select(transform));
+        return new ImmutableSortedMoneySet(_registry, this.Select(transform));
     }
 
     /// <summary>
     /// Applies the specified transformation to all the value amounts in this set and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet TransformAmounts(Func<decimal, decimal> transform)
+    public ImmutableSortedMoneySet TransformAmounts(Func<decimal, decimal> transform)
     {
         if (Count == 0)
             return this;
 
-        return new ImmutableMoneySet(_registry, _amountLookup.Select(kvp => new Money(transform(kvp.Value), kvp.Key)), false);
+        return new ImmutableSortedMoneySet(_registry, _amountLookup.Select(kvp => new Money(transform(kvp.Value), kvp.Key)), false);
     }
 
     /// <summary>
     /// Removes all zero amounts from this set and returns the resulting set.
     /// </summary>
-    public ImmutableMoneySet TrimZeroAmounts()
+    public ImmutableSortedMoneySet TrimZeroAmounts()
     {
         ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
 
@@ -391,13 +391,13 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
             }
         }
 
-        return builder == null ? this : new ImmutableMoneySet(_registry, builder.ToImmutable());
+        return builder == null ? this : new ImmutableSortedMoneySet(_registry, builder.ToImmutable());
     }
 
     /// <summary>
     /// Copies the values in this set to a new mutable set that uses the same registry as this set.
     /// </summary>
-    public MoneySet ToSet() => new(_registry, this, false);
+    public SortedMoneySet ToSet() => new(_registry, this, false);
 
     /// <summary>
     /// Returns a string representation of the money values this set contains.
@@ -462,7 +462,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
         return false;
     }
 
-    private ImmutableMoneySet AddInternal(Currency currency, decimal amount)
+    private ImmutableSortedMoneySet AddInternal(Currency currency, decimal amount)
     {
         ImmutableSortedDictionary<Currency, decimal> amountLookup;
 
@@ -480,7 +480,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
             amountLookup = _amountLookup.Add(currency, amount);
         }
 
-        return amountLookup == null ? this : new ImmutableMoneySet(_registry, amountLookup);
+        return amountLookup == null ? this : new ImmutableSortedMoneySet(_registry, amountLookup);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -569,7 +569,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// Determines whether the specified set is equal to this set. Immutable money sets compare by their values, and the <see cref="Registry"/> must also match
     /// in order for the sets to be considered equal.
     /// </summary>
-    public bool Equals(ImmutableMoneySet? other)
+    public bool Equals(ImmutableSortedMoneySet? other)
     {
         if (other == null)
             return false;
@@ -601,7 +601,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     /// Determines whether the specified object is equal to this set. Immutable money sets compare by their values, and the <see cref="Registry"/> must also
     /// match in order for the sets to be considered equal.
     /// </summary>
-    public override bool Equals(object? obj) => Equals(obj as ImmutableMoneySet);
+    public override bool Equals(object? obj) => Equals(obj as ImmutableSortedMoneySet);
 
     /// <inheritdoc cref="object.GetHashCode"/>
     public override int GetHashCode()
@@ -634,7 +634,7 @@ public sealed class ImmutableMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableM
     #endregion
 
     /// <summary>
-    /// Enumerates the elements of a <see cref="ImmutableMoneySet"/>.
+    /// Enumerates the elements of a <see cref="ImmutableSortedMoneySet"/>.
     /// </summary>
     public struct Enumerator : IEnumerator<Money>
     {
