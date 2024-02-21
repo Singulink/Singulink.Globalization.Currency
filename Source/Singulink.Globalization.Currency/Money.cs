@@ -245,8 +245,8 @@ public readonly struct Money : IFormattable, IComparable<Money>, IEquatable<Mone
     /// <para>The default currency format if no format string is provided is <c>"C"</c> (culture-dependent international).</para>
     /// <para>Number format specifier (required):</para>
     /// <list type="bullet">
-    ///   <item><term>"N"</term><description>Number with group seperators</description></item>
-    ///   <item><term>"D"</term><description>Digits with no seperators</description></item>
+    ///   <item><term>"N"</term><description>Number with group separators</description></item>
+    ///   <item><term>"D"</term><description>Digits with no separators</description></item>
     /// </list>
     /// <para>The default number format if no format string is provided is <c>"N"</c> (with group separators).</para>
     /// <para>Decimals format specifier (optional):</para>
@@ -438,19 +438,19 @@ public readonly struct Money : IFormattable, IComparable<Money>, IEquatable<Mone
                 switch (c)
                 {
                     case 'n':
-                        Append(ref buffer, number);
+                        Append(ref remaining, number);
                         break;
                     case '$':
-                        Append(ref buffer, currencySymbol);
+                        Append(ref remaining, currencySymbol);
                         break;
                     case '-':
-                        Append(ref buffer, negativeSign);
+                        Append(ref remaining, negativeSign);
                         break;
                     case ' ':
-                        AppendChar(ref buffer, '\u00A0');
+                        AppendChar(ref remaining, '\u00A0');
                         break;
                     default:
-                        AppendChar(ref buffer, c);
+                        AppendChar(ref remaining, c);
                         break;
                 }
             }
