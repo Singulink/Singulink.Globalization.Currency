@@ -93,8 +93,7 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(Currency, out decimal)"/>
     public bool TryGetAmount(Currency currency, out decimal amount)
     {
-        // TODO: Implement this
-        throw new NotImplementedException();
+        return _amountLookup.TryGetValue(currency, out amount);
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(Currency, out Money)"/>
@@ -143,8 +142,8 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
 
     public bool TryGetAmount(string currencyCode, out decimal amount)
     {
-        // TODO: Implement this
-        throw new NotImplementedException();
+        var currency = _registry[currencyCode];
+        return _amountLookup.TryGetValue(currency, out amount);
     }
 
     public IEnumerator<Money> GetEnumerator()

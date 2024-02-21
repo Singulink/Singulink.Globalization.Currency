@@ -1,10 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Singulink.Globalization;
 
@@ -455,7 +451,6 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
         {
             value = new Money(amount, currency);
             return true;
-
         }
 
         value = default;
@@ -552,6 +547,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
 
         return builder != null ? builder.ToImmutable() : _amountLookup;
     }
+
     private void EnsureCurrencyAllowed(Currency currency, string paramName)
     {
         if (!_registry.Contains(currency))
@@ -627,10 +623,9 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
 
     public bool TryGetAmount(string currencyCode, out decimal amount)
     {
-        // TODO: Implement TryGetAmount
-        throw new NotImplementedException();
+        var currency = _registry[currencyCode];
+        return _amountLookup.TryGetValue(currency, out amount);
     }
-
     #endregion
 
     /// <summary>
