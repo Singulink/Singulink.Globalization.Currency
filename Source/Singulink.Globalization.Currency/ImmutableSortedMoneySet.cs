@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Singulink.Globalization;
 
@@ -409,15 +410,54 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
     /// instance for formats that depend on the culture, otherwise the current culture is used.</param>
     public string ToString(string? format, IFormatProvider? formatProvider = null)
     {
-        IEnumerable<Money> values = this;
+        bool ignoreZeroAmounts;
+        int count;
 
         if (format != null && format.StartsWith('!'))
         {
             format = format[1..];
-            values = values.Where(v => v.Amount != 0);
+            ignoreZeroAmounts = true;
+            count = GetNonZeroCount();
+        }
+        else
+        {
+            ignoreZeroAmounts = false;
+            count = Count;
         }
 
-        return Count == 0 ? string.Empty : string.Join(", ", this.Select(v => v.ToString(format, formatProvider)));
+        if (count == 0)
+            return string.Empty;
+
+        var sb = new StringBuilder(count * 8);
+        bool first = true;
+
+        foreach (var value in this)
+        {
+            if (ignoreZeroAmounts && value.Amount == 0)
+                continue;
+
+            if (first)
+                first = false;
+            else
+                sb.Append(", ");
+
+            sb.Append(value.ToString(format, formatProvider));
+        }
+
+        return sb.ToString();
+
+        int GetNonZeroCount()
+        {
+            int count = 0;
+
+            foreach (var amount in _amountLookup.Values)
+            {
+                if (amount != 0)
+                    count++;
+            }
+
+            return count;
+        }
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(Currency, out decimal)"/>
