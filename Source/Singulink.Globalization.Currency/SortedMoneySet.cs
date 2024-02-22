@@ -99,15 +99,23 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(Currency, out Money)"/>
     public bool TryGetValue(Currency currency, out Money value)
     {
-        // TODO: Implement this
-        throw new NotImplementedException();
+        EnsureCurrencyAllowed(currency, nameof(currency));
+
+        if (_amountLookup.TryGetValue(currency, out decimal amount))
+        {
+            value = new Money(amount, currency);
+            return true;
+        }
+
+        value = default;
+        return false;
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(string, out Money)"/>
     public bool TryGetValue(string currencyCode, out Money value)
     {
-        // TODO: Implement this
-        throw new NotImplementedException();
+          var currency = _registry[currencyCode];
+          return TryGetValue(currency, out value);
     }
 
     private void AddRangeInternal(IEnumerable<Money> values, bool ensureCurrenciesInRegistry)
