@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections;
 using System.Text;
 
 namespace Singulink.Globalization;
@@ -114,8 +111,8 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(string, out Money)"/>
     public bool TryGetValue(string currencyCode, out Money value)
     {
-          var currency = _registry[currencyCode];
-          return TryGetValue(currency, out value);
+        var currency = _registry[currencyCode];
+        return TryGetValue(currency, out value);
     }
 
     private void AddRangeInternal(IEnumerable<Money> values, bool ensureCurrenciesInRegistry)
@@ -166,10 +163,63 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
         throw new NotImplementedException();
     }
 
-    public string ToString(string? format, IFormatProvider? formatProvider)
+    /// <summary>
+    /// Returns a string representation of the money values this set contains.
+    /// </summary>
+    /// <param name="format">The format to use for each money value. See <see cref="Money.ToString(string?, IFormatProvider?)"/> for valid money formats.
+    /// Prepend the format with the <c>"!"</c> character to ignore zero amount values.</param>
+    /// <param name="formatProvider">The format provider that will be used to obtain number format information. This should be a <see cref="CultureInfo"/>
+    /// instance for formats that depend on the culture, otherwise the current culture is used.</param>
+    public string ToString(string? format, IFormatProvider? formatProvider = null)
     {
-        // TODO: Implement this
-        throw new NotImplementedException();
+        bool ignoreZeroAmounts;
+        int count;
+
+        if (format != null && format.StartsWith('!'))
+        {
+            format = format[1..];
+            ignoreZeroAmounts = true;
+            count = GetNonZeroCount();
+        }
+        else
+        {
+            ignoreZeroAmounts = false;
+            count = Count;
+        }
+
+        if (count == 0)
+            return string.Empty;
+
+        var sb = new StringBuilder(count * 8);
+        bool first = true;
+
+        foreach (var value in this)
+        {
+            if (ignoreZeroAmounts && value.Amount == 0)
+                continue;
+
+            if (first)
+                first = false;
+            else
+                sb.Append(", ");
+
+            sb.Append(value.ToString(format, formatProvider));
+        }
+
+        return sb.ToString();
+
+        int GetNonZeroCount()
+        {
+            int count = 0;
+
+            foreach (var amount in _amountLookup.Values)
+            {
+                if (amount != 0)
+                    count++;
+            }
+
+            return count;
+        }
     }
 
     #region Explicit Interface Implementations
