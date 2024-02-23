@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Immutable;
 using System.Text;
 
 namespace Singulink.Globalization;
@@ -151,18 +152,6 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
         return _amountLookup.TryGetValue(currency, out amount);
     }
 
-    public IEnumerator<Money> GetEnumerator()
-    {
-        // TODO: Implement this
-        throw new NotImplementedException();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        // TODO: Implement this
-        throw new NotImplementedException();
-    }
-
     /// <summary>
     /// Returns a string representation of the money values this set contains.
     /// </summary>
@@ -227,5 +216,52 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <inheritdoc cref="IReadOnlyMoneySet.Currencies"/>
     IEnumerable<Currency> IReadOnlyMoneySet.Currencies => Currencies;
 
+    /// <inheritdoc cref="GetEnumerator"/>
+    IEnumerator<Money> IEnumerable<Money>.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc cref="GetEnumerator"/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     #endregion
+
+    /// <summary>
+    /// Returns an enumerator that iterates through the values in this set.
+    /// </summary>
+    public Enumerator GetEnumerator() => new(_amountLookup);
+
+    /// <summary>
+    /// Enumerates the elements of a <see cref="SortedMoneySet"/>.
+    /// </summary>
+    public struct Enumerator : IEnumerator<Money>
+    {
+        private SortedDictionary<Currency, decimal>.Enumerator _amountLookupEnumerator;
+
+        /// <summary>
+        /// Gets the element at the current position of the enumerator.
+        /// </summary>
+        public Money Current => new(_amountLookupEnumerator.Current.Value, _amountLookupEnumerator.Current.Key);
+
+        /// <inheritdoc cref="Current"/>
+        object? IEnumerator.Current => Current;
+
+        internal Enumerator(SortedDictionary<Currency, decimal> amountLookup)
+        {
+            _amountLookupEnumerator = amountLookup.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Releases all the resources used by the enumerator.
+        /// </summary>
+        public void Dispose() => _amountLookupEnumerator.Dispose();
+
+        /// <summary>
+        /// Advances the enumerator to the next element.
+        /// </summary>
+        public bool MoveNext() => _amountLookupEnumerator.MoveNext();
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        /// <exception cref="NotSupportedException">This operation is not supported.</exception>
+        void IEnumerator.Reset() => throw new NotSupportedException();
+    }
 }
