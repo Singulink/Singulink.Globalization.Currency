@@ -165,7 +165,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
             return this;
 
         EnsureCurrencyAllowed(currency, nameof(value));
-        return AddInternal(currency, value.Amount);
+        return AddInternal(value.Amount, currency);
     }
 
     /// <summary>
@@ -174,7 +174,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
     public ImmutableSortedMoneySet Add(decimal amount, string currencyCode)
     {
         var currency = _registry[currencyCode];
-        return AddInternal(currency, amount);
+        return AddInternal(amount, currency);
     }
 
     /// <summary>
@@ -183,7 +183,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
     public ImmutableSortedMoneySet Add(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
-        return AddInternal(currency, amount);
+        return AddInternal(amount, currency);
     }
 
     /// <summary>
@@ -334,7 +334,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
     public ImmutableSortedMoneySet Subtract(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
-        return AddInternal(currency, amount);
+        return AddInternal(amount, currency);
     }
 
     /// <summary>
@@ -497,7 +497,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
         return false;
     }
 
-    private ImmutableSortedMoneySet AddInternal(Currency currency, decimal amount)
+    private ImmutableSortedMoneySet AddInternal(decimal amount, Currency currency)
     {
         ImmutableSortedDictionary<Currency, decimal> amountLookup;
 

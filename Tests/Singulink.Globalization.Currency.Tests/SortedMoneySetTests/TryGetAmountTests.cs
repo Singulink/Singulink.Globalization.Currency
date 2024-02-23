@@ -10,18 +10,18 @@ public class TryGetAmountTests
     [TestMethod]
     public void TryGetAmount_AmountExists_ReturnsTrue()
     {
-         _usd100Set.ToSet().TryGetAmount("USD", out var result).ShouldBeTrue();
+         _usd100Set.ToSet().TryGetAmount("USD", out decimal result).ShouldBeTrue();
     }
 
     [TestMethod]
     public void TryGetAmount_AmountDoesNotExist_ReturnsFalse()
     {
-         _usd100Set.ToSet().TryGetAmount("EUR", out var result).ShouldBeFalse();
+         _usd100Set.ToSet().TryGetAmount("EUR", out decimal result).ShouldBeFalse();
     }
 
     [TestMethod]
     public void TryGetAmount_CurrencyDoesNotExist_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => _usd100Set.ToSet().TryGetAmount("AAA", out var result));
+        Should.Throw<ArgumentException>(() => _usd100Set.ToSet().TryGetAmount("AAA", out decimal result));
     }
 }

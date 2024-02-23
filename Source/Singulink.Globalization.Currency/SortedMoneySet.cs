@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Immutable;
 using System.Text;
 
 namespace Singulink.Globalization;
@@ -56,6 +55,98 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
 
     /// <inheritdoc cref="IReadOnlyMoneySet.Currencies"/>
     public IReadOnlyCollection<Currency> Currencies => _amountLookup.Keys;
+
+    /// <summary>
+    /// Adds the specified value to this set.
+    /// </summary>
+    /// <remarks>
+    /// Default values that are not associated with any currency are ignored.
+    /// </remarks>
+    public void Add(Money value)
+    {
+        var currency = value.CurrencyOrDefault;
+
+        if (currency == null)
+            return;
+
+        EnsureCurrencyAllowed(currency, nameof(value));
+        AddInternal(value.Amount, currency);
+    }
+
+    /// <summary>
+    /// Adds the specified currency and amount to this set.
+    /// </summary>
+    public void Add(decimal amount, string currencyCode)
+    {
+        var currency = _registry[currencyCode];
+        AddInternal(amount, currency);
+    }
+
+    /// <summary>
+    /// Adds the specified currency and amount to this set.
+    /// </summary>
+    public void Add(decimal amount, Currency currency)
+    {
+        EnsureCurrencyAllowed(currency, nameof(currency));
+        AddInternal(amount, currency);
+    }
+
+    /// <summary>
+    /// Adds the specified values to this set.
+    /// </summary>
+    /// <remarks>
+    /// Default values that are not associated with any currency are ignored.
+    /// </remarks>
+    public void AddRange(IEnumerable<Money> values)
+    {
+        bool ensureCurrenciesInRegistry = values is not IReadOnlyMoneySet s || s.Registry != _registry;
+        AddRangeInternal(values, ensureCurrenciesInRegistry);
+    }
+
+    /// <summary>
+    /// Returns an enumerator that iterates through the values in this set.
+    /// </summary>
+    public Enumerator GetEnumerator() => new(_amountLookup);
+
+    /// <summary>
+    /// Removes the value with the given currency code.
+    /// </summary>
+    public bool Remove(string currencyCode)
+    {
+        var currency = _registry[currencyCode];
+        return _amountLookup.Remove(currency);
+    }
+
+    /// <summary>
+    /// Removes the value with the given currency.
+    /// </summary>
+    public bool Remove(Currency currency)
+    {
+        bool removed = _amountLookup.Remove(currency);
+
+        if (!removed)
+        {
+            EnsureCurrencyAllowed(currency, nameof(currency));
+        }
+
+        return removed;
+    }
+
+    /// <summary>
+    /// Removes all the values from this set that match the specified currencies.
+    /// </summary>
+    public int RemoveAll(IEnumerable<Currency> currencies)
+    {
+        int count = 0;
+
+        foreach (var currency in currencies)
+        {
+            if (Remove(currency))
+                count++;
+        }
+
+        return count;
+    }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.this[string]"/>
     public Money this[string currencyCode]
@@ -114,6 +205,17 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     {
         var currency = _registry[currencyCode];
         return TryGetValue(currency, out value);
+    }
+    private void AddInternal(decimal amount, Currency currency)
+    {
+        if (_amountLookup.TryGetValue(currency, out decimal existingAmount))
+        {
+            _amountLookup[currency] = existingAmount + amount;
+        }
+        else
+        {
+            _amountLookup[currency] = amount;
+        }
     }
 
     private void AddRangeInternal(IEnumerable<Money> values, bool ensureCurrenciesInRegistry)
@@ -222,11 +324,6 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <inheritdoc cref="GetEnumerator"/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     #endregion
-
-    /// <summary>
-    /// Returns an enumerator that iterates through the values in this set.
-    /// </summary>
-    public Enumerator GetEnumerator() => new(_amountLookup);
 
     /// <summary>
     /// Enumerates the elements of a <see cref="SortedMoneySet"/>.
