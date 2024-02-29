@@ -5,23 +5,27 @@ namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 [TestClass]
 public class TryGetAmountTests
 {
-    private readonly ImmutableSortedMoneySet _usd100Set = new(new[] { new Money(100m, "USD") });
+    private static readonly Money _usd100 = new(100m, "USD");
+    private static readonly Money _cad50 = new(50m, "CAD");
+    private static readonly Money _eur25 = new(25m, "EUR");
+    private static readonly ImmutableSortedMoneySet _set = new(_usd100, _cad50, _eur25);
+    private readonly SortedMoneySet _sortedSet = _set.ToSet();
 
     [TestMethod]
     public void TryGetAmount_AmountExists_ReturnsTrue()
     {
-         _usd100Set.ToSet().TryGetAmount("USD", out decimal result).ShouldBeTrue();
+        _sortedSet.TryGetAmount("USD", out decimal result).ShouldBeTrue();
     }
 
     [TestMethod]
     public void TryGetAmount_AmountDoesNotExist_ReturnsFalse()
     {
-         _usd100Set.ToSet().TryGetAmount("EUR", out decimal result).ShouldBeFalse();
+        _sortedSet.TryGetAmount("GBP", out decimal result).ShouldBeFalse();
     }
 
     [TestMethod]
     public void TryGetAmount_CurrencyDoesNotExist_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => _usd100Set.ToSet().TryGetAmount("AAA", out decimal result));
+        Should.Throw<ArgumentException>(() => _sortedSet.TryGetAmount("AAA", out decimal result));
     }
 }

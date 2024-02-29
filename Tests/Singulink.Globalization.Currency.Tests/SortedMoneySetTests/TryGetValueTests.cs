@@ -8,7 +8,6 @@ public class TryGetValueTests
     private static readonly Money _usd100 = new Money(100m, "USD");
     private static readonly Money _eur50 = new Money(50m, "EUR");
     private static readonly Money _cad25 = new Money(25m, "CAD");
-
     private static readonly ImmutableSortedMoneySet _moneySetValues = new(_usd100, _eur50, _cad25);
 
     [TestMethod]
