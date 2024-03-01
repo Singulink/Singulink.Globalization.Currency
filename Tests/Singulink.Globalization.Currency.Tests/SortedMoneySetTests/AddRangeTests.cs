@@ -12,7 +12,7 @@ public class AddRangeTests
     private readonly SortedMoneySet _set = _immutableSet.ToSet();
 
     [TestMethod]
-    public void AddRange_AllCurrenciesExistInTheSet_IsSuccessful()
+    public void AllCurrenciesExistInTheSet_IsSuccessful()
     {
         _set.AddRange([_usd100, _cad50, _eur25]);
         _set.Count.ShouldBe(3);
@@ -20,7 +20,7 @@ public class AddRangeTests
     }
 
     [TestMethod]
-    public void AddRange_SomeCurrenciesDoNotExistInTheSet_IsSuccessful()
+    public void SomeCurrenciesDoNotExistInTheSet_IsSuccessful()
     {
         _set.AddRange([new(100m, "USD"), new(50m, "JPY"), new(25m, "CHF")]);
         _set.Count.ShouldBe(5);
@@ -28,7 +28,7 @@ public class AddRangeTests
     }
 
     [TestMethod]
-    public void AddRange_NoCurrencyExistsInTheSet_IsSuccessful()
+    public void NoCurrencyExistsInTheSet_IsSuccessful()
     {
         _set.AddRange([new(100m, "GBP"), new(50m, "JPY"), new(25m, "CHF")]);
         _set.Count.ShouldBe(6);
@@ -36,7 +36,7 @@ public class AddRangeTests
     }
 
     [TestMethod]
-    public void AddRange_EmptyCollection_NoChange()
+    public void EmptyCollection_NoChange()
     {
         _set.AddRange(new List<Money>());
         _set.Count.ShouldBe(3);
@@ -44,13 +44,13 @@ public class AddRangeTests
     }
 
     [TestMethod]
-    public void AddRange_InexistentCurrency_ThrowsArgumentException()
+    public void InexistentCurrency_ThrowsArgumentException()
     {
         Should.Throw<ArgumentException>(() => _set.AddRange([new(100m, "USD"), new(50m, "CAD"), new(25m, "EUR"), new(25m, "XXX")]));
     }
 
     [TestMethod]
-    public void AddRange_InexistentCurrencies_ThrowsArgumentException()
+    public void InexistentCurrencies_ThrowsArgumentException()
     {
         Should.Throw<ArgumentException>(() => _set.AddRange([new(100m, "USD"), new(25m, "XXX"), new(25m, "YYY")]));
     }

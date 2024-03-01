@@ -12,19 +12,26 @@ public class TryGetAmountTests
     private readonly SortedMoneySet _set = _immutableSet.ToSet();
 
     [TestMethod]
-    public void TryGetAmount_AmountExists_ReturnsTrue()
+    public void AmountExists_ReturnsTrue()
     {
         _set.TryGetAmount("USD", out decimal result).ShouldBeTrue();
+        result.ShouldBe(100m);
+
+        _set.TryGetAmount("CAD", out result).ShouldBeTrue();
+        result.ShouldBe(50m);
+
+        _set.TryGetAmount("EUR", out result).ShouldBeTrue();
+        result.ShouldBe(25m);
     }
 
     [TestMethod]
-    public void TryGetAmount_AmountDoesNotExist_ReturnsFalse()
+    public void AmountDoesNotExist_ReturnsFalse()
     {
         _set.TryGetAmount("GBP", out decimal result).ShouldBeFalse();
     }
 
     [TestMethod]
-    public void TryGetAmount_CurrencyDoesNotExist_ThrowsArgumentException()
+    public void CurrencyDoesNotExist_ThrowsArgumentException()
     {
         Should.Throw<ArgumentException>(() => _set.TryGetAmount("AAA", out decimal result));
     }
