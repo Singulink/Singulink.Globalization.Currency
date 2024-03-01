@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shouldly;
+﻿using Shouldly;
 
 namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
@@ -13,7 +12,7 @@ public class RemoveAllTests
     private readonly SortedMoneySet _set = _immutableSet.ToSet();
 
     [TestMethod]
-    public void RemoveAll_AllExistingCurrenciesFromSet_IsSuccessful()
+    public void AllExistingCurrenciesFromSet_IsSuccessful()
     {
         var currencyList = new List<Currency> { _usd100.Currency, _cad50.Currency, _eur25.Currency };
         int removedValuesCount = _set.RemoveAll(currencyList);
@@ -22,7 +21,7 @@ public class RemoveAllTests
     }
 
     [TestMethod]
-    public void RemoveAll_SomeExistingCurrenciesFromSet_IsSuccessful()
+    public void SomeExistingCurrenciesFromSet_IsSuccessful()
     {
         var currencyList = new List<Currency> { _usd100.Currency, _cad50.Currency};
         int removedValuesCount = _set.RemoveAll(currencyList);
@@ -32,7 +31,7 @@ public class RemoveAllTests
     }
 
     [TestMethod]
-    public void RemoveAll_NoExistingCurrenciesFromSet_IsSuccessful()
+    public void NoExistingCurrenciesFromSet_IsSuccessful()
     {
         var currencyList = new List<Currency> { Currency.Get("JPY"), Currency.Get("GBP") };
         int removedValuesCount = _set.RemoveAll(currencyList);
@@ -42,7 +41,7 @@ public class RemoveAllTests
     }
 
     [TestMethod]
-    public void RemoveAll_EmptyCollection_NoChange()
+    public void EmptyCollection_NoChange()
     {
         int removedValuesCount = _set.RemoveAll(new List<Currency>());
         removedValuesCount.ShouldBe(0);
@@ -51,7 +50,7 @@ public class RemoveAllTests
     }
 
     [TestMethod]
-    public void RemoveAll_InexistentCurrency_RemovesExistingAndIgnoresInexistent()
+    public void InexistentCurrency_RemovesExistingAndIgnoresInexistent()
     {
         var nonExistentCurrency = new Currency("XXX", "Non-existent currency", "X", 2);
         var currencyList = new List<Currency> { _usd100.Currency, _cad50.Currency, nonExistentCurrency };
@@ -59,7 +58,7 @@ public class RemoveAllTests
     }
 
     [TestMethod]
-    public void RemoveAll_InexistentCurrencies_ThrowsArgumentException()
+    public void InexistentCurrencies_ThrowsArgumentException()
     {
         var nonExistentCurrencyX = new Currency("XXX", "Non-existent currency", "X", 2);
         var nonExistentCurrencyY = new Currency("XXX", "Non-existent currency", "X", 2);

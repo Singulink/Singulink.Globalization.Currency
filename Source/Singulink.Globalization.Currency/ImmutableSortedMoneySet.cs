@@ -467,6 +467,12 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
         return _amountLookup.TryGetValue(currency, out amount);
     }
 
+    public bool TryGetAmount(string currencyCode, out decimal amount)
+    {
+        var currency = _registry[currencyCode];
+        return _amountLookup.TryGetValue(currency, out amount);
+    }
+
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(string, out Money)"/>
     public bool TryGetValue(string currencyCode, out Money value)
     {
@@ -661,11 +667,6 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
     /// <inheritdoc cref="GetEnumerator"/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public bool TryGetAmount(string currencyCode, out decimal amount)
-    {
-        var currency = _registry[currencyCode];
-        return _amountLookup.TryGetValue(currency, out amount);
-    }
     #endregion
 
     /// <summary>

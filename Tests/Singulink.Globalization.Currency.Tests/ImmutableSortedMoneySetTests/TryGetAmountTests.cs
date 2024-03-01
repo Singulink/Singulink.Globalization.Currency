@@ -12,19 +12,19 @@ public class TryGetAmountTests
     private readonly SortedMoneySet _sortedSet = _set.ToSet();
 
     [TestMethod]
-    public void TryGetAmount_AmountExists_ReturnsTrue()
+    public void AmountExists_ReturnsTrue()
     {
         _sortedSet.TryGetAmount("USD", out decimal result).ShouldBeTrue();
     }
 
     [TestMethod]
-    public void TryGetAmount_AmountDoesNotExist_ReturnsFalse()
+    public void AmountDoesNotExist_ReturnsFalse()
     {
         _sortedSet.TryGetAmount("GBP", out decimal result).ShouldBeFalse();
     }
 
     [TestMethod]
-    public void TryGetAmount_CurrencyDoesNotExist_ThrowsArgumentException()
+    public void CurrencyDoesNotExist_ThrowsArgumentException()
     {
         Should.Throw<ArgumentException>(() => _sortedSet.TryGetAmount("AAA", out decimal result));
     }
