@@ -303,6 +303,8 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
 
     private void AddRangeInternal(IEnumerable<Money> values, bool ensureCurrenciesInRegistry)
     {
+        List<Currency> disallowedCurrencies = null;
+
         foreach (var value in values)
         {
             var currency = value.CurrencyOrDefault;
@@ -310,14 +312,21 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
             if (currency == null)
                 continue;
 
-            if (ensureCurrenciesInRegistry)
-                EnsureCurrencyAllowed(currency, nameof(values));
+            if (ensureCurrenciesInRegistry && !_registry.Contains(currency))
+            {
+                disallowedCurrencies ??= new();
+                disallowedCurrencies.Add(currency);
+                continue;
+            }
 
             if (_amountLookup.TryGetValue(currency, out decimal existingAmount))
                 _amountLookup[currency] = existingAmount + value.Amount;
             else
                 _amountLookup.Add(currency, value.Amount);
         }
+
+        if (disallowedCurrencies != null)
+            throw new ArgumentException($"The following currencies are not present in the set's currency registry:{Environment.NewLine}{string.Join(Environment.NewLine, disallowedCurrencies)}");
     }
 
     private void EnsureCurrencyAllowed(Currency currency, string paramName)
