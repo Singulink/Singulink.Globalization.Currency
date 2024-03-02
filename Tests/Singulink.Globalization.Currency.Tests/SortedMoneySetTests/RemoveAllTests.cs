@@ -29,7 +29,7 @@ public class RemoveAllTests
         int removedValuesCount = _set.RemoveAll(currencyList);
         removedValuesCount.ShouldBe(2);
         _set.Count.ShouldBe(1);
-        _set.ShouldBe(new[] { _eur25 });
+        _set.ShouldBe([_eur25]);
     }
 
     [TestMethod]
@@ -60,7 +60,7 @@ public class RemoveAllTests
         Should.Throw<ArgumentException>(() => _set.RemoveAll(currencyList))
             .Message.ShouldBe($"The following currencies are not present in the set's currency registry: {disallowedCurrency} (Parameter 'currencies')");
         _set.Count.ShouldBe(1);
-        _set.ShouldBe(new[] { _eur25 });
+        _set.ShouldBe([_eur25]);
     }
 
     [TestMethod]
@@ -73,7 +73,7 @@ public class RemoveAllTests
         Should.Throw<ArgumentException>(() => _set.RemoveAll(currencyList))
             .Message.ShouldBe($"The following currencies are not present in the set's currency registry: {disallowedCurrencyX}, {disallowedCurrencyY} (Parameter 'currencies')");
         _set.Count.ShouldBe(1);
-        _set.ShouldBe(new[] { _eur25 });
+        _set.ShouldBe([_eur25]);
     }
 
     // public SortedMoneySet RemoveAll(Func<Money, bool> predicate) tests
@@ -83,6 +83,14 @@ public class RemoveAllTests
     {
         _set.RemoveAll(m => m.Amount > 30);
         _set.Count.ShouldBe(1);
-        _set.ShouldBe(new[] { _eur25 });
+        _set.ShouldBe([_eur25]);
+    }
+
+    [TestMethod]
+    public void RemoveAllByPredicate_NoMatch_NoChange()
+    {
+        _set.RemoveAll(m => m.Amount > 100);
+        _set.Count.ShouldBe(3);
+        _set.ShouldBe(_immutableSet);
     }
 }
