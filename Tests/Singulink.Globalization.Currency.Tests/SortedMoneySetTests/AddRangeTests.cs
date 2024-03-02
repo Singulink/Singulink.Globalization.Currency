@@ -44,30 +44,27 @@ public class AddRangeTests
     }
 
     [TestMethod]
-    public void InexistentCurrency_ThrowsArgumentException()
+    public void NonExistentCurrency_ThrowsArgumentException()
     {
-        var disallowedCurrency = new Currency("Inexistent Currency", "XXX", "X", 2);
-        List<Money> values = [new(100m, "USD"), new Money(100m, disallowedCurrency), new(50m, "CAD"), new(25m, "EUR")];
+        var disallowedCurrency = new Currency("Disallowed Currency", "XXX", "X", 2);
+        List<Money> values = [new(100m, "USD"), new Money(100m, disallowedCurrency), new Money(100m, disallowedCurrency), new(50m, "CAD"), new(25m, "EUR")];
 
         Should.Throw<ArgumentException>(() => _set.AddRange(values))
-            .Message.ShouldBe($"The following currencies are not present in the set's currency registry:{Environment.NewLine}" +
-                $"{disallowedCurrency}");
+            .Message.ShouldBe($"The following currencies are not present in the set's currency registry: {disallowedCurrency} (Parameter 'values')");
         _set.Count.ShouldBe(3);
         _set.ShouldBe([new(200m, "USD"), new(100m, "CAD"), new(50m, "EUR")]);
     }
 
     [TestMethod]
-    public void InexistentCurrencies_ThrowsArgumentException()
+    public void NonExistentCurrencies_ThrowsArgumentException()
     {
-        var disallowedCurrencyX = new Currency("Inexistent Currency", "XXX", "X", 2);
-        var disallowedCurrencyY = new Currency("Inexistent Currency2", "YYY", "Y", 2);
-        List<Money> values = [new(100m, "USD"), new Money(100m, disallowedCurrencyX), new(50m, "CAD"), new Money(100m, disallowedCurrencyY), new(25m, "EUR")];
+        var disallowedCurrencyX = new Currency("Disallowed Currency", "XXX", "X", 2);
+        var disallowedCurrencyY = new Currency("Disallowed Currency2", "YYY", "Y", 2);
+        List<Money> values = [new(100m, "USD"), new Money(100m, disallowedCurrencyX), new Money(100m, disallowedCurrencyX), new(50m, "CAD"),
+            new Money(100m, disallowedCurrencyY), new Money(100m, disallowedCurrencyY), new(25m, "EUR")];
 
         Should.Throw<ArgumentException>(() => _set.AddRange(values))
-            .Message.ShouldBe($"The following currencies are not present in the set's currency registry:{Environment.NewLine}" +
-                $"{disallowedCurrencyX}{Environment.NewLine}" +
-                $"{disallowedCurrencyY}");
-
+            .Message.ShouldBe($"The following currencies are not present in the set's currency registry: {disallowedCurrencyX}, {disallowedCurrencyY} (Parameter 'values')");
         _set.Count.ShouldBe(3);
         _set.ShouldBe([new(200m, "USD"), new(100m, "CAD"), new(50m, "EUR")]);
     }
