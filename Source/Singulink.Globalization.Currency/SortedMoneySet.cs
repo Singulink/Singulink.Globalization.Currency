@@ -133,6 +133,8 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// </summary>
     /// <remarks>
     /// Default values that are not associated with any currency are ignored.
+    /// If any of the specified currencies are not present in the set's currency registry, an exception will be thrown.
+    /// However, all valid currencies will be added prior to the exception being thrown.
     /// </remarks>
     public void AddRange(IEnumerable<Money> values)
     {
@@ -172,17 +174,58 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <summary>
     /// Removes all the values from this set that match the specified currencies.
     /// </summary>
+    /// <remarks>
+    /// If any of the specified currencies are not present in the set's currency registry, an exception will be thrown.
+    /// However, all valid currencies will be removed prior to the exception being thrown.
+    /// </remarks>
+    /// <exception cref="ArgumentException">"The following currencies are not present in the set's currency registry.".</exception>
     public int RemoveAll(IEnumerable<Currency> currencies)
     {
         int count = 0;
+        List<Currency> disallowedCurrencies = null;
 
         foreach (var currency in currencies)
         {
+            if (!_registry.Contains(currency))
+            {
+                disallowedCurrencies ??= new();
+                disallowedCurrencies.Add(currency);
+                continue;
+            }
+
             if (Remove(currency))
                 count++;
         }
 
+        if (disallowedCurrencies != null)
+            ThrowCurrenciesDisallowed(disallowedCurrencies, nameof(currencies));
+
         return count;
+    }
+
+    /// <summary>
+    /// Removes all the values from this set that match the specified predicate and returns the resulting set.
+    /// </summary>
+    public SortedMoneySet RemoveAll(Func<Money, bool> predicate)
+    {
+        var newAmountLookup = new SortedDictionary<Currency, decimal>(_amountLookup);
+
+        foreach (var kvp in _amountLookup)
+        {
+            var money = new Money(kvp.Value, kvp.Key);
+            if (predicate(money))
+            {
+                newAmountLookup.Remove(kvp.Key);
+            }
+        }
+
+        var moneyList = new List<Money>();
+        foreach (var kvp in newAmountLookup)
+        {
+            moneyList.Add(new Money(kvp.Value, kvp.Key));
+        }
+
+        return new SortedMoneySet(_registry, moneyList);
     }
 
     /// <summary>
@@ -326,7 +369,7 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
         }
 
         if (disallowedCurrencies != null)
-            throw new ArgumentException($"The following currencies are not present in the set's currency registry:{Environment.NewLine}{string.Join(Environment.NewLine, disallowedCurrencies)}");
+            ThrowCurrenciesDisallowed(disallowedCurrencies, nameof(values));
     }
 
     private void EnsureCurrencyAllowed(Currency currency, string paramName)
@@ -338,6 +381,12 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
         {
             throw new ArgumentException($"The currency '{currency}' is not present in the set's currency registry.", paramName);
         }
+    }
+
+    [DoesNotReturn]
+    private void ThrowCurrenciesDisallowed(List<Currency> currencies, string paramName)
+    {
+        throw new ArgumentException($"The following currencies are not present in the set's currency registry: {string.Join(", ", currencies.Distinct())}", paramName);
     }
 
     #region Explicit Interface Implementations

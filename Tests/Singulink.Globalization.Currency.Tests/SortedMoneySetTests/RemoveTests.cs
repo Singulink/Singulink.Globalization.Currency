@@ -30,7 +30,7 @@ public class RemoveTests
     }
 
     [TestMethod]
-    public void RemoveCurrencyCode_InexistentCurrency_ThrowsArgumentException()
+    public void RemoveCurrencyCode_NonExistentCurrency_ThrowsArgumentException()
     {
         Should.Throw<ArgumentException>(() => _set.Remove("XXX"));
     }
@@ -55,7 +55,7 @@ public class RemoveTests
     }
 
     [TestMethod]
-    public void RemoveCurrency_InexistentCurrency_ThrowsArgumentException()
+    public void RemoveCurrency_NonExistentCurrency_ThrowsArgumentException()
     {
         var nonExistentCurrency = new Currency("XXX", "Non-existent currency", "X", 2);
         Should.Throw<ArgumentException>(() => _set.Remove(nonExistentCurrency));
