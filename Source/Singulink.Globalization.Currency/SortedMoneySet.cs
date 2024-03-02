@@ -206,26 +206,30 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <summary>
     /// Removes all the values from this set that match the specified predicate and returns the resulting set.
     /// </summary>
-    public SortedMoneySet RemoveAll(Func<Money, bool> predicate)
+    public int RemoveAll(Func<Money, bool> predicate)
     {
-        var newAmountLookup = new SortedDictionary<Currency, decimal>(_amountLookup);
-
+        List<Currency> currenciesToRemove = null;
         foreach (var kvp in _amountLookup)
         {
             var money = new Money(kvp.Value, kvp.Key);
             if (predicate(money))
             {
-                newAmountLookup.Remove(kvp.Key);
+                currenciesToRemove ??= new();
+                currenciesToRemove.Add(kvp.Key);
             }
         }
 
-        var moneyList = new List<Money>();
-        foreach (var kvp in newAmountLookup)
+        if (currenciesToRemove != null)
         {
-            moneyList.Add(new Money(kvp.Value, kvp.Key));
+            foreach (var currency in currenciesToRemove)
+            {
+                _amountLookup.Remove(currency);
+            }
+
+            return currenciesToRemove?.Count ?? 0;
         }
 
-        return new SortedMoneySet(_registry, moneyList);
+        return 0;
     }
 
     /// <summary>
