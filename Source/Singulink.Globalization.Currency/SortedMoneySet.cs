@@ -251,6 +251,37 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     }
 
     /// <summary>
+    /// Sets the value this set contains for the currency of the specified value.
+    /// </summary>
+    public void SetValue(Money value)
+    {
+        var currency = value.CurrencyOrDefault;
+
+        if (currency == null)
+            return;
+
+        SetAmount(value.Amount, currency);
+    }
+
+    /// <summary>
+    /// Sets the amount the set contains for the specified currency code.
+    /// </summary>
+    public void SetAmount(decimal amount, string currencyCode)
+    {
+        var currency = _registry[currencyCode];
+        _amountLookup[currency] = amount;
+    }
+
+    /// <summary>
+    /// Sets the amount the set contains for the specified currency code.
+    /// </summary>
+    public void SetAmount(decimal amount, Currency currency)
+    {
+        EnsureCurrencyAllowed(currency, nameof(currency));
+        _amountLookup[currency] = amount;
+    }
+
+    /// <summary>
     /// Copies the values in this set to a new immutable set that uses the same registry as this set.
     /// </summary>
     public ImmutableSortedMoneySet ToImmutableSet() => new ImmutableSortedMoneySet(_registry, this, false);
