@@ -29,12 +29,23 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
         _registry = registry;
     }
 
-    /// <inheritdoc cref="ImmutableSortedMoneySet(Money[])"/>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SortedMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry and adds all
+    /// the specified values.
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// Attempted to add a value with a currency that is not available in the currency registry.
+    /// </exception>
     public SortedMoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values)
     {
     }
 
-    /// <inheritdoc cref="ImmutableSortedMoneySet(CurrencyRegistry?, Money[])"/>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SortedMoneySet"/> class with the specified currency registry and adds all the specified values.
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// Attempted to add a value with a currency that is not available in the currency registry.
+    /// </exception>
     public SortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values) : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry)
     {
     }
@@ -233,7 +244,7 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
         {
             int count = 0;
 
-            foreach (var amount in _amountLookup.Values)
+            foreach (decimal amount in _amountLookup.Values)
             {
                 if (amount != 0)
                     count++;
@@ -249,6 +260,7 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
         return _amountLookup.TryGetValue(currency, out amount);
     }
 
+    /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(string, out decimal)"/>
     public bool TryGetAmount(string currencyCode, out decimal amount)
     {
         var currency = _registry[currencyCode];

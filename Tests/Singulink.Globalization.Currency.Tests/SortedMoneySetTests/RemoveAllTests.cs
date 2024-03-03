@@ -1,4 +1,4 @@
-using Shouldly;
+﻿using Shouldly;
 
 namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
@@ -23,7 +23,7 @@ public class RemoveAllTests
     [TestMethod]
     public void SomeExistingCurrenciesFromSet_IsSuccessful()
     {
-        var currencyList = new List<Currency> { _usd100.Currency, _cad50.Currency};
+        var currencyList = new List<Currency> { _usd100.Currency, _cad50.Currency };
         int removedValuesCount = _set.RemoveAll(currencyList);
         removedValuesCount.ShouldBe(2);
         _set.Count.ShouldBe(1);
