@@ -9,7 +9,7 @@ public class AddTests
     private static readonly Money _cad50 = new(50m, "CAD");
     private static readonly Money _eur25 = new(25m, "EUR");
     private static readonly Currency _bbbCurrency = new("Blah blah blah", "BBB", "$$", 2);
-    private static readonly ImmutableSortedMoneySet _immutableSet = new(_usd100, _cad50);
+    private static readonly ImmutableSortedMoneySet _immutableSet = [_usd100, _cad50];
     private readonly SortedMoneySet _set = _immutableSet.ToSet();
 
     // public void Add(Money value) tests

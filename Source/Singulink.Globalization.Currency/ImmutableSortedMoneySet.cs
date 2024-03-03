@@ -16,7 +16,8 @@ namespace Singulink.Globalization;
 /// Money sets never contain any default <see cref="Money"/> values (i.e. zero amount values that are not associated with any currency). Default values are
 /// ignored when being added to or subtracted from a set.</para>
 /// </remarks>
-public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<ImmutableSortedMoneySet>, IFormattable
+[CollectionBuilder(typeof(ImmutableSortedMoneySet), nameof(Create))]
+public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
 {
     private static readonly ImmutableSortedDictionary<Currency, decimal> EmptyLookup = ImmutableSortedDictionary.Create<Currency, decimal>(CurrencyByCodeComparer.Default);
 
@@ -24,79 +25,107 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
     private readonly ImmutableSortedDictionary<Currency, decimal> _amountLookup;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry.
+    /// Creates an empty immutable sorted money set that uses the <see cref="CurrencyRegistry.Default"/> currency registry.
     /// </summary>
-    public ImmutableSortedMoneySet() : this(CurrencyRegistry.Default)
-    {
-    }
+    public static ImmutableSortedMoneySet Create() => Create(CurrencyRegistry.Default);
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry and
-    /// specified value.
+    /// Creates an empty immutable sorted money set that uses the <see cref="CurrencyRegistry.Default"/> currency registry and contains the specified value.
     /// </summary>
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public ImmutableSortedMoneySet(Money value) : this(CurrencyRegistry.Default, value) { }
+    public static ImmutableSortedMoneySet Create(Money value) => Create(CurrencyRegistry.Default, value);
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the specified currency registry.
+    /// Creates an empty immutable sorted money set that uses the specified currency registry.
     /// </summary>
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public ImmutableSortedMoneySet(CurrencyRegistry registry)
-    {
-        _registry = registry;
-        _amountLookup = EmptyLookup;
-    }
+    public static ImmutableSortedMoneySet Create(CurrencyRegistry registry) => new ImmutableSortedMoneySet(registry, EmptyLookup);
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the specified currency registry and value.
+    /// Creates an immutable sorted money set that uses the specified currency registry and contains the specified value.
     /// </summary>
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public ImmutableSortedMoneySet(CurrencyRegistry registry, Money value) : this(registry)
+    public static ImmutableSortedMoneySet Create(CurrencyRegistry registry, Money value)
     {
+        var amountLookup = EmptyLookup;
         var currency = value.CurrencyOrDefault;
 
-        if (currency == null)
-            return;
+        if (currency != null)
+        {
+            EnsureCurrencyAllowed(registry, currency, nameof(value));
+            amountLookup = amountLookup.Add(currency, value.Amount);
+        }
 
-        EnsureCurrencyAllowed(currency, nameof(value));
-        _amountLookup = _amountLookup.Add(currency, value.Amount);
+        return new ImmutableSortedMoneySet(registry, amountLookup);
     }
 
+    /// <inheritdoc cref="Create(ReadOnlySpan{Money})"/>
+    public static ImmutableSortedMoneySet Create(params Money[] values) => Create(values.AsSpan());
+
+    /// <inheritdoc cref="Create(CurrencyRegistry, ReadOnlySpan{Money})"/>
+    public static ImmutableSortedMoneySet Create(CurrencyRegistry registry, params Money[] values) => Create(registry, values.AsSpan());
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry and adds all
-    /// the specified values.
+    /// Creates an immutable sorted money set that uses the <see cref="CurrencyRegistry.Default"/> currency registry and adds all the specified values.
     /// </summary>
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public ImmutableSortedMoneySet(params Money[] values) : this(CurrencyRegistry.Default, values, true)
-    {
-    }
+    public static ImmutableSortedMoneySet Create(ReadOnlySpan<Money> values) => Create(CurrencyRegistry.Default, values);
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class with the specified currency registry and adds all the specified values.
+    /// Creates an immutable sorted money set that uses the specified currency registry and adds all the specified values.
     /// </summary>
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public ImmutableSortedMoneySet(CurrencyRegistry registry, params Money[] values) : this(registry, values, true)
+    public static ImmutableSortedMoneySet Create(CurrencyRegistry registry, ReadOnlySpan<Money> values)
     {
+        if (values.Length == 0)
+            return Create(registry);
+
+        var builder = EmptyLookup.ToBuilder();
+
+        foreach (var value in values)
+        {
+            var currency = value.CurrencyOrDefault;
+
+            if (currency == null)
+                continue;
+
+            EnsureCurrencyAllowed(registry, currency, nameof(values));
+
+            if (builder.TryGetValue(currency, out decimal existingAmount))
+            {
+                decimal newAmount = existingAmount + value.Amount;
+
+                if (newAmount == existingAmount)
+                    continue;
+
+                builder[currency] = newAmount;
+            }
+            else
+            {
+                builder.Add(currency, value.Amount);
+            }
+        }
+
+        return new ImmutableSortedMoneySet(registry, builder.ToImmutable());
     }
 
-    /// <inheritdoc cref="ImmutableSortedMoneySet(Money[])"/>
-    public ImmutableSortedMoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values)
-    {
-    }
+    /// <inheritdoc cref="Create(ReadOnlySpan{Money})"/>
+    public static ImmutableSortedMoneySet CreateRange(IEnumerable<Money> values) => CreateRange(CurrencyRegistry.Default, values);
 
-    /// <inheritdoc cref="ImmutableSortedMoneySet(CurrencyRegistry?, Money[])"/>
-    public ImmutableSortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values) : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry)
+    /// <inheritdoc cref="Create(CurrencyRegistry, ReadOnlySpan{Money})"/>
+    public static ImmutableSortedMoneySet CreateRange(CurrencyRegistry registry, IEnumerable<Money> values)
     {
+        return new ImmutableSortedMoneySet(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry);
     }
 
     /// <summary>
@@ -111,8 +140,10 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
     /// <summary>
     /// Initializes a new instance of the <see cref="ImmutableSortedMoneySet"/> class. Trusted internal constructor.
     /// </summary>
-    internal ImmutableSortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values, bool ensureValuesInRegistry) : this(registry)
+    internal ImmutableSortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values, bool ensureValuesInRegistry)
     {
+        _registry = registry;
+        _amountLookup = EmptyLookup;
         _amountLookup = AddRangeInternal(values, ensureValuesInRegistry);
     }
 
@@ -279,7 +310,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
     public ImmutableSortedMoneySet RoundToCurrencyDigits() => RoundToCurrencyDigits(MidpointRounding.ToEven);
 
     /// <summary>
-    /// Rounts each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using the specified midpoint rounding mode and returns the resulting
+    /// Rounds each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using the specified midpoint rounding mode and returns the resulting
     /// set.
     /// </summary>
     public ImmutableSortedMoneySet RoundToCurrencyDigits(MidpointRounding mode)
@@ -290,6 +321,9 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
         return new ImmutableSortedMoneySet(_registry, this.Select(v => v.RoundToCurrencyDigits(mode)), false);
     }
 
+    /// <summary>
+    /// Sets the value this set contains for the currency of the specified value and returns the resulting set.
+    /// </summary>
     public ImmutableSortedMoneySet SetValue(Money value)
     {
         var currency = value.CurrencyOrDefault;
@@ -300,6 +334,9 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
         return SetAmount(value.Amount, currency);
     }
 
+    /// <summary>
+    /// Sets the amount the set contains for the specified currency code and returns the resulting set.
+    /// </summary>
     public ImmutableSortedMoneySet SetAmount(decimal amount, string currencyCode)
     {
         var currency = _registry[currencyCode];
@@ -307,6 +344,9 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
         return updatedLookup == _amountLookup ? this : new ImmutableSortedMoneySet(_registry, updatedLookup);
     }
 
+    /// <summary>
+    /// Sets the amount the set contains for the specified currency code and returns the resulting set.
+    /// </summary>
     public ImmutableSortedMoneySet SetAmount(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
@@ -358,7 +398,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
         if (Count == 0)
             return this;
 
-        return new ImmutableSortedMoneySet(_registry, this.Select(transform));
+        return CreateRange(_registry, this.Select(transform));
     }
 
     /// <summary>
@@ -450,7 +490,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
         {
             int count = 0;
 
-            foreach (var amount in _amountLookup.Values)
+            foreach (decimal amount in _amountLookup.Values)
             {
                 if (amount != 0)
                     count++;
@@ -467,6 +507,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
         return _amountLookup.TryGetValue(currency, out amount);
     }
 
+    /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(string, out decimal)"/>
     public bool TryGetAmount(string currencyCode, out decimal amount)
     {
         var currency = _registry[currencyCode];
@@ -594,70 +635,18 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IEquatable<Immu
         return builder != null ? builder.ToImmutable() : _amountLookup;
     }
 
-    private void EnsureCurrencyAllowed(Currency currency, string paramName)
-    {
-        if (!_registry.Contains(currency))
-            Throw(currency, paramName);
+    private void EnsureCurrencyAllowed(Currency currency, string paramName) => EnsureCurrencyAllowed(_registry, currency, paramName);
 
-        void Throw(Currency currency, string paramName)
+    private static void EnsureCurrencyAllowed(CurrencyRegistry registry, Currency currency, string paramName)
+    {
+        if (!registry.Contains(currency))
+            Throw(registry, currency, paramName);
+
+        static void Throw(CurrencyRegistry registry, Currency currency, string paramName)
         {
-            throw new ArgumentException($"Currency '{currency}' not found in the '{_registry.Name}' registry assigned to this set.", paramName);
+            throw new ArgumentException($"Currency '{currency}' not found in the '{registry.Name}' registry assigned to this set.", paramName);
         }
     }
-
-    #region Equality
-
-    /// <summary>
-    /// Determines whether the specified set is equal to this set. Immutable money sets compare by their values, and the <see cref="Registry"/> must also match
-    /// in order for the sets to be considered equal.
-    /// </summary>
-    public bool Equals(ImmutableSortedMoneySet? other)
-    {
-        if (other == null)
-            return false;
-
-        if (ReferenceEquals(this, other))
-            return true;
-
-        if (_registry != other._registry || Count != other.Count)
-            return false;
-
-        var e1 = _amountLookup.GetEnumerator();
-        var e2 = other._amountLookup.GetEnumerator();
-
-        while (e1.MoveNext())
-        {
-            e2.MoveNext();
-
-            var kvp1 = e1.Current;
-            var kvp2 = e2.Current;
-
-            if (kvp1.Key != kvp2.Key || kvp1.Value != kvp2.Value)
-                return false;
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// Determines whether the specified object is equal to this set. Immutable money sets compare by their values, and the <see cref="Registry"/> must also
-    /// match in order for the sets to be considered equal.
-    /// </summary>
-    public override bool Equals(object? obj) => Equals(obj as ImmutableSortedMoneySet);
-
-    /// <inheritdoc cref="object.GetHashCode"/>
-    public override int GetHashCode()
-    {
-        HashCode hash = default;
-        hash.Add(_registry);
-
-        foreach (var v in this)
-            hash.Add(v);
-
-        return hash.ToHashCode();
-    }
-
-    #endregion
 
     #region Explicit Interface Implementations
 
