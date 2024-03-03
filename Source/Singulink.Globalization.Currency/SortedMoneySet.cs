@@ -233,6 +233,24 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     }
 
     /// <summary>
+    /// Rounds each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using <see cref="MidpointRounding.ToEven"/> midpoint rounding
+    /// (i.e. "banker's rounding").
+    /// </summary>
+    public void RoundToCurrencyDigits() => RoundToCurrencyDigits(MidpointRounding.ToEven);
+
+    /// <summary>
+    /// Rounds each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using the specified midpoint rounding mode.
+    /// </summary>
+    public void RoundToCurrencyDigits(MidpointRounding mode)
+    {
+        // TODO: consider optimizations
+        foreach (var kvp in _amountLookup)
+        {
+            _amountLookup[kvp.Key] = Math.Round(kvp.Value, kvp.Key.DecimalDigits, mode);
+        }
+    }
+
+    /// <summary>
     /// Copies the values in this set to a new immutable set that uses the same registry as this set.
     /// </summary>
     public ImmutableSortedMoneySet ToImmutableSet() => new ImmutableSortedMoneySet(_registry, this, false);
