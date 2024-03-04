@@ -5,92 +5,100 @@ namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 [TestClass]
 public class RemoveAllTests
 {
-    private static readonly Money _usd100 = new(100m, "USD");
-    private static readonly Money _cad50 = new(50m, "CAD");
-    private static readonly Money _eur25 = new(25m, "EUR");
-    private static readonly ImmutableSortedMoneySet _immutableSet = [_usd100, _cad50, _eur25];
-    private readonly SortedMoneySet _set = _immutableSet.ToSet();
+    private static readonly Currency Usd = Currency.Get("USD");
+    private static readonly Currency Cad = Currency.Get("CAD");
+    private static readonly Currency Eur = Currency.Get("EUR");
+
+    private static readonly Money Usd100 = new(100m, Usd);
+    private static readonly Money Cad50 = new(50m, Cad);
+    private static readonly Money Eur25 = new(25m, Eur);
+
+    private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50, Eur25];
+
+    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
 
     // public int RemoveAll(IEnumerable<Currency> currencies) tests
 
     [TestMethod]
-    public void AllExistingCurrenciesFromSet_IsSuccessful()
+    public void RemoveCurrencies_AllMatchingCurrencies_RemovesAllValues()
     {
-        List<Currency> currencyList = [_usd100.Currency, _cad50.Currency, _eur25.Currency];
-        int removedValuesCount = _set.RemoveAll(currencyList);
+        int removedValuesCount = _set.RemoveAll([Usd, Cad, Eur]);
+
         removedValuesCount.ShouldBe(3);
         _set.Count.ShouldBe(0);
     }
 
     [TestMethod]
-    public void SomeExistingCurrenciesFromSet_IsSuccessful()
+    public void RemoveCurrencies_SomeMatchingCurrencies_RemovesMatchingCurrencyValues()
     {
-        List<Currency> currencyList = [_usd100.Currency, _cad50.Currency];
-        int removedValuesCount = _set.RemoveAll(currencyList);
+        int removedValuesCount = _set.RemoveAll([Usd, Cad]);
+
         removedValuesCount.ShouldBe(2);
         _set.Count.ShouldBe(1);
-        _set.ShouldBe([_eur25]);
+        _set.ShouldBe([Eur25]);
     }
 
     [TestMethod]
-    public void NoExistingCurrenciesFromSet_IsSuccessful()
+    public void RemoveCurrencies_NoMatchingCurrencies_NoChange()
     {
-        List<Currency> currencyList = [Currency.Get("JPY"), Currency.Get("GBP")];
-        int removedValuesCount = _set.RemoveAll(currencyList);
+        int removedValuesCount = _set.RemoveAll([Currency.Get("JPY"), Currency.Get("GBP")]);
+
         removedValuesCount.ShouldBe(0);
         _set.Count.ShouldBe(3);
-        _set.ShouldBe(_immutableSet);
+        _set.ShouldBe(ImmutableSet);
     }
 
     [TestMethod]
-    public void EmptyCollection_NoChange()
+    public void RemoveCurrencies_EmptyCollection_NoChange()
     {
-        int removedValuesCount = _set.RemoveAll(new List<Currency>());
+        int removedValuesCount = _set.RemoveAll([]);
+
         removedValuesCount.ShouldBe(0);
         _set.Count.ShouldBe(3);
-        _set.ShouldBe(_immutableSet);
+        _set.ShouldBe(ImmutableSet);
     }
 
     [TestMethod]
-    public void NonExistentCurrency_ThrowsArgumentException()
+    public void RemoveCurrencies_CurrencyDisallowed_ThrowsArgumentException()
     {
         var disallowedCurrency = new Currency("XXX", "Non-existent currency", "X", 2);
-        List<Currency> currencyList = [_usd100.Currency, disallowedCurrency, disallowedCurrency, _cad50.Currency];
 
-        Should.Throw<ArgumentException>(() => _set.RemoveAll(currencyList))
+        Should.Throw<ArgumentException>(() => _set.RemoveAll([Usd, disallowedCurrency, disallowedCurrency, Cad]))
             .Message.ShouldBe($"The following currencies are not present in the set's currency registry: {disallowedCurrency} (Parameter 'currencies')");
+
         _set.Count.ShouldBe(1);
-        _set.ShouldBe([_eur25]);
+        _set.ShouldBe([Eur25]);
     }
 
     [TestMethod]
-    public void NonExistentCurrencies_ThrowsArgumentException()
+    public void RemoveCurrencies_CurrenciesDisallowed_ThrowsArgumentException()
     {
         var disallowedCurrencyX = new Currency("XXX", "Non-existent currency", "X", 2);
         var disallowedCurrencyY = new Currency("YYY", "Non-existent currency", "Y", 2);
-        List<Currency> currencyList = [_usd100.Currency, disallowedCurrencyX, disallowedCurrencyX, disallowedCurrencyY, disallowedCurrencyY, _cad50.Currency];
 
-        Should.Throw<ArgumentException>(() => _set.RemoveAll(currencyList))
-            .Message.ShouldBe($"The following currencies are not present in the set's currency registry: {disallowedCurrencyX}, {disallowedCurrencyY} (Parameter 'currencies')");
+        Should.Throw<ArgumentException>(() => _set.RemoveAll([Usd, disallowedCurrencyX, disallowedCurrencyY, disallowedCurrencyX, Cad]))
+            .Message.ShouldBe("The following currencies are not present in the set's currency registry: " +
+                $"{disallowedCurrencyX}, {disallowedCurrencyY} (Parameter 'currencies')");
+
         _set.Count.ShouldBe(1);
-        _set.ShouldBe([_eur25]);
+        _set.ShouldBe([Eur25]);
     }
 
     // public SortedMoneySet RemoveAll(Func<Money, bool> predicate) tests
 
     [TestMethod]
-    public void RemoveAllByPredicate_IsSuccessful()
+    public void RemoveCurrenciesByPredicate_SomeMatches_RemovesMatching()
     {
         _set.RemoveAll(m => m.Amount > 30);
         _set.Count.ShouldBe(1);
-        _set.ShouldBe([_eur25]);
+        _set.ShouldBe([Eur25]);
     }
 
     [TestMethod]
-    public void RemoveAllByPredicate_NoMatch_NoChange()
+    public void RemoveCurrenciesByPredicate_NoMatches_NoChange()
     {
         _set.RemoveAll(m => m.Amount > 100);
         _set.Count.ShouldBe(3);
-        _set.ShouldBe(_immutableSet);
+        _set.ShouldBe(ImmutableSet);
     }
 }

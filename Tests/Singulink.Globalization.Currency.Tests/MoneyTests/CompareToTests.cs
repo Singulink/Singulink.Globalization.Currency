@@ -5,27 +5,30 @@ namespace Singulink.Globalization.Tests.MoneyTests;
 [TestClass]
 public class CompareToTests
 {
+    private static readonly Money Usd100 = new(100m, "USD");
+    private static readonly Money Usd200 = new(200m, "USD");
+
     [TestMethod]
     public void LessThan_MinusOneResult()
     {
-        new Money(100m, "USD").CompareTo(new Money(200m, "USD")).ShouldBe(-1);
+        Usd100.CompareTo(Usd200).ShouldBe(-1);
     }
 
     [TestMethod]
     public void GreaterThan_PlusOneResult()
     {
-        new Money(200m, "USD").CompareTo(new Money(100m, "USD")).ShouldBe(1);
+        Usd200.CompareTo(Usd100).ShouldBe(1);
     }
 
     [TestMethod]
     public void Equal_ZeroResult()
     {
-        new Money(100m, "USD").CompareTo(new Money(100m, "USD")).ShouldBe(0);
+        Usd100.CompareTo(Usd100).ShouldBe(0);
     }
 
     [TestMethod]
     public void DifferentCurrency_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => new Money(100m, "USD").CompareTo(new Money(200m, "CAD")));
+        Should.Throw<ArgumentException>(() => Usd100.CompareTo(new Money(200m, "CAD")));
     }
 }

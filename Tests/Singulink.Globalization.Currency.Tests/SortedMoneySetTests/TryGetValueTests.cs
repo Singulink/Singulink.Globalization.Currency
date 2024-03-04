@@ -5,61 +5,60 @@ namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 [TestClass]
 public class TryGetValueTests
 {
-    private static readonly Money _usd100 = new(100m, "USD");
-    private static readonly Money _cad50 = new(50m, "CAD");
-    private static readonly Money _eur25 = new(25m, "EUR");
-    private static readonly ImmutableSortedMoneySet _immutableSet = [_usd100, _cad50, _eur25];
-    private readonly SortedMoneySet _set = _immutableSet.ToSet();
+    private static readonly Money Usd100 = new(100m, "USD");
+    private static readonly Money Cad50 = new(50m, "CAD");
+    private static readonly Money Eur25 = new(25m, "EUR");
+    private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50, Eur25];
+
+    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
 
     [TestMethod]
-    public void GetByCurrency_ValueExists_ReturnsTrue()
+    public void GetByCurrency_ValueExists_ReturnsTrueAndOutputsValue()
     {
-        _set.TryGetValue(Currency.Get("USD"), out var money).ShouldBeTrue();
-        money.ShouldBe(_usd100);
+        _set.TryGetValue(Currency.Get("USD"), out var value).ShouldBeTrue();
+        value.ShouldBe(Usd100);
 
-        _set.TryGetValue(Currency.Get("CAD"), out money).ShouldBeTrue();
-        money.ShouldBe(_cad50);
+        _set.TryGetValue(Currency.Get("CAD"), out value).ShouldBeTrue();
+        value.ShouldBe(Cad50);
 
-        _set.TryGetValue(Currency.Get("EUR"), out money).ShouldBeTrue();
-        money.ShouldBe(_eur25);
+        _set.TryGetValue(Currency.Get("EUR"), out value).ShouldBeTrue();
+        value.ShouldBe(Eur25);
     }
 
     [TestMethod]
     public void GetByCurrency_ValueDoesNotExist_ReturnsFalse()
     {
-        _set.TryGetValue(Currency.Get("GBP"), out var money).ShouldBeFalse();
-        money.ShouldBe(default);
+        _set.TryGetValue(Currency.Get("GBP"), out var value).ShouldBeFalse();
     }
 
     [TestMethod]
     public void GetByCurrency_CurrencyDoesNotExist_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => _set.TryGetValue(Currency.Get("XXX"), out var money));
+        Should.Throw<ArgumentException>(() => _set.TryGetValue(Currency.Get("XXX"), out _));
     }
 
     [TestMethod]
-    public void GetByCurrencyCode_ValueExists_ReturnsTrue()
+    public void GetByCurrencyCode_ValueExists_ReturnsTrueAndOutputsValue()
     {
-        _set.TryGetValue("USD", out var money).ShouldBeTrue();
-        money.ShouldBe(_usd100);
+        _set.TryGetValue("USD", out var value).ShouldBeTrue();
+        value.ShouldBe(Usd100);
 
-        _set.TryGetValue("CAD", out money).ShouldBeTrue();
-        money.ShouldBe(_cad50);
+        _set.TryGetValue("CAD", out value).ShouldBeTrue();
+        value.ShouldBe(Cad50);
 
-        _set.TryGetValue("EUR", out money).ShouldBeTrue();
-        money.ShouldBe(_eur25);
+        _set.TryGetValue("EUR", out value).ShouldBeTrue();
+        value.ShouldBe(Eur25);
     }
 
     [TestMethod]
     public void GetByCurrencyCode_ValueDoesNotExist_ReturnsFalse()
     {
-        _set.TryGetValue("GBP", out var money).ShouldBeFalse();
-        money.ShouldBe(default);
+        _set.TryGetValue("GBP", out var value).ShouldBeFalse();
     }
 
     [TestMethod]
     public void GetByCurrencyCode_CurrencyDoesNotExist_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => _set.TryGetValue("XXX", out var money));
+        Should.Throw<ArgumentException>(() => _set.TryGetValue("XXX", out _));
     }
 }

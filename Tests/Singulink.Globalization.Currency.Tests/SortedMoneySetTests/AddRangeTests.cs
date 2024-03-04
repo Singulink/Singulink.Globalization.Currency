@@ -5,22 +5,23 @@ namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 [TestClass]
 public class AddRangeTests
 {
-    private static readonly Money _usd100 = new(100m, "USD");
-    private static readonly Money _cad50 = new(50m, "CAD");
-    private static readonly Money _eur25 = new(25m, "EUR");
-    private static readonly ImmutableSortedMoneySet _immutableSet = [_usd100, _cad50, _eur25];
-    private readonly SortedMoneySet _set = _immutableSet.ToSet();
+    private static readonly Money Usd100 = new(100m, "USD");
+    private static readonly Money Cad50 = new(50m, "CAD");
+    private static readonly Money Eur25 = new(25m, "EUR");
+    private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50, Eur25];
+
+    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
 
     [TestMethod]
-    public void AllCurrenciesExistInTheSet_IsSuccessful()
+    public void AllCurrenciesExist_UpdatesValues()
     {
-        _set.AddRange([_usd100, _cad50, _eur25]);
+        _set.AddRange([Usd100, Cad50, Eur25]);
         _set.Count.ShouldBe(3);
         _set.ShouldBe([new(200m, "USD"), new(100m, "CAD"), new(50m, "EUR")]);
     }
 
     [TestMethod]
-    public void SomeCurrenciesDoNotExistInTheSet_IsSuccessful()
+    public void SomeNewCurrencies_UpdatesExistingAndAddsNewValues()
     {
         _set.AddRange([new(100m, "USD"), new(50m, "JPY"), new(25m, "CHF")]);
         _set.Count.ShouldBe(5);
@@ -28,7 +29,7 @@ public class AddRangeTests
     }
 
     [TestMethod]
-    public void NoCurrencyExistsInTheSet_IsSuccessful()
+    public void AllNewCurrencies_AddsValues()
     {
         _set.AddRange([new(100m, "GBP"), new(50m, "JPY"), new(25m, "CHF")]);
         _set.Count.ShouldBe(6);
@@ -38,16 +39,16 @@ public class AddRangeTests
     [TestMethod]
     public void EmptyCollection_NoChange()
     {
-        _set.AddRange(new List<Money>());
+        _set.AddRange([]);
         _set.Count.ShouldBe(3);
-        _set.ShouldBe(_immutableSet);
+        _set.ShouldBe(ImmutableSet);
     }
 
     [TestMethod]
-    public void NonExistentCurrency_ThrowsArgumentException()
+    public void DisallowedCurrency_ThrowsArgumentException()
     {
         var disallowedCurrency = new Currency("Disallowed Currency", "XXX", "X", 2);
-        List<Money> values = [new(100m, "USD"), new Money(100m, disallowedCurrency), new Money(100m, disallowedCurrency), new(50m, "CAD"), new(25m, "EUR")];
+        IEnumerable<Money> values = [new(100m, "USD"), new(100m, disallowedCurrency), new(100m, disallowedCurrency), new(50m, "CAD"), new(25m, "EUR")];
 
         Should.Throw<ArgumentException>(() => _set.AddRange(values))
             .Message.ShouldBe($"The following currencies are not present in the set's currency registry: {disallowedCurrency} (Parameter 'values')");
@@ -56,12 +57,12 @@ public class AddRangeTests
     }
 
     [TestMethod]
-    public void NonExistentCurrencies_ThrowsArgumentException()
+    public void DisallowedCurrencies_ThrowsArgumentException()
     {
         var disallowedCurrencyX = new Currency("Disallowed Currency", "XXX", "X", 2);
         var disallowedCurrencyY = new Currency("Disallowed Currency2", "YYY", "Y", 2);
-        List<Money> values = [new(100m, "USD"), new Money(100m, disallowedCurrencyX), new Money(100m, disallowedCurrencyX), new(50m, "CAD"),
-            new Money(100m, disallowedCurrencyY), new Money(100m, disallowedCurrencyY), new(25m, "EUR")];
+        IEnumerable<Money> values = [new(100m, "USD"), new(100m, disallowedCurrencyX), new(100m, disallowedCurrencyX), new(50m, "CAD"),
+            new(100m, disallowedCurrencyY), new(100m, disallowedCurrencyY), new(25m, "EUR")];
 
         Should.Throw<ArgumentException>(() => _set.AddRange(values))
             .Message.ShouldBe($"The following currencies are not present in the set's currency registry: {disallowedCurrencyX}, {disallowedCurrencyY} (Parameter 'values')");

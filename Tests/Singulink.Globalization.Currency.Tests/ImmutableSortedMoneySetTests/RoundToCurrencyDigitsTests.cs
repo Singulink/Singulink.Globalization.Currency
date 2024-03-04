@@ -6,37 +6,41 @@ namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 [TestClass]
 public class RoundToCurrencyDigitsTests
 {
-    private static readonly ImmutableSortedMoneySet _roundDownResult = [new Money(10, "USD")];
-    private static readonly ImmutableSortedMoneySet _roundDownValue = [new Money(10.004m, "USD")];
-    private static readonly ImmutableSortedMoneySet _midpointValue = [new Money(10.005m, "USD")];
-    private static readonly ImmutableSortedMoneySet _roundUpValue = [new Money(10.006m, "USD")];
-    private static readonly ImmutableSortedMoneySet _roundUpResult = [new Money(10.01m, "USD")];
+#pragma warning disable SA1025 // Code should not contain multiple whitespace in a row
+    private static readonly ImmutableSortedMoneySet RoundDownResults = [new(10.000m, "USD"), new(6.0m, "JPY")];
+    private static readonly ImmutableSortedMoneySet RoundDownValues  = [new(10.004m, "USD"), new(6.2m, "JPY")];
+    private static readonly ImmutableSortedMoneySet MidpointValues   = [new(10.005m, "USD"), new(6.5m, "JPY")];
+    private static readonly ImmutableSortedMoneySet RoundUpValues    = [new(10.006m, "USD"), new(6.7m, "JPY")];
+    private static readonly ImmutableSortedMoneySet RoundUpResults   = [new(10.010m, "USD"), new(7.0m, "JPY")];
+#pragma warning restore SA1025
 
     [TestMethod]
     public void ToEven()
     {
         const MidpointRounding mode = MidpointRounding.ToEven;
-        _roundDownResult.RoundToCurrencyDigits(mode).ShouldBe(_roundDownResult);
-        _roundDownValue.RoundToCurrencyDigits(mode).ShouldBe(_roundDownResult);
-        _midpointValue.RoundToCurrencyDigits(mode).ShouldBe(_roundDownResult);
-        _roundUpValue.RoundToCurrencyDigits(mode).ShouldBe(_roundUpResult);
-        _roundUpResult.RoundToCurrencyDigits(mode).ShouldBe(_roundUpResult);
+
+        RoundDownResults.RoundToCurrencyDigits(mode).ShouldBe(RoundDownResults);
+        RoundDownValues.RoundToCurrencyDigits(mode).ShouldBe(RoundDownResults);
+        MidpointValues.RoundToCurrencyDigits(mode).ShouldBe(RoundDownResults);
+        RoundUpValues.RoundToCurrencyDigits(mode).ShouldBe(RoundUpResults);
+        RoundUpResults.RoundToCurrencyDigits(mode).ShouldBe(RoundUpResults);
     }
 
     [TestMethod]
     public void AwayFromZero()
     {
         const MidpointRounding mode = MidpointRounding.AwayFromZero;
-        _roundDownResult.RoundToCurrencyDigits(mode).ShouldBe(_roundDownResult);
-        _roundDownValue.RoundToCurrencyDigits(mode).ShouldBe(_roundDownResult);
-        _midpointValue.RoundToCurrencyDigits(mode).ShouldBe(_roundUpResult);
-        _roundUpValue.RoundToCurrencyDigits(mode).ShouldBe(_roundUpResult);
-        _roundUpResult.RoundToCurrencyDigits(mode).ShouldBe(_roundUpResult);
+
+        RoundDownResults.RoundToCurrencyDigits(mode).ShouldBe(RoundDownResults);
+        RoundDownValues.RoundToCurrencyDigits(mode).ShouldBe(RoundDownResults);
+        MidpointValues.RoundToCurrencyDigits(mode).ShouldBe(RoundUpResults);
+        RoundUpValues.RoundToCurrencyDigits(mode).ShouldBe(RoundUpResults);
+        RoundUpResults.RoundToCurrencyDigits(mode).ShouldBe(RoundUpResults);
     }
 
     [TestMethod]
     public void Default()
     {
-        _roundDownResult.RoundToCurrencyDigits().ShouldBe(_roundDownResult);
+        RoundDownResults.RoundToCurrencyDigits().ShouldBe(RoundDownResults);
     }
 }

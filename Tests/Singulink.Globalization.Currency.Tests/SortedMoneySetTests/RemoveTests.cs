@@ -5,32 +5,33 @@ namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 [TestClass]
 public class RemoveTests
 {
-    private static readonly Money _usd100 = new(100m, "USD");
-    private static readonly Money _cad50 = new(50m, "CAD");
-    private static readonly Money _eur25 = new(25m, "EUR");
-    private static readonly ImmutableSortedMoneySet _immutableSet = [_usd100, _cad50, _eur25];
-    private readonly SortedMoneySet _set = _immutableSet.ToSet();
+    private static readonly Money Usd100 = new(100m, "USD");
+    private static readonly Money Cad50 = new(50m, "CAD");
+    private static readonly Money Eur25 = new(25m, "EUR");
+    private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50, Eur25];
+
+    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
 
     // public bool Remove(string currencyCode) tests
 
     [TestMethod]
-    public void RemoveCurrencyCode_CurrencyExistsInTheSet_ReturnsTrue()
+    public void RemoveCurrencyCode_CurrencyFound_RemovesValueAndReturnsTrue()
     {
         _set.Remove("USD").ShouldBeTrue();
         _set.Count.ShouldBe(2);
-        _set.ShouldBe([_cad50, _eur25]);
+        _set.ShouldBe([Cad50, Eur25]);
     }
 
     [TestMethod]
-    public void RemoveCurrencyCode_CurrencyDoesNotExistInSet_ReturnsFalse()
+    public void RemoveCurrencyCode_CurrencyNotFound_ReturnsFalseAndNoChange()
     {
         _set.Remove("JPY").ShouldBeFalse();
         _set.Count.ShouldBe(3);
-        _set.ShouldBe(_immutableSet);
+        _set.ShouldBe(ImmutableSet);
     }
 
     [TestMethod]
-    public void RemoveCurrencyCode_NonExistentCurrency_ThrowsArgumentException()
+    public void RemoveCurrencyCode_DisallowedCurrency_ThrowsArgumentException()
     {
         Should.Throw<ArgumentException>(() => _set.Remove("XXX"));
     }
@@ -38,26 +39,26 @@ public class RemoveTests
     // public bool Remove(Currency currency) tests
 
     [TestMethod]
-    public void RemoveCurrency_CurrencyExistsInTheSet_ReturnsTrue()
+    public void RemoveCurrency_CurrencyFound_RemovesValueAndReturnsTrue()
     {
-        _set.Remove(_usd100.Currency).ShouldBeTrue();
+        _set.Remove(Usd100.Currency).ShouldBeTrue();
         _set.Count.ShouldBe(2);
-        _set.ShouldBe([_cad50, _eur25]);
+        _set.ShouldBe([Cad50, Eur25]);
     }
 
     [TestMethod]
-    public void RemoveCurrency_CurrencyDoesNotExistInSet_ReturnsFalse()
+    public void RemoveCurrency_CurrencyNotFound_ReturnsFalseAndNoChange()
     {
         var gbpCurrency = Currency.Get("GBP");
         _set.Remove(gbpCurrency).ShouldBeFalse();
         _set.Count.ShouldBe(3);
-        _set.ShouldBe(_immutableSet);
+        _set.ShouldBe(ImmutableSet);
     }
 
     [TestMethod]
-    public void RemoveCurrency_NonExistentCurrency_ThrowsArgumentException()
+    public void RemoveCurrency_DisallowedCurrency_ThrowsArgumentException()
     {
-        var nonExistentCurrency = new Currency("XXX", "Non-existent currency", "X", 2);
-        Should.Throw<ArgumentException>(() => _set.Remove(nonExistentCurrency));
+        var disallowedCurrency = new Currency("XXX", "Disallowed currency", "X", 2);
+        Should.Throw<ArgumentException>(() => _set.Remove(disallowedCurrency));
     }
 }

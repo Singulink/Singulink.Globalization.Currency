@@ -5,28 +5,30 @@ namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 [TestClass]
 public class AddTests
 {
-    private static readonly Money _usd100 = new(100m, "USD");
-    private static readonly Money _cad50 = new(50m, "CAD");
-    private static readonly Money _eur25 = new(25m, "EUR");
-    private static readonly Currency _bbbCurrency = new("Blah blah blah", "BBB", "$$", 2);
-    private static readonly ImmutableSortedMoneySet _immutableSet = [_usd100, _cad50];
-    private readonly SortedMoneySet _set = _immutableSet.ToSet();
+    private static readonly Money Usd100 = new(100m, "USD");
+    private static readonly Money Cad50 = new(50m, "CAD");
+    private static readonly Money Eur25 = new(25m, "EUR");
+    private static readonly Currency DisallowedCurrency = new("Blah blah blah", "BBB", "$$", 2);
+    private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50];
+
+    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
 
     // public void Add(Money value) tests
+
     [TestMethod]
-    public void AddMoney_CurrencyExistsInTheSet_IsSuccesful()
+    public void AddMoney_CurrencyExists_UpdatesValue()
     {
-        _set.Add(_usd100);
+        _set.Add(Usd100);
         _set.Count.ShouldBe(2);
-        _set.ShouldBe([_cad50, new Money(200m, "USD")]);
+        _set.ShouldBe([Cad50, Money.Create(200m, "USD")]);
     }
 
     [TestMethod]
-    public void AddMoney_CurrencyDoesNotExistInSet_IsSuccessful()
+    public void AddMoney_NewCurrency_AddsValue()
     {
-        _set.Add(_eur25);
+        _set.Add(Eur25);
         _set.Count.ShouldBe(3);
-        _set.ShouldBe([_cad50, _eur25, _usd100]);
+        _set.ShouldBe([Cad50, Eur25, Usd100]);
     }
 
     [TestMethod]
@@ -34,62 +36,62 @@ public class AddTests
     {
         _set.Add(default);
         _set.Count.ShouldBe(2);
-        _set.ShouldBe(_immutableSet);
+        _set.ShouldBe(ImmutableSet);
     }
 
     [TestMethod]
-    public void AddMoney_CurrencyIsNotAcceptedInTheSet_ThrowsArgumentException()
+    public void AddMoney_CurrencyDisallowed_ThrowsArgumentException()
     {
-        var value = new Money(100, _bbbCurrency);
+        var value = new Money(100, DisallowedCurrency);
         Should.Throw<ArgumentException>(() => _set.Add(value));
     }
 
     // public void Add(decimal amount, string currencyCode) tests
+
     [TestMethod]
-    public void AddAmountCurrencyCode_CurrencyExistsInTheSet_IsSuccesful()
+    public void AddByCurrencyCode_CurrencyExists_UpdatesValue()
     {
         _set.Add(100, "USD");
         _set.Count.ShouldBe(2);
-        _set.ShouldBe([_cad50, new Money(200m, "USD")]);
+        _set.ShouldBe([Cad50, new(200m, "USD")]);
     }
 
     [TestMethod]
-    public void AddAmountCurrencyCode_CurrencyDoesNotExistInSet_IsSuccessful()
+    public void AddByCurrencyCode_NewCurrency_AddsValue()
     {
         _set.Add(25m, "EUR");
         _set.Count.ShouldBe(3);
-        _set.ShouldBe([_cad50, _eur25, _usd100]);
+        _set.ShouldBe([Cad50, Eur25, Usd100]);
     }
 
     [TestMethod]
-    public void AddAmountCurrencyCode_CurrencyIsNotAcceptedInTheSet_ThrowsArgumentException()
+    public void AddByCurrencyCode_CurrencyDisallowed_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => _set.Add(100m, "BBB"));
+        Should.Throw<ArgumentException>(() => _set.Add(100m, DisallowedCurrency.CurrencyCode));
     }
 
     // public void Add(decimal amount, Currency currency) tests
+
     [TestMethod]
-    public void AddAmountCurrency_CurrencyExistsInTheSet_IsSuccesful()
+    public void AddByCurrency_CurrencyExists_UpdatesValue()
     {
-        var myCurrency = Currency.Get("USD");
-        _set.Add(100m, myCurrency);
+        _set.Add(100m, Currency.Get("USD"));
         _set.Count.ShouldBe(2);
-        _set.ShouldBe([_cad50, new Money(200m, "USD")]);
+        _set.ShouldBe([Cad50, new(200m, "USD")]);
     }
 
     [TestMethod]
-    public void AddAmountCurrency_CurrencyDoesNotExistInSet_IsSuccessful()
+    public void AddByCurrency_NewCurrency_AddsValue()
     {
-        var myCurrency = Currency.Get("EUR");
-        _set.Add(25m, myCurrency);
+        _set.Add(25m, Currency.Get("EUR"));
         _set.Count.ShouldBe(3);
-        _set.ShouldBe([_cad50, _eur25, _usd100]);
+        _set.ShouldBe([Cad50, Eur25, Usd100]);
     }
 
     [TestMethod]
-    public void AddAmountCurrency_CurrencyIsNotAcceptedInTheSet_ThrowsArgumentException()
+    public void AddByCurrency_CurrencyDisallowed_ThrowsArgumentException()
     {
         _set.Count.ShouldBe(2);
-        Should.Throw<ArgumentException>(() => _set.Add(100m, _bbbCurrency));
+        Should.Throw<ArgumentException>(() => _set.Add(100m, DisallowedCurrency));
     }
 }

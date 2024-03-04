@@ -19,8 +19,8 @@ partial struct Money : IFormattable
     private static readonly ImmutableArray<string> NegativeReverseInternationalPatterns
         = ["(n) $", "-n $", "-n $", "n- $", "(n) $", "-n $", "n- $", "n- $", "-n $", "-n $", "n- $", "n- $", "-n $", "n- $", "(n) $", "(n) $"];
 
-    private static readonly ConditionalWeakTable<CultureInfo, RegionInfo?> s_regionInfoLookup = [];
-    private static readonly ConditionalWeakTable<NumberFormatInfo, NumberFormatInfo> s_absNumberFormatInfoLookup = [];
+    private static readonly ConditionalWeakTable<CultureInfo, RegionInfo?> _regionInfoLookup = [];
+    private static readonly ConditionalWeakTable<NumberFormatInfo, NumberFormatInfo> _absNumberFormatInfoLookup = [];
 
     /// <summary>
     /// Returns a string representation of this value's currency and amount.
@@ -204,7 +204,7 @@ partial struct Money : IFormattable
         {
             var formatInfo = NumberFormatInfo.GetInstance(formatProvider);
 
-            return s_absNumberFormatInfoLookup.GetValue(formatInfo, static fi => new NumberFormatInfo {
+            return _absNumberFormatInfoLookup.GetValue(formatInfo, static fi => new NumberFormatInfo {
                 NumberDecimalDigits = fi.CurrencyDecimalDigits,
                 NumberDecimalSeparator = fi.CurrencyDecimalSeparator,
                 NumberGroupSeparator = fi.CurrencyGroupSeparator,
@@ -216,7 +216,7 @@ partial struct Money : IFormattable
         {
             RegionInfo region = null;
 
-            if ((culture.CultureTypes & CultureTypes.SpecificCultures) != 0 && !s_regionInfoLookup.TryGetValue(culture, out region))
+            if ((culture.CultureTypes & CultureTypes.SpecificCultures) != 0 && !_regionInfoLookup.TryGetValue(culture, out region))
             {
                 try
                 {
@@ -224,7 +224,7 @@ partial struct Money : IFormattable
                 }
                 catch { }
 
-                s_regionInfoLookup.AddOrUpdate(culture, region);
+                _regionInfoLookup.AddOrUpdate(culture, region);
             }
 
             return region ?? RegionInfo.CurrentRegion;

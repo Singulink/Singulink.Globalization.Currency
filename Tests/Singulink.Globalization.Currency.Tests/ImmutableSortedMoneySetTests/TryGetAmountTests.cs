@@ -5,33 +5,33 @@ namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 [TestClass]
 public class TryGetAmountTests
 {
-    private static readonly Money _usd100 = new(100m, "USD");
-    private static readonly Money _cad50 = new(50m, "CAD");
-    private static readonly Money _eur25 = new(25m, "EUR");
-    private static readonly ImmutableSortedMoneySet _set = [_usd100, _cad50, _eur25];
+    private static readonly Money Usd100 = new(100m, "USD");
+    private static readonly Money Cad50 = new(50m, "CAD");
+    private static readonly Money Eur25 = new(25m, "EUR");
+    private static readonly ImmutableSortedMoneySet Set = [Usd100, Cad50, Eur25];
 
     [TestMethod]
     public void AmountExists_ReturnsTrueAndOutputsAmount()
     {
-        _set.TryGetAmount("USD", out decimal amount).ShouldBeTrue();
+        Set.TryGetAmount("USD", out decimal amount).ShouldBeTrue();
         amount.ShouldBe(100m);
 
-        _set.TryGetAmount("CAD", out amount).ShouldBeTrue();
+        Set.TryGetAmount("CAD", out amount).ShouldBeTrue();
         amount.ShouldBe(50m);
 
-        _set.TryGetAmount("EUR", out amount).ShouldBeTrue();
+        Set.TryGetAmount("EUR", out amount).ShouldBeTrue();
         amount.ShouldBe(25m);
     }
 
     [TestMethod]
     public void AmountDoesNotExist_ReturnsFalse()
     {
-        _set.TryGetAmount("GBP", out _).ShouldBeFalse();
+        Set.TryGetAmount("GBP", out _).ShouldBeFalse();
     }
 
     [TestMethod]
     public void CurrencyDoesNotExist_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => _set.TryGetAmount("AAA", out _));
+        Should.Throw<ArgumentException>(() => Set.TryGetAmount("AAA", out _));
     }
 }

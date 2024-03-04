@@ -184,9 +184,9 @@ dotnet_naming_rule.types_should_be_pascalcase.severity = warning
 dotnet_naming_rule.types_should_be_pascalcase.symbols = types
 dotnet_naming_rule.types_should_be_pascalcase.style = pascalcase
 
-dotnet_naming_rule.private_static_field_should_be_s_prefixed_camelcase.severity = suggestion
+dotnet_naming_rule.private_static_field_should_be_s_prefixed_camelcase.severity = none
 dotnet_naming_rule.private_static_field_should_be_s_prefixed_camelcase.symbols = private_static_field
-dotnet_naming_rule.private_static_field_should_be_s_prefixed_camelcase.style = s_prefixed_camelcase
+dotnet_naming_rule.private_static_field_should_be_s_prefixed_camelcase.style = prefixed_camelcase
 
 dotnet_naming_rule.private_field_should_be_prefixed_camelcase.severity = warning
 dotnet_naming_rule.private_field_should_be_prefixed_camelcase.symbols = private_field
@@ -235,11 +235,6 @@ dotnet_naming_style.prefixed_camelcase.required_prefix = _
 dotnet_naming_style.prefixed_camelcase.required_suffix =
 dotnet_naming_style.prefixed_camelcase.word_separator =
 dotnet_naming_style.prefixed_camelcase.capitalization = camel_case
-
-dotnet_naming_style.s_prefixed_camelcase.required_prefix = s_
-dotnet_naming_style.s_prefixed_camelcase.required_suffix =
-dotnet_naming_style.s_prefixed_camelcase.word_separator =
-dotnet_naming_style.s_prefixed_camelcase.capitalization = camel_case
 
 dotnet_naming_style.begins_with_i.required_prefix = I
 dotnet_naming_style.begins_with_i.required_suffix =
@@ -372,3 +367,6 @@ dotnet_diagnostic.SA1519.severity = silent
 
 # SA1214: Readonly fields should appear before non-readonly fields
 dotnet_diagnostic.SA1214.severity = suggestion
+
+# IDE0028: Simplify collection initialization
+dotnet_diagnostic.IDE0028.severity = warning

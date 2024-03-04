@@ -5,19 +5,20 @@ namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 [TestClass]
 public class SetValueTests
 {
-    private static readonly Money _usd100 = new(100m, "USD");
-    private static readonly Money _cad50 = new(50m, "CAD");
-    private static readonly Money _eur25 = new(25m, "EUR");
-    private static readonly Money _aud75 = new(75m, "AUD");
-    private static readonly ImmutableSortedMoneySet _immutableSet = [_usd100, _cad50, _eur25];
-    private readonly SortedMoneySet _set = _immutableSet.ToSet();
+    private static readonly Money Usd100 = new(100m, "USD");
+    private static readonly Money Cad50 = new(50m, "CAD");
+    private static readonly Money Eur25 = new(25m, "EUR");
+    private static readonly Money Aud75 = new(75m, "AUD");
+    private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50, Eur25];
+
+    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
 
     [TestMethod]
     public void SetValue_CurrencyDoesNotExist_AddsValue()
     {
-        _set.SetValue(_aud75);
+        _set.SetValue(Aud75);
         _set.Count.ShouldBe(4);
-        _set.ShouldBe([_cad50, _eur25, _usd100, _aud75]);
+        _set.ShouldBe([Cad50, Eur25, Usd100, Aud75]);
     }
 
     [TestMethod]
@@ -25,7 +26,7 @@ public class SetValueTests
     {
         _set.SetValue(new(200m, "USD"));
         _set.Count.ShouldBe(3);
-        _set.ShouldBe([new(200m, "USD"), _cad50, _eur25]);
+        _set.ShouldBe([new(200m, "USD"), Cad50, Eur25]);
     }
 
     [TestMethod]
@@ -33,7 +34,7 @@ public class SetValueTests
     {
         _set.SetValue(default);
         _set.Count.ShouldBe(3);
-        _set.ShouldBe(_immutableSet);
+        _set.ShouldBe(ImmutableSet);
     }
 
     [TestMethod]
