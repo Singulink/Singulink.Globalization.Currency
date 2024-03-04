@@ -318,7 +318,20 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         if (Count == 0)
             return this;
 
-        return new ImmutableSortedMoneySet(_registry, this.Select(v => v.RoundToCurrencyDigits(mode)), false);
+        ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
+
+        foreach (var entry in _amountLookup)
+        {
+            decimal roundedValue = decimal.Round(entry.Value, entry.Key.DecimalDigits, mode);
+
+            if (roundedValue != entry.Value)
+            {
+                builder ??= _amountLookup.ToBuilder();
+                builder[entry.Key] = roundedValue;
+            }
+        }
+
+        return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
     /// <summary>
