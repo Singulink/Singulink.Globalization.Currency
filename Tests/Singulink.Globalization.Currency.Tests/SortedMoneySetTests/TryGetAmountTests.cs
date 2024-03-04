@@ -32,7 +32,7 @@ public class TryGetAmountTests
     }
 
     [TestMethod]
-    public void CurrencyDoesNotExist_ThrowsArgumentException()
+    public void CurrencyDisallowed_ThrowsArgumentException()
     {
         Should.Throw<ArgumentException>(() => _set.TryGetAmount("AAA", out _));
     }

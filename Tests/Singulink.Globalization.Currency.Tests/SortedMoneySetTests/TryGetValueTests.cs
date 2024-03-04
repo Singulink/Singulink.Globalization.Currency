@@ -13,7 +13,7 @@ public class TryGetValueTests
     private readonly SortedMoneySet _set = ImmutableSet.ToSet();
 
     [TestMethod]
-    public void GetByCurrency_ValueExists_ReturnsTrueAndOutputsValue()
+    public void GetByCurrency_CurrencyExists_ReturnsTrueAndOutputsValue()
     {
         _set.TryGetValue(Currency.Get("USD"), out var value).ShouldBeTrue();
         value.ShouldBe(Usd100);
@@ -32,13 +32,13 @@ public class TryGetValueTests
     }
 
     [TestMethod]
-    public void GetByCurrency_CurrencyDoesNotExist_ThrowsArgumentException()
+    public void GetByCurrency_CurrencyDisallowed_ThrowsArgumentException()
     {
         Should.Throw<ArgumentException>(() => _set.TryGetValue(Currency.Get("XXX"), out _));
     }
 
     [TestMethod]
-    public void GetByCurrencyCode_ValueExists_ReturnsTrueAndOutputsValue()
+    public void GetByCurrencyCode_CurrencyExists_ReturnsTrueAndOutputsValue()
     {
         _set.TryGetValue("USD", out var value).ShouldBeTrue();
         value.ShouldBe(Usd100);
@@ -57,7 +57,7 @@ public class TryGetValueTests
     }
 
     [TestMethod]
-    public void GetByCurrencyCode_CurrencyDoesNotExist_ThrowsArgumentException()
+    public void GetByCurrencyCode_CurrencyDisallowed_ThrowsArgumentException()
     {
         Should.Throw<ArgumentException>(() => _set.TryGetValue("XXX", out _));
     }
