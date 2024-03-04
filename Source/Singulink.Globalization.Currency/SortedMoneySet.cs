@@ -300,6 +300,28 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     }
 
     /// <summary>
+    /// Subtracts the specified value from this set. Zero amounts are not trimmed from the set.
+    /// </summary>
+    /// <remarks>
+    /// Default values that are not associated with any currency are ignored.
+    /// </remarks>
+    public void Subtract(Money value) => Add(-value);
+
+    /// <summary>
+    /// Subtracts the specified currency and amount from this set.
+    /// </summary>
+    public void Subtract(decimal amount, string currencyCode) => Add(-amount, currencyCode);
+
+    /// <summary>
+    /// Adds the specified currency and amount to this set.
+    /// </summary>
+    public void Subtract(decimal amount, Currency currency)
+    {
+        EnsureCurrencyAllowed(currency, nameof(currency));
+        AddInternal(-amount, currency);
+    }
+
+    /// <summary>
     /// Copies the values in this set to a new immutable set that uses the same registry as this set.
     /// </summary>
     public ImmutableSortedMoneySet ToImmutableSet() => new ImmutableSortedMoneySet(_registry, this, false);
