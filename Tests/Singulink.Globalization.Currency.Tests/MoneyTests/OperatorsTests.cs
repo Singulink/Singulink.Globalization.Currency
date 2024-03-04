@@ -2,332 +2,336 @@
 
 namespace Singulink.Globalization.Tests.MoneyTests;
 
+#pragma warning disable CS1718 // Comparison made to same variable
+
 [TestClass]
 public class OperatorsTests
 {
+    private static readonly Money _usdMinus200 = new(-200m, "USD");
+    private static readonly Money _usd0 = new(0m, "USD");
+    private static readonly Money _usd100 = new(100m, "USD");
+    private static readonly Money _usd200 = new(200m, "USD");
+    private static readonly Money _usd300 = new(300m, "USD");
+    private static readonly Money _cad100 = new(100m, "CAD");
+    private static readonly Money _cad200 = new(200m, "CAD");
+
     [TestMethod]
     public void Equal_EqualValues_ReturnsTrue()
     {
-        (new Money(100m, "USD") == new Money(100m, "USD")).ShouldBeTrue();
+        (_usd100 == _usd100).ShouldBeTrue();
     }
 
     [TestMethod]
     public void Equal_DifferentValues_ReturnsFalse()
     {
-        (new Money(100m, "USD") == new Money(200m, "USD")).ShouldBeFalse();
+        (_usd100 == _usd200).ShouldBeFalse();
     }
 
     [TestMethod]
     public void Inequality_DifferentValues_ReturnsTrue()
     {
-        (new Money(100m, "USD") != new Money(200m, "USD")).ShouldBeTrue();
+        (_usd100 != _usd200).ShouldBeTrue();
     }
 
     [TestMethod]
     public void Inequality_DifferentValues_ReturnsFalse()
     {
-        (new Money(100m, "USD") != new Money(100m, "USD")).ShouldBeFalse();
+        (_usd100 != _usd100).ShouldBeFalse();
     }
 
     [TestMethod]
     public void LessThan_LessThan_ReturnsTrue()
     {
-        (new Money(100m, "USD") < new Money(200m, "USD")).ShouldBeTrue();
+        (_usd100 < _usd200).ShouldBeTrue();
     }
 
     [TestMethod]
     public void LessThan_GreaterThan_ReturnsFalse()
     {
-        (new Money(200m, "USD") < new Money(100m, "USD")).ShouldBeFalse();
+        (_usd200 < _usd100).ShouldBeFalse();
     }
 
     [TestMethod]
     public void LessThan_EqualValues_ReturnsFalse()
     {
-        (new Money(100m, "USD") < new Money(100m, "USD")).ShouldBeFalse();
+        (_usd100 < _usd100).ShouldBeFalse();
     }
 
     [TestMethod]
     public void LessThan_DifferentCurrency_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => new Money(200m, "USD") < new Money(100m, "CAD"));
+        Should.Throw<ArgumentException>(() => _usd200 < _cad100);
     }
 
     [TestMethod]
     public void GreaterThan_GreaterThan_ReturnsTrue()
     {
-        (new Money(200m, "USD") > new Money(100m, "USD")).ShouldBeTrue();
+        (_usd200 > _usd100).ShouldBeTrue();
     }
 
     [TestMethod]
     public void GreaterThan_LessThan_ReturnsFalse()
     {
-        (new Money(100m, "USD") > new Money(200m, "USD")).ShouldBeFalse();
+        (_usd100 > _usd200).ShouldBeFalse();
     }
 
     [TestMethod]
     public void GreaterThan_EqualValues_ReturnsFalse()
     {
-        (new Money(100m, "USD") > new Money(100m, "USD")).ShouldBeFalse();
+        (_usd100 > _usd100).ShouldBeFalse();
     }
 
     [TestMethod]
     public void GreaterThan_DifferentCurrency_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => new Money(200m, "USD") > new Money(100m, "CAD"));
+        Should.Throw<ArgumentException>(() => _usd200 > _cad100);
     }
 
     [TestMethod]
     public void LessThanOrEqual_LessThan_ReturnsTrue()
     {
-        (new Money(100m, "USD") <= new Money(200m, "USD")).ShouldBeTrue();
+        (_usd100 <= _usd200).ShouldBeTrue();
     }
 
     [TestMethod]
     public void LessThanOrEqual_Equal_ReturnsTrue()
     {
-        (new Money(100m, "USD") <= new Money(100m, "USD")).ShouldBeTrue();
+        (_usd100 <= _usd100).ShouldBeTrue();
     }
 
     [TestMethod]
     public void LessThanOrEqual_GreaterThan_ReturnsFalse()
     {
-        (new Money(200m, "USD") <= new Money(100m, "USD")).ShouldBeFalse();
+        (_usd200 <= _usd100).ShouldBeFalse();
     }
 
     [TestMethod]
     public void LessThanOrEqual_DifferentCurrency_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => new Money(100m, "USD") <= new Money(200m, "CAD"));
+        Should.Throw<ArgumentException>(() => _usd100 <= _cad200);
     }
 
     [TestMethod]
     public void GreaterThanOrEqual_GreaterThan_ReturnsTrue()
     {
-        (new Money(200m, "USD") >= new Money(100m, "USD")).ShouldBeTrue();
+        (_usd200 >= _usd100).ShouldBeTrue();
     }
 
     [TestMethod]
     public void GreaterThanOrEqual_Equal_ReturnsTrue()
     {
-        (new Money(100m, "USD") >= new Money(100m, "USD")).ShouldBeTrue();
+        (_usd100 >= _usd100).ShouldBeTrue();
     }
 
     [TestMethod]
     public void GreaterThanOrEqual_LessThan_ReturnsFalse()
     {
-        (new Money(100m, "USD") >= new Money(200m, "USD")).ShouldBeFalse();
+        (_usd100 >= _usd200).ShouldBeFalse();
     }
 
     [TestMethod]
     public void GreaterThanOrEqual_DifferentCurrency_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => new Money(100m, "USD") >= new Money(200m, "CAD"));
+        Should.Throw<ArgumentException>(() => _usd100 >= _cad200);
     }
 
     [TestMethod]
     public void Addition_SameCurrency_ReturnsCorrectResult()
     {
-        (new Money(100m, "USD") + new Money(200m, "USD")).ShouldBe(new Money(300m, "USD"));
+        (_usd100 + _usd200).ShouldBe(_usd300);
     }
 
     [TestMethod]
     public void Addition_DifferentCurrency_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => new Money(100m, "USD") + new Money(200m, "CAD"));
+        Should.Throw<ArgumentException>(() => _usd100 + _cad200);
     }
 
     [TestMethod]
     public void Addition_MoneyAndDecimal_ReturnsCorrectResult()
     {
-        (new Money(100m, "USD") + 200m).ShouldBe(new Money(300m, "USD"));
+        (_usd100 + 200m).ShouldBe(_usd300);
     }
 
     [TestMethod]
     public void Addition_MoneyAndNegativeDecimal_ReturnsCorrectResult()
     {
-        (new Money(100m, "USD") + -50m).ShouldBe(new Money(50m, "USD"));
+        (_usd200 + -100m).ShouldBe(_usd100);
     }
 
     [TestMethod]
     public void Addition_DecimalAndMoney_ReturnsCorrectResult()
     {
-        (100m + new Money(200m, "USD")).ShouldBe(new Money(300m, "USD"));
+        (100m + _usd200).ShouldBe(_usd300);
     }
 
     [TestMethod]
     public void Addition_NegativeDecimalAndMoney_ReturnsCorrectResult()
     {
-        (-50m + new Money(100m, "USD")).ShouldBe(new Money(50m, "USD"));
+        (-100m + _usd200).ShouldBe(_usd100);
     }
 
     [TestMethod]
     public void Subtraction_SameCurrency_ReturnsCorrectResult()
     {
-        (new Money(200m, "USD") - new Money(100m, "USD")).ShouldBe(new Money(100m, "USD"));
+        (_usd200 - _usd100).ShouldBe(_usd100);
     }
 
     [TestMethod]
     public void Subtraction_DifferentCurrency_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => new Money(200m, "USD") - new Money(100m, "CAD"));
+        Should.Throw<ArgumentException>(() => _usd200 - _cad100);
     }
 
     [TestMethod]
     public void Subtraction_MoneyAndDecimal_ReturnsCorrectResult()
     {
-        (new Money(200m, "USD") - 100m).ShouldBe(new Money(100m, "USD"));
+        (_usd200 - 100m).ShouldBe(_usd100);
     }
 
     [TestMethod]
     public void Subtraction_MoneyAndNegativeDecimal_ReturnsCorrectResult()
     {
-        (new Money(200m, "USD") - -100m).ShouldBe(new Money(300m, "USD"));
+        (_usd200 - -100m).ShouldBe(_usd300);
     }
 
     [TestMethod]
     public void Subtraction_DecimalAndMoney_ReturnsCorrectResult()
     {
-        (200m - new Money(100m, "USD")).ShouldBe(new Money(100m, "USD"));
+        (200m - _usd100).ShouldBe(_usd100);
     }
 
     [TestMethod]
     public void Subtraction_NegativeDecimalAndMoney_ReturnsCorrectResult()
     {
-        (-100m - new Money(200m, "USD")).ShouldBe(new Money(-300m, "USD"));
+        (-100m - _usd200).ShouldBe(-_usd300);
     }
 
     [TestMethod]
     public void Subtraction_DecimalMinusMoney_ReturnsCorrectResult()
     {
-        (200m - new Money(100m, "USD")).ShouldBe(new Money(100m, "USD"));
+        (200m - _usd100).ShouldBe(_usd100);
     }
 
     [TestMethod]
     public void Subtraction_NegativeDecimalMinusMoney_ReturnsCorrectResult()
     {
-        (-100m - new Money(200m, "USD")).ShouldBe(new Money(-300m, "USD"));
+        (-100m - _usd200).ShouldBe(-_usd300);
     }
 
     [TestMethod]
     public void Multiplication_MoneyAndDecimal_ReturnsCorrectResult()
     {
-        (new Money(100m, "USD") * 2m).ShouldBe(new Money(200m, "USD"));
+        (_usd100 * 2m).ShouldBe(_usd200);
     }
 
     [TestMethod]
     public void Multiplication_MoneyAndNegativeDecimal_ReturnsCorrectResult()
     {
-        (new Money(100m, "USD") * -2m).ShouldBe(new Money(-200m, "USD"));
+        (_usd100 * -2m).ShouldBe(-_usd200);
     }
 
     [TestMethod]
     public void Multiplication_MoneyAndZero_ReturnsZero()
     {
-        (new Money(100m, "USD") * 0m).ShouldBe(new Money(0m, "USD"));
+        (_usd100 * 0m).ShouldBe(_usd0);
     }
 
     [TestMethod]
     public void Multiplication_DecimalAndMoney_ReturnsCorrectResult()
     {
-        (2m * new Money(100m, "USD")).ShouldBe(new Money(200m, "USD"));
+        (2m * _usd100).ShouldBe(_usd200);
     }
 
     [TestMethod]
     public void Multiplication_NegativeDecimalAndMoney_ReturnsCorrectResult()
     {
-        (-2m * new Money(100m, "USD")).ShouldBe(new Money(-200m, "USD"));
+        (-2m * _usd100).ShouldBe(-_usd200);
     }
 
     [TestMethod]
     public void Multiplication_ZeroAndMoney_ReturnsZero()
     {
-        (0m * new Money(100m, "USD")).ShouldBe(new Money(0m, "USD"));
+        (0m * _usd100).ShouldBe(_usd0);
     }
 
     [TestMethod]
     public void Division_MoneyAndDecimal_ReturnsCorrectResult()
     {
-        (new Money(100m, "USD") / 2m).ShouldBe(new Money(50m, "USD"));
+        (_usd200 / 2m).ShouldBe(_usd100);
     }
 
     [TestMethod]
     public void Division_MoneyAndNegativeDecimal_ReturnsCorrectResult()
     {
-        (new Money(100m, "USD") / -2m).ShouldBe(new Money(-50m, "USD"));
+        (_usd300 / -1.5m).ShouldBe(_usdMinus200);
     }
 
     [TestMethod]
     public void Division_MoneyAndOne_ReturnsSameMoney()
     {
-        (new Money(100m, "USD") / 1m).ShouldBe(new Money(100m, "USD"));
+        (_usd100 / 1m).ShouldBe(_usd100);
     }
 
     [TestMethod]
     public void Division_MoneyAndZero_ThrowsDivideByZeroException()
     {
-        Should.Throw<DivideByZeroException>(() => new Money(100m, "USD") / 0m);
+        Should.Throw<DivideByZeroException>(() => _usd100 / 0m);
     }
 
     [TestMethod]
     public void Division_DecimalAndMoney_ReturnsCorrectResult()
     {
-        (200m / new Money(100m, "USD")).ShouldBe(new Money(2m, "USD"));
+        (20000m / _usd100).ShouldBe(_usd200);
     }
 
     [TestMethod]
     public void Division_NegativeDecimalAndMoney_ReturnsCorrectResult()
     {
-        (-200m / new Money(100m, "USD")).ShouldBe(new Money(-2m, "USD"));
-    }
-
-    [TestMethod]
-    public void Division_DecimalAndOneMoney_ReturnsSameDecimal()
-    {
-        (200m / new Money(1m, "USD")).ShouldBe(new Money(200m, "USD"));
+        (-20000m / _usd100).ShouldBe(_usdMinus200);
     }
 
     [TestMethod]
     public void Division_DecimalAndZeroMoney_ThrowsDivideByZeroException()
     {
-        Should.Throw<DivideByZeroException>(() => 200m / new Money(0m, "USD"));
+        Should.Throw<DivideByZeroException>(() => 200m / _usd0);
     }
 
     [TestMethod]
     public void Increment_ReturnsCorrectResult()
     {
-        var money = new Money(100m, "USD");
-        (++money).ShouldBe(new Money(101m, "USD"));
+        var value = _usd100;
+        (++value).ShouldBe(new Money(101m, "USD"));
     }
 
     [TestMethod]
     public void Decrement_ReturnsCorrectResult()
     {
-        var money = new Money(100m, "USD");
-        (--money).ShouldBe(new Money(99m, "USD"));
+        var value = _usd100;
+        (--value).ShouldBe(new Money(99m, "USD"));
     }
 
     [TestMethod]
-    public void UnaryPlus_ReturnsSameValue()
+    public void UnaryPlus_PositiveValue_ReturnsSameValue()
     {
-        (+new Money(100m, "USD")).ShouldBe(new Money(100m, "USD"));
+        (+_usd100).ShouldBe(_usd100);
     }
 
     [TestMethod]
     public void UnaryPlus_NegativeValue_ReturnsSameValue()
     {
-        (+new Money(-100m, "USD")).ShouldBe(new Money(-100m, "USD"));
+        (+_usdMinus200).ShouldBe(_usdMinus200);
     }
 
     [TestMethod]
     public void UnaryMinus_PositiveValue_ReturnsNegativeValue()
     {
-        (-new Money(100m, "USD")).ShouldBe(new Money(-100m, "USD"));
+        (-_usd200).ShouldBe(_usdMinus200);
     }
 
     [TestMethod]
     public void UnaryMinus_NegativeValue_ReturnsPositiveValue()
     {
-        (-new Money(-100m, "USD")).ShouldBe(new Money(100m, "USD"));
+        (-_usdMinus200).ShouldBe(_usd200);
     }
 }
