@@ -1,6 +1,4 @@
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Singulink.Globalization;
 
@@ -16,28 +14,54 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     /// </summary>
     public static Money Default => default;
 
-    private readonly Currency? _currency;
     private readonly decimal _amount;
+    private readonly Currency? _currency;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Money"/> struct.
+    /// Initializes a new instance of the <see cref="Money"/> struct with the specified amount and currency code.
     /// </summary>
-    public Money(decimal amount, string? currencyCode) : this(amount, currencyCode == null ? null : Currency.Get(currencyCode))
+    public Money(decimal amount, string currencyCode) : this(amount, Currency.Get(currencyCode)) { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Money"/> struct with the specified amount and currency.
+    /// </summary>
+    public Money(decimal amount, Currency currency)
     {
+        _amount = amount;
+        _currency = currency;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Money"/> struct.
+    /// Creates a new <see cref="Money"/> value with the specified amount and currency code.
     /// </summary>
-    public Money(decimal amount, Currency? currency)
+    public static Money Create(decimal amount, string currencyCode) => new(amount, currencyCode);
+
+    /// <summary>
+    /// Creates a new <see cref="Money"/> value with the specified amount and currency.
+    /// </summary>
+    public static Money Create(decimal amount, Currency currency) => new(amount, currency);
+
+    /// <summary>
+    /// Creates a new <see cref="Money"/> value with the specified amount and currency code. Allows creating default money values by passing <c>0</c> for
+    /// the amount and <see langword="null"/> for the currency code. Currency code must be provided if the amount is non-zero.
+    /// </summary>
+    public static Money CreateDefaultable(decimal amount, string? currencyCode) => CreateDefaultable(amount, currencyCode == null ? null : Currency.Get(currencyCode));
+
+    /// <summary>
+    /// Creates a new <see cref="Money"/> value with the specified amount and currency. Allows creating default money values by passing <c>0</c> for
+    /// the amount and <see langword="null"/> for the currency. Currency must be provided if the amount is non-zero.
+    /// </summary>
+    public static Money CreateDefaultable(decimal amount, Currency? currency)
     {
-        if (currency == null && amount != 0)
-            Throw();
+        if (currency == null)
+        {
+            if (amount != 0)
+                ThrowCurrencyRequiredForNonZeroAmount();
 
-        _amount = amount;
-        _currency = currency;
+            return default;
+        }
 
-        static void Throw() => throw new ArgumentException("Currency must be specified for non-zero amounts.");
+        return new Money(amount, currency);
     }
 
     /// <summary>
@@ -46,7 +70,19 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     /// <exception cref="InvalidOperationException">
     /// Attempted to get the currency on a default value which has no currency associated with it.
     /// </exception>
-    public Currency Currency => _currency ?? throw new InvalidOperationException("Default money values do not have a currency associated with them.");
+    public Currency Currency
+    {
+        get {
+            if (_currency is null)
+            {
+                [DoesNotReturn]
+                static void Throw() => throw new InvalidOperationException("Default money values do not have a currency associated with them.");
+                Throw();
+            }
+
+            return _currency;
+        }
+    }
 
     /// <summary>
     /// Gets the currency associated with this value or <see langword="null"/> if this is a default money value with no currency associated with it.
@@ -97,33 +133,51 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
         return x._amount >= y._amount;
     }
 
-    public static Money operator +(Money x, Money y) => new(x._amount + y._amount, CombineCurrencies(x._currency, y._currency));
+    public static Money operator +(Money x, Money y) => CreateDefaultable(x._amount + y._amount, CombineCurrencies(x._currency, y._currency));
 
-    public static Money operator +(Money x, decimal y) => new(x._amount + y, x._currency);
+    public static Money operator +(Money x, decimal y) => CreateDefaultable(x._amount + y, x._currency);
 
     public static Money operator +(decimal x, Money y) => y + x;
 
-    public static Money operator -(Money x, Money y) => new(x._amount - y._amount, CombineCurrencies(x._currency, y._currency));
+    public static Money operator -(Money x, Money y) => CreateDefaultable(x._amount - y._amount, CombineCurrencies(x._currency, y._currency));
 
-    public static Money operator -(Money x, decimal y) => new(x._amount - y, x._currency);
+    public static Money operator -(Money x, decimal y) => CreateDefaultable(x._amount - y, x._currency);
 
-    public static Money operator -(decimal x, Money y) => new(x - y._amount, y._currency);
+    public static Money operator -(decimal x, Money y) => CreateDefaultable(x - y._amount, y._currency);
 
-    public static Money operator *(Money x, decimal y) => new(x._amount * y, x._currency);
+    public static Money operator *(Money x, decimal y) => CreateDefaultable(x._amount * y, x._currency);
 
     public static Money operator *(decimal x, Money y) => y * x;
 
-    public static Money operator /(Money x, decimal y) => new(x._amount / y, x._currency);
+    public static Money operator /(Money x, decimal y) => CreateDefaultable(x._amount / y, x._currency);
 
-    public static Money operator /(decimal x, Money y) => new(x / y._amount, y._currency);
+    public static Money operator /(decimal x, Money y) => CreateDefaultable(x / y._amount, y._currency);
 
-    public static Money operator ++(Money value) => new(value.Amount + 1, value._currency);
+    public static Money operator ++(Money value)
+    {
+        if (value.IsDefault)
+            ThrowCurrencyRequiredForNonZeroAmount();
 
-    public static Money operator --(Money value) => new(value.Amount - 1, value._currency);
+        return new(value.Amount + 1, value._currency);
+    }
+
+    public static Money operator --(Money value)
+    {
+        if (value.IsDefault)
+            ThrowCurrencyRequiredForNonZeroAmount();
+
+        return new(value.Amount - 1, value._currency);
+    }
 
     public static Money operator +(Money value) => value;
 
-    public static Money operator -(Money value) => new(-value.Amount, value._currency);
+    public static Money operator -(Money value)
+    {
+        if (value.IsDefault)
+            return default;
+
+        return new(-value.Amount, value._currency);
+    }
 
 #pragma warning restore CS1591
 
@@ -180,14 +234,17 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     /// </summary>
     public override int GetHashCode() => HashCode.Combine(_currency, _amount);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void EnsureSameCurrencyForCompare(Currency? x, Currency? y)
     {
         if (x != y)
+        {
+            static void Throw() => throw new ArgumentException("Currencies must match in order to compare money values.");
             Throw();
-
-        static void Throw() => throw new ArgumentException("Currencies must match in order to compare money values.");
+        }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Currency? CombineCurrencies(Currency? x, Currency? y)
     {
         if (x == y)
@@ -197,12 +254,16 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
             return y;
 
         if (y is not null)
+        {
+            static void Throw() => throw new ArgumentException("Currencies must match (or one of the values can be a default value that has no currency associated with it).");
             Throw();
+        }
 
         return x;
-
-        static void Throw() => throw new ArgumentException("Currencies must match (or one of the values can be a default value that has no currency associated with it).");
     }
+
+    [DoesNotReturn]
+    private static void ThrowCurrencyRequiredForNonZeroAmount() => throw new ArgumentException("Non-zero amount money values must have a currency associated with them.");
 
     #endregion
 }
