@@ -59,7 +59,7 @@ public class RemoveAllTests
     }
 
     [TestMethod]
-    public void RemoveCurrencies_CurrencyDisallowed_ThrowsArgumentException()
+    public void RemoveCurrencies_CurrencyDisallowed_RemovesAllAllowedCurrenciesAndThrowsArgumentException()
     {
         var disallowedCurrency = new Currency("XXX", "Non-existent currency", "X", 2);
 
@@ -71,7 +71,7 @@ public class RemoveAllTests
     }
 
     [TestMethod]
-    public void RemoveCurrencies_CurrenciesDisallowed_ThrowsArgumentException()
+    public void RemoveCurrencies_CurrenciesDisallowed_RemovesAllAllowedCurrenciesAndThrowsArgumentException()
     {
         var disallowedCurrencyX = new Currency("XXX", "Non-existent currency", "X", 2);
         var disallowedCurrencyY = new Currency("YYY", "Non-existent currency", "Y", 2);
