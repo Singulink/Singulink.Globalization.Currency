@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Text;
 
 namespace Singulink.Globalization;
@@ -188,7 +188,7 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
         {
             if (!_registry.Contains(currency))
             {
-                disallowedCurrencies ??= new();
+                disallowedCurrencies ??= [];
                 disallowedCurrencies.Add(currency);
                 continue;
             }
@@ -214,7 +214,7 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
             var money = new Money(kvp.Value, kvp.Key);
             if (predicate(money))
             {
-                currenciesToRemove ??= new();
+                currenciesToRemove ??= [];
                 currenciesToRemove.Add(kvp.Key);
             }
         }
@@ -428,7 +428,7 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
 
             if (ensureCurrenciesInRegistry && !_registry.Contains(currency))
             {
-                disallowedCurrencies ??= new();
+                disallowedCurrencies ??= [];
                 disallowedCurrencies.Add(currency);
                 continue;
             }

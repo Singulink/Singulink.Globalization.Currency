@@ -28,7 +28,7 @@ public sealed class CurrencyRegistry : ISet<Currency>, IReadOnlySet<Currency>
         if (_name.Length == 0)
             throw new ArgumentException("Name is required.", nameof(name));
 
-        _currencies = new();
+        _currencies = [];
         _currencyLookup = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (var currency in currencies)
