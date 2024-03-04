@@ -38,7 +38,7 @@ public class SetValueTests
     }
 
     [TestMethod]
-    public void SetValue_CurrencyIsNotAccepted_ThrowsArgumentException()
+    public void SetValue_CurrencyDisallowed_ThrowsArgumentException()
     {
         var value = new Money(100, new Currency("Blah blah blah", "BBB", "$$", 2));
         Should.Throw<ArgumentException>(() => _set.SetValue(value));

@@ -17,7 +17,7 @@ public class TryGetValueTests
     private static readonly ImmutableSortedMoneySet Set = [Usd100, Cad50, Eur25];
 
     [TestMethod]
-    public void GetByCurrency_ValueExists_ReturnsTrueAndOutputsValue()
+    public void GetByCurrency_CurrencyExists_ReturnsTrueAndOutputsValue()
     {
         Set.TryGetValue(Currency.Get("USD"), out var value).ShouldBeTrue();
         value.ShouldBe(Usd100);
@@ -30,7 +30,7 @@ public class TryGetValueTests
     }
 
     [TestMethod]
-    public void GetByCurrency_ValueDoesNotExist_ReturnsFalse()
+    public void GetByCurrency_CurrencyDoesNotExist_ReturnsFalse()
     {
         Set.TryGetValue(Currency.Get("GBP"), out var value).ShouldBeFalse();
     }
@@ -42,7 +42,7 @@ public class TryGetValueTests
     }
 
     [TestMethod]
-    public void GetByCurrencyCode_ValueExists_ReturnsTrueAndOutputsValue()
+    public void GetByCurrencyCode_CurrencyExists_ReturnsTrueAndOutputsValue()
     {
         Set.TryGetValue("USD", out var value).ShouldBeTrue();
         value.ShouldBe(Usd100);
@@ -55,7 +55,7 @@ public class TryGetValueTests
     }
 
     [TestMethod]
-    public void GetByCurrencyCode_ValueDoesNotExist_ReturnsFalse()
+    public void GetByCurrencyCode_CurrencyDoesNotExist_ReturnsFalse()
     {
         Set.TryGetValue("GBP", out var value).ShouldBeFalse();
     }
