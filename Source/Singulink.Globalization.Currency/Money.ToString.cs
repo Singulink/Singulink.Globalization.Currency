@@ -10,14 +10,17 @@ partial struct Money : IFormattable
 {
     private const string PositiveInternationalPattern = "$ n";
     private const string PositiveReverseInternationalPattern = "n $";
-    private static readonly ImmutableArray<string> PositiveCurrencyPatterns = ImmutableArray.Create("$n", "n$", "$ n", "n $");
+    private static readonly ImmutableArray<string> PositiveCurrencyPatterns = ["$n", "n$", "$ n", "n $"];
 
-    private static readonly ImmutableArray<string> NegativeInternationalPatterns = ImmutableArray.Create("$ (n)", "$ -n", "$ -n", "$ n-", "$ (n)", "$ -n", "$ n-", "$ n-", "$ -n", "$ -n", "$ n-", "$ n-", "$ -n", "$ n-", "$ (n)", "$ (n)");
-    private static readonly ImmutableArray<string> NegativeReverseInternationalPatterns = ImmutableArray.Create("(n) $", "-n $", "-n $", "n- $", "(n) $", "-n $", "n- $", "n- $", "-n $", "-n $", "n- $", "n- $", "-n $", "n- $", "(n) $", "(n) $");
-    private static readonly ImmutableArray<string> NegativeCurrencyPatterns = ImmutableArray.Create("($n)", "-$n", "$-n", "$n-", "(n$)", "-n$", "n-$", "n$-", "-n $", "-$ n", "n $-", "$ n-", "$ -n", "n- $", "($ n)", "(n $)");
+    private static readonly ImmutableArray<string> NegativeCurrencyPatterns
+        = ["($n)",  "-$n",  "$-n",  "$n-",  "(n$)",  "-n$",  "n-$",  "n$-",  "-n $", "-$ n", "n $-", "$ n-", "$ -n", "n- $", "($ n)", "(n $)"];
+    private static readonly ImmutableArray<string> NegativeInternationalPatterns
+        = ["$ (n)", "$ -n", "$ -n", "$ n-", "$ (n)", "$ -n", "$ n-", "$ n-", "$ -n", "$ -n", "$ n-", "$ n-", "$ -n", "$ n-", "$ (n)", "$ (n)"];
+    private static readonly ImmutableArray<string> NegativeReverseInternationalPatterns
+        = ["(n) $", "-n $", "-n $", "n- $", "(n) $", "-n $", "n- $", "n- $", "-n $", "-n $", "n- $", "n- $", "-n $", "n- $", "(n) $", "(n) $"];
 
-    private static readonly ConditionalWeakTable<CultureInfo, RegionInfo?> s_regionInfoLookup = new();
-    private static readonly ConditionalWeakTable<NumberFormatInfo, NumberFormatInfo> s_absNumberFormatInfoLookup = new();
+    private static readonly ConditionalWeakTable<CultureInfo, RegionInfo?> s_regionInfoLookup = [];
+    private static readonly ConditionalWeakTable<NumberFormatInfo, NumberFormatInfo> s_absNumberFormatInfoLookup = [];
 
     /// <summary>
     /// Returns a string representation of this value's currency and amount.
