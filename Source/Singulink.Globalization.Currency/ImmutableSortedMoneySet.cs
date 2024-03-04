@@ -387,7 +387,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
     public ImmutableSortedMoneySet Subtract(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
-        return AddInternal(amount, currency);
+        return AddInternal(-amount, currency);
     }
 
     /// <summary>
