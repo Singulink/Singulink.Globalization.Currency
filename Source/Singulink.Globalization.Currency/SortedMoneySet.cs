@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Text;
 
 namespace Singulink.Globalization;
@@ -243,10 +243,28 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// </summary>
     public void RoundToCurrencyDigits(MidpointRounding mode)
     {
-        // TODO: consider optimizations
-        foreach (var kvp in _amountLookup)
+        if (Count == 0)
+            return;
+
+        List<KeyValuePair<Currency, decimal>> updatedEntries = null;
+
+        foreach (var entry in _amountLookup)
         {
-            _amountLookup[kvp.Key] = Math.Round(kvp.Value, kvp.Key.DecimalDigits, mode);
+            decimal roundedValue = decimal.Round(entry.Value, entry.Key.DecimalDigits, mode);
+
+            if (roundedValue != entry.Value)
+            {
+                updatedEntries ??= [];
+                updatedEntries.Add(new(entry.Key, roundedValue));
+            }
+        }
+
+        if (updatedEntries == null)
+            return;
+
+        foreach (var entry in updatedEntries)
+        {
+            _amountLookup[entry.Key] = entry.Value;
         }
     }
 
