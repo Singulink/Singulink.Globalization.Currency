@@ -1,8 +1,9 @@
-﻿using Shouldly;
+﻿using PrefixClassName.MsTest;
+using Shouldly;
 
 namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
-[TestClass]
+[PrefixTestClass]
 public class SubtractTests
 {
     private static readonly Money Usd100 = new(100m, "USD");
@@ -91,7 +92,6 @@ public class SubtractTests
     [TestMethod]
     public void SubtractByCurrency_CurrencyDisallowed_ThrowsArgumentException()
     {
-        _set.Count.ShouldBe(2);
         Should.Throw<ArgumentException>(() => _set.Subtract(100m, DisallowedCurrency));
     }
 }

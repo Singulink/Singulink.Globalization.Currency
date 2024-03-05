@@ -1,8 +1,9 @@
-﻿using Shouldly;
+﻿using PrefixClassName.MsTest;
+using Shouldly;
 
 namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
-[TestClass]
+[PrefixTestClass]
 public class SetAmountTests
 {
     private static readonly Currency Usd = Currency.Get("USD");

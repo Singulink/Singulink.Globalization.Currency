@@ -1,8 +1,9 @@
+using PrefixClassName.MsTest;
 using Shouldly;
 
 namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
-[TestClass]
+[PrefixTestClass]
 public class RemoveAllTests
 {
     private static readonly Currency Usd = Currency.Get("USD");

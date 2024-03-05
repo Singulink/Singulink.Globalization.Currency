@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using PrefixClassName.MsTest;
 using Shouldly;
 
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
-[TestClass]
+[PrefixTestClass]
 public class SetValueTests
 {
     private static readonly Money Usd100 = new(100m, "USD");

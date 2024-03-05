@@ -1,8 +1,9 @@
-﻿using Shouldly;
+﻿using PrefixClassName.MsTest;
+using Shouldly;
 
 namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
-[TestClass]
+[PrefixTestClass]
 public class RoundToCurrencyDigitsTests
 {
 #pragma warning disable SA1025 // Code should not contain multiple whitespace in a row

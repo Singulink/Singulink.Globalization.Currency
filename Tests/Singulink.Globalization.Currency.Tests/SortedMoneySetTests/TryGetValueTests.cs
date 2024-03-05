@@ -1,8 +1,9 @@
-﻿using Shouldly;
+﻿using PrefixClassName.MsTest;
+using Shouldly;
 
 namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
-[TestClass]
+[PrefixTestClass]
 public class TryGetValueTests
 {
     private static readonly Money Usd100 = new(100m, "USD");
@@ -28,7 +29,7 @@ public class TryGetValueTests
     [TestMethod]
     public void GetByCurrency_ValueDoesNotExist_ReturnsFalse()
     {
-        _set.TryGetValue(Currency.Get("GBP"), out var value).ShouldBeFalse();
+        _set.TryGetValue(Currency.Get("GBP"), out _).ShouldBeFalse();
     }
 
     [TestMethod]
@@ -53,7 +54,7 @@ public class TryGetValueTests
     [TestMethod]
     public void GetByCurrencyCode_ValueDoesNotExist_ReturnsFalse()
     {
-        _set.TryGetValue("GBP", out var value).ShouldBeFalse();
+        _set.TryGetValue("GBP", out _).ShouldBeFalse();
     }
 
     [TestMethod]

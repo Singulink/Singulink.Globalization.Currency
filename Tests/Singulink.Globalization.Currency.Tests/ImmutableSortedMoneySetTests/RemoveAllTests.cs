@@ -1,9 +1,9 @@
-﻿using Microsoft.Win32;
+﻿using PrefixClassName.MsTest;
 using Shouldly;
 
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
-[TestClass]
+[PrefixTestClass]
 public class RemoveAllTests
 {
     private static readonly Currency Usd = Currency.Get("USD");

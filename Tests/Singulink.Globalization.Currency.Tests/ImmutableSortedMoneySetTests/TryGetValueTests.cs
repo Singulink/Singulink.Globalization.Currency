@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using PrefixClassName.MsTest;
 using Shouldly;
 
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
-[TestClass]
+[PrefixTestClass]
 public class TryGetValueTests
 {
     private static readonly Money Usd100 = new(100m, "USD");
@@ -32,7 +27,7 @@ public class TryGetValueTests
     [TestMethod]
     public void GetByCurrency_CurrencyDoesNotExist_ReturnsFalse()
     {
-        Set.TryGetValue(Currency.Get("GBP"), out var value).ShouldBeFalse();
+        Set.TryGetValue(Currency.Get("GBP"), out _).ShouldBeFalse();
     }
 
     [TestMethod]
@@ -57,7 +52,7 @@ public class TryGetValueTests
     [TestMethod]
     public void GetByCurrencyCode_CurrencyDoesNotExist_ReturnsFalse()
     {
-        Set.TryGetValue("GBP", out var value).ShouldBeFalse();
+        Set.TryGetValue("GBP", out _).ShouldBeFalse();
     }
 
     [TestMethod]

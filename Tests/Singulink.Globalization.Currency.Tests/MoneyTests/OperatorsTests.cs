@@ -1,10 +1,11 @@
-﻿using Shouldly;
+﻿using PrefixClassName.MsTest;
+using Shouldly;
 
 namespace Singulink.Globalization.Tests.MoneyTests;
 
 #pragma warning disable CS1718 // Comparison made to same variable
 
-[TestClass]
+[PrefixTestClass]
 public class OperatorsTests
 {
     private static readonly Money UsdMinus200 = new(-200m, "USD");
@@ -34,7 +35,7 @@ public class OperatorsTests
     }
 
     [TestMethod]
-    public void Inequality_DifferentValues_ReturnsFalse()
+    public void Inequality_EqualValues_ReturnsFalse()
     {
         (Usd100 != Usd100).ShouldBeFalse();
     }

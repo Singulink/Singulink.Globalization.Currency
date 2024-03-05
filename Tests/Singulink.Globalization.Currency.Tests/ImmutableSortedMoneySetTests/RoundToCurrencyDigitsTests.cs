@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using PrefixClassName.MsTest;
 using Shouldly;
 
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
-[TestClass]
+[PrefixTestClass]
 public class RoundToCurrencyDigitsTests
 {
 #pragma warning disable SA1025 // Code should not contain multiple whitespace in a row

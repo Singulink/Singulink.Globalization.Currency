@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using PrefixClassName.MsTest;
 using Shouldly;
 
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
-[TestClass]
+[PrefixTestClass]
 public class TryGetAmountTests
 {
     private static readonly Money Usd100 = new(100m, "USD");

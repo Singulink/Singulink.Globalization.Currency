@@ -1,9 +1,10 @@
 ﻿using System.Globalization;
+using PrefixClassName.MsTest;
 using Shouldly;
 
 namespace Singulink.Globalization.Tests.MoneyTests;
 
-[TestClass]
+[PrefixTestClass]
 public class ToStringTests
 {
     private const char Nbsp = '\u00A0';
