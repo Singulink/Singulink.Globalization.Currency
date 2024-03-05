@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Text;
 
 namespace Singulink.Globalization;
@@ -322,6 +322,18 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     }
 
     /// <summary>
+    /// Subtracts the specified values from this set. Zero amounts are not trimmed from the set.
+    /// </summary>
+    /// <remarks>
+    /// Default values that are not associated with any currency are ignored.
+    /// </remarks>
+    public void SubtractRange(IEnumerable<Money> values)
+    {
+        bool ensureCurrenciesInRegistry = values is not IReadOnlyMoneySet s || s.Registry != _registry;
+        SubtractRangeInternal(values, ensureCurrenciesInRegistry);
+    }
+
+    /// <summary>
     /// Copies the values in this set to a new immutable set that uses the same registry as this set.
     /// </summary>
     public ImmutableSortedMoneySet ToImmutableSet() => new ImmutableSortedMoneySet(_registry, this, false);
@@ -459,6 +471,34 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
                 _amountLookup[currency] = existingAmount + value.Amount;
             else
                 _amountLookup.Add(currency, value.Amount);
+        }
+
+        if (disallowedCurrencies != null)
+            ThrowCurrenciesDisallowed(disallowedCurrencies, nameof(values));
+    }
+
+    private void SubtractRangeInternal(IEnumerable<Money> values, bool ensureCurrenciesInRegistry)
+    {
+        List<Currency> disallowedCurrencies = null;
+
+        foreach (var value in values)
+        {
+            var currency = value.CurrencyOrDefault;
+
+            if (currency == null)
+                continue;
+
+            if (ensureCurrenciesInRegistry && !_registry.Contains(currency))
+            {
+                disallowedCurrencies ??= [];
+                disallowedCurrencies.Add(currency);
+                continue;
+            }
+
+            if (_amountLookup.TryGetValue(currency, out decimal existingAmount))
+                _amountLookup[currency] = existingAmount - value.Amount;
+            else
+                _amountLookup.Add(currency, -value.Amount);
         }
 
         if (disallowedCurrencies != null)
