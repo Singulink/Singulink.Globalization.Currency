@@ -4,6 +4,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <WeaverConfiguration>
+      <Weavers>
+        <RuntimeNullables />
+      </Weavers>
+    </WeaverConfiguration>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
