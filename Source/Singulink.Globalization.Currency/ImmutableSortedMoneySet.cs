@@ -422,7 +422,20 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         if (Count == 0)
             return this;
 
-        return new ImmutableSortedMoneySet(_registry, _amountLookup.Select(kvp => new Money(transform(kvp.Value), kvp.Key)), false);
+        ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
+
+        foreach (var kvp in _amountLookup)
+        {
+            decimal newAmount = transform(kvp.Value);
+
+            if (newAmount != kvp.Value)
+            {
+                builder ??= _amountLookup.ToBuilder();
+                builder[kvp.Key] = newAmount;
+            }
+        }
+
+        return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
     /// <summary>
