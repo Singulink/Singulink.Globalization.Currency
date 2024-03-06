@@ -164,11 +164,10 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
     public Money this[Currency currency]
     {
         get {
-            EnsureCurrencyAllowed(currency, nameof(currency));
-
             if (_amountLookup.TryGetValue(currency, out decimal amount))
                 return new Money(amount, currency);
 
+            EnsureCurrencyAllowed(currency, nameof(currency));
             return default;
         }
     }
@@ -602,8 +601,11 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(Currency, out decimal)"/>
     public bool TryGetAmount(Currency currency, out decimal amount)
     {
+        if (_amountLookup.TryGetValue(currency, out amount))
+            return true;
+
         EnsureCurrencyAllowed(currency, nameof(currency));
-        return _amountLookup.TryGetValue(currency, out amount);
+        return false;
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(string, out decimal)"/>
@@ -631,13 +633,13 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(Currency, out Money)"/>
     public bool TryGetValue(Currency currency, out Money value)
     {
-        EnsureCurrencyAllowed(currency, nameof(currency));
-
         if (_amountLookup.TryGetValue(currency, out decimal amount))
         {
             value = new Money(amount, currency);
             return true;
         }
+
+        EnsureCurrencyAllowed(currency, nameof(currency));
 
         value = default;
         return false;

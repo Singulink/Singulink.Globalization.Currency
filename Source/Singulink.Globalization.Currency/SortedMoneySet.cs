@@ -75,11 +75,10 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     public Money this[Currency currency]
     {
         get {
-            EnsureCurrencyAllowed(currency, nameof(currency));
-
             if (_amountLookup.TryGetValue(currency, out decimal amount))
                 return new Money(amount, currency);
 
+            EnsureCurrencyAllowed(currency, nameof(currency));
             return default;
         }
     }
@@ -418,13 +417,13 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(Currency, out Money)"/>
     public bool TryGetValue(Currency currency, out Money value)
     {
-        EnsureCurrencyAllowed(currency, nameof(currency));
-
         if (_amountLookup.TryGetValue(currency, out decimal amount))
         {
             value = new Money(amount, currency);
             return true;
         }
+
+        EnsureCurrencyAllowed(currency, nameof(currency));
 
         value = default;
         return false;
