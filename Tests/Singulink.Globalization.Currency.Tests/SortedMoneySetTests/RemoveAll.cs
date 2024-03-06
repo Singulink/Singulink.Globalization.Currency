@@ -62,7 +62,7 @@ public class RemoveAll
     [TestMethod]
     public void RemoveCurrencies_CurrencyDisallowed_RemovesAllAllowedCurrenciesAndThrowsArgumentException()
     {
-        var disallowedCurrency = new Currency("XXX", "Non-existent currency", "X", 2);
+        var disallowedCurrency = new Currency("Non-existent currency", "XXX", "X", 2);
 
         Should.Throw<ArgumentException>(() => _set.RemoveAll([Usd, disallowedCurrency, disallowedCurrency, Cad]))
             .Message.ShouldBe($"The following currencies are not present in the set's currency registry: {disallowedCurrency} (Parameter 'currencies')");
@@ -74,8 +74,8 @@ public class RemoveAll
     [TestMethod]
     public void RemoveCurrencies_CurrenciesDisallowed_RemovesAllAllowedCurrenciesAndThrowsArgumentException()
     {
-        var disallowedCurrencyX = new Currency("XXX", "Non-existent currency", "X", 2);
-        var disallowedCurrencyY = new Currency("YYY", "Non-existent currency", "Y", 2);
+        var disallowedCurrencyX = new Currency("Non-existent currency X", "XXX", "X", 2);
+        var disallowedCurrencyY = new Currency("Non-existent currency Y", "YYY", "Y", 2);
 
         Should.Throw<ArgumentException>(() => _set.RemoveAll([Usd, disallowedCurrencyX, disallowedCurrencyY, disallowedCurrencyX, Cad]))
             .Message.ShouldBe("The following currencies are not present in the set's currency registry: " +

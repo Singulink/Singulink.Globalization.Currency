@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Singulink.Globalization.Utilities;
 
 namespace Singulink.Globalization;
 
@@ -67,14 +66,20 @@ public class Currency : IFormattable
         if (currencyCode.Length == 0)
             throw new ArgumentException("Currency code is required.", nameof(currencyCode));
 
+        if (currencyCode.Length > 20)
+            throw new ArgumentOutOfRangeException(nameof(currencyCode), "Currency code has a maximum length of 20 characters.");
+
         if (name.Length == 0)
             throw new ArgumentException("Name is required.", nameof(name));
 
         if (symbol.Length == 0)
             throw new ArgumentException("Symbol is required.", nameof(symbol));
 
-        if (decimalDigits < 0)
-            throw new ArgumentOutOfRangeException(nameof(decimalDigits));
+        if (symbol.Length > 20)
+            throw new ArgumentOutOfRangeException(nameof(symbol), "Symbol has a maximum length of 20 characters.");
+
+        if (decimalDigits < 0 || decimalDigits > 28)
+            throw new ArgumentOutOfRangeException(nameof(decimalDigits), "Decimal digits must be between 0 and 28.");
 
         CurrencyCode = currencyCode;
         Name = name;
@@ -196,8 +201,7 @@ public class Currency : IFormattable
 
             if (!lookup.TryGetValue(region.ISOCurrencySymbol, out var currency))
             {
-                const string ZeroWidthSpace = "\u200B";
-                string symbol = region.CurrencySymbol != ZeroWidthSpace ? region.CurrencySymbol : culture.NumberFormat.CurrencyDecimalSeparator;
+                string symbol = region.CurrencySymbol != Constants.ZeroWidthSpace ? region.CurrencySymbol : culture.NumberFormat.CurrencyDecimalSeparator;
 
                 currency = new Currency(region.CurrencyEnglishName, region.ISOCurrencySymbol, symbol, culture.NumberFormat.CurrencyDecimalDigits);
                 lookup[currency.CurrencyCode] = currency;

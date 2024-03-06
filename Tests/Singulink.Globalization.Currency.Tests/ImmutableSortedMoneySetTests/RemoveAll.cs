@@ -54,7 +54,7 @@ public class RemoveAll
     [TestMethod]
     public void RemoveCurrencies_CurrencyDisallowed_ThrowsArgumentException()
     {
-        var disallowedCurrency = new Currency("XXX", "Non-existent currency", "X", 2);
+        var disallowedCurrency = new Currency("Non-existent currency", "XXX", "X", 2);
 
         Should.Throw<ArgumentException>(() => Set.RemoveAll([disallowedCurrency]));
     }
