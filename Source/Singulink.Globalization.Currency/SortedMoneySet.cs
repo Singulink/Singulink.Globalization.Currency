@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Immutable;
 using System.Text;
 
 namespace Singulink.Globalization;
@@ -439,6 +440,35 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
                 _amountLookup[kvp.Key] = newAmount;
             }
         }
+    }
+
+    /// <summary>
+    /// Removes all zero amounts from this set.
+    /// </summary>
+    public int TrimZeroAmounts()
+    {
+        List<Currency> currenciesToRemove = null;
+
+        foreach (var kvp in _amountLookup.ToList())
+        {
+            if (kvp.Value == 0)
+            {
+                currenciesToRemove ??= [];
+                currenciesToRemove.Add(kvp.Key);
+            }
+        }
+
+        if (currenciesToRemove != null)
+        {
+            foreach (var currency in currenciesToRemove)
+            {
+                _amountLookup.Remove(currency);
+            }
+
+            return currenciesToRemove.Count;
+        }
+
+        return 0;
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(Currency, out decimal)"/>
