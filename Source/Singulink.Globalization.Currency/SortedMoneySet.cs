@@ -402,7 +402,7 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     }
 
     /// <summary>
-    /// Applies the specified transformation to each value's amount in this set and returns the resulting set.
+    /// Applies the specified transformation to each value's amount in this set.
     /// </summary>
     public void TransformValues(Func<Money, decimal> transform)
     {
@@ -414,6 +414,26 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
             decimal newAmount = transform(new Money(kvp.Value, kvp.Key));
 
             if (newAmount != kvp.Value)
+            {
+                _amountLookup[kvp.Key] = newAmount;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Applies the specified transformation to each value's amount in this set.
+    /// </summary>
+    public void TransformAmounts(Func<decimal, decimal> transform)
+    {
+        if (Count == 0)
+            return;
+
+        foreach (var kvp in _amountLookup.ToList())
+        {
+            decimal oldAmount = kvp.Value;
+            decimal newAmount = transform(oldAmount);
+
+            if (newAmount != oldAmount)
             {
                 _amountLookup[kvp.Key] = newAmount;
             }
