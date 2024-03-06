@@ -404,60 +404,6 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
     }
 
     /// <summary>
-    /// Applies the specified transformation to all the values in this set and returns the resulting set.
-    /// </summary>
-    public ImmutableSortedMoneySet TransformValues(Func<Money, Money> transform)
-    {
-        if (Count == 0)
-            return this;
-
-        return CreateRange(_registry, this.Select(transform));
-    }
-
-    /// <summary>
-    /// Applies the specified transformation to all the value amounts in this set and returns the resulting set.
-    /// </summary>
-    public ImmutableSortedMoneySet TransformAmounts(Func<decimal, decimal> transform)
-    {
-        if (Count == 0)
-            return this;
-
-        ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
-
-        foreach (var kvp in _amountLookup)
-        {
-            decimal newAmount = transform(kvp.Value);
-
-            if (newAmount != kvp.Value)
-            {
-                builder ??= _amountLookup.ToBuilder();
-                builder[kvp.Key] = newAmount;
-            }
-        }
-
-        return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
-    }
-
-    /// <summary>
-    /// Removes all zero amounts from this set and returns the resulting set.
-    /// </summary>
-    public ImmutableSortedMoneySet TrimZeroAmounts()
-    {
-        ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
-
-        foreach (var kvp in _amountLookup)
-        {
-            if (kvp.Value == 0)
-            {
-                builder ??= _amountLookup.ToBuilder();
-                builder.Remove(kvp.Key);
-            }
-        }
-
-        return builder == null ? this : new ImmutableSortedMoneySet(_registry, builder.ToImmutable());
-    }
-
-    /// <summary>
     /// Copies the values in this set to a new mutable set that uses the same registry as this set.
     /// </summary>
     public SortedMoneySet ToSet() => new(_registry, this, false);
@@ -524,6 +470,73 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
 
             return count;
         }
+    }
+
+    /// <summary>
+    /// Applies the specified transformation to each value's amount in this set and returns the resulting set.
+    /// </summary>
+    public ImmutableSortedMoneySet TransformValues(Func<Money, decimal> transform)
+    {
+        if (Count == 0)
+            return this;
+
+        ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
+
+        foreach (var kvp in _amountLookup)
+        {
+            decimal newAmount = transform(new Money(kvp.Value, kvp.Key));
+
+            if (newAmount != kvp.Value)
+            {
+                builder ??= _amountLookup.ToBuilder();
+                builder[kvp.Key] = newAmount;
+            }
+        }
+
+        return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
+    }
+
+    /// <summary>
+    /// Applies the specified transformation to each value's amount in this set and returns the resulting set.
+    /// </summary>
+    public ImmutableSortedMoneySet TransformAmounts(Func<decimal, decimal> transform)
+    {
+        if (Count == 0)
+            return this;
+
+        ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
+
+        foreach (var kvp in _amountLookup)
+        {
+            decimal newAmount = transform(kvp.Value);
+
+            if (newAmount != kvp.Value)
+            {
+                builder ??= _amountLookup.ToBuilder();
+                builder[kvp.Key] = newAmount;
+            }
+        }
+
+        return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
+    }
+
+    /// <summary>
+    /// Removes all zero amounts from this set and returns the resulting set.
+    /// </summary>
+    public ImmutableSortedMoneySet TrimZeroAmounts()
+    {
+        ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
+
+        foreach (var kvp in _amountLookup)
+        {
+            if (kvp.Value == 0)
+            {
+                builder ??= _amountLookup.ToBuilder();
+                builder.Remove(kvp.Key);
+            }
+        }
+
+        return builder == null ? this : new ImmutableSortedMoneySet(_registry, builder.ToImmutable());
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(Currency, out decimal)"/>
