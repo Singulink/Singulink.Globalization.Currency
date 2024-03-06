@@ -31,6 +31,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test Items", "Test Items", "{4028E49D-6194-47FA-AEA9-5B046F8013D2}"
 	ProjectSection(SolutionItems) = preProject
 		Tests\.editorconfig = Tests\.editorconfig
+		Tests\BannedSymbols.txt = Tests\BannedSymbols.txt
 		Tests\Directory.Build.props = Tests\Directory.Build.props
 	EndProjectSection
 EndProject

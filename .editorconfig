@@ -385,3 +385,6 @@ dotnet_diagnostic.IDE0057.severity = warning
 
 # IDE0059: Unnecessary assignment of a value
 dotnet_diagnostic.IDE0059.severity = warning
+
+# RS0030: Do not use banned APIs
+dotnet_diagnostic.RS0030.severity = error
