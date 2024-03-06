@@ -64,6 +64,7 @@ public class TryGetAmount
     [TestMethod]
     public void GetByCurrency_CurrencyDisallowed_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => _set.TryGetAmount(Currency.Get("AAA"), out _));
+        var disallowedCurrency = new Currency("AAA", "Disallowed currency", "A", 2);
+        Should.Throw<ArgumentException>(() => _set.TryGetAmount(disallowedCurrency, out _));
     }
 }

@@ -404,7 +404,11 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(Currency, out decimal)"/>
     public bool TryGetAmount(Currency currency, out decimal amount)
     {
-        return _amountLookup.TryGetValue(currency, out amount);
+        if (_amountLookup.TryGetValue(currency, out amount))
+            return true;
+
+        EnsureCurrencyAllowed(currency, nameof(currency));
+        return false;
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(string, out decimal)"/>
