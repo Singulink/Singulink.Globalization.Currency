@@ -226,7 +226,7 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
                 _amountLookup.Remove(currency);
             }
 
-            return currenciesToRemove?.Count ?? 0;
+            return currenciesToRemove.Count;
         }
 
         return 0;
