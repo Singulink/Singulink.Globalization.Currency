@@ -1,4 +1,5 @@
-﻿using PrefixClassName.MsTest;
+﻿using System.Collections.Generic;
+using PrefixClassName.MsTest;
 using Shouldly;
 
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
@@ -12,7 +13,7 @@ public class TransformAmounts
     private static readonly ImmutableSortedMoneySet Set = [Usd100, Cad50, Eur25];
 
     [TestMethod]
-    public void AllAmountsTransformed_UpdatesValues()
+    public void NonNullOutput_AllAmountsTransformed_UpdatesValues()
     {
         var resultSet = Set.TransformAmounts(x => x * 2);
         resultSet.Count.ShouldBe(3);
@@ -20,17 +21,48 @@ public class TransformAmounts
     }
 
     [TestMethod]
-    public void IdentityTransform_NoChange()
+    public void NonNullOutput_IdentityTransform_NoChange()
     {
         var resultSet = Set.TransformAmounts(x => x);
         resultSet.ShouldBeSameAs(Set);
     }
 
     [TestMethod]
-    public void EmptySet_NoChange()
+    public void NonNullOutput_EmptySet_NoChange()
     {
         ImmutableSortedMoneySet emptySet = [];
         var resultSet = emptySet.TransformAmounts(x => x * 2);
         resultSet.ShouldBeSameAs(emptySet);
+    }
+
+    [TestMethod]
+    public void NullableOutput_AllAmountsTransformed_UpdatesValues()
+    {
+        var resultSet = Set.TransformAmounts(x => (decimal?)x * 2);
+        resultSet.Count.ShouldBe(3);
+        resultSet.ShouldBe([new(200m, "USD"), new(100m, "CAD"), new(50m, "EUR")]);
+    }
+
+    [TestMethod]
+    public void NullableOutput_IdentityTransform_NoChange()
+    {
+        var resultSet = Set.TransformAmounts(x => (decimal?)x);
+        resultSet.ShouldBeSameAs(Set);
+    }
+
+    [TestMethod]
+    public void NullableOutput_EmptySet_NoChange()
+    {
+        ImmutableSortedMoneySet emptySet = [];
+        var resultSet = emptySet.TransformAmounts(x => (decimal?)x * 2);
+        resultSet.ShouldBeSameAs(emptySet);
+    }
+
+    [TestMethod]
+    public void NullableOutput_NullTransform_RemovesNullValues()
+    {
+        var resultSet = Set.TransformAmounts(x => x == 100m ? null : x);
+        resultSet.Count.ShouldBe(2);
+        resultSet.ShouldBe([new(50m, "CAD"), new(25m, "EUR")]);
     }
 }
