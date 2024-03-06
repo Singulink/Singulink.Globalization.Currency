@@ -497,6 +497,36 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
     }
 
     /// <summary>
+    /// Applies the specified transformation to each value's amount in this set and returns the resulting set. Values transformed to a <see langword="null"/>
+    /// amount are removed.
+    /// </summary>
+    public ImmutableSortedMoneySet TransformValues(Func<Money, decimal?> transform)
+    {
+        if (Count == 0)
+            return this;
+
+        ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
+
+        foreach (var kvp in _amountLookup)
+        {
+            decimal? newAmountOrNull = transform(new Money(kvp.Value, kvp.Key));
+
+            if (newAmountOrNull is not decimal newAmount)
+            {
+                builder ??= _amountLookup.ToBuilder();
+                builder.Remove(kvp.Key);
+            }
+            else if (newAmount != kvp.Value)
+            {
+                builder ??= _amountLookup.ToBuilder();
+                builder[kvp.Key] = newAmount;
+            }
+        }
+
+        return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
+    }
+
+    /// <summary>
     /// Applies the specified transformation to each value's amount in this set and returns the resulting set.
     /// </summary>
     public ImmutableSortedMoneySet TransformAmounts(Func<decimal, decimal> transform)
@@ -511,6 +541,36 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
             decimal newAmount = transform(kvp.Value);
 
             if (newAmount != kvp.Value)
+            {
+                builder ??= _amountLookup.ToBuilder();
+                builder[kvp.Key] = newAmount;
+            }
+        }
+
+        return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
+    }
+
+    /// <summary>
+    /// Applies the specified transformation to each value's amount in this set and returns the resulting set. Amounts transformed to a <see langword="null"/>
+    /// amount are removed.
+    /// </summary>
+    public ImmutableSortedMoneySet TransformAmounts(Func<decimal, decimal?> transform)
+    {
+        if (Count == 0)
+            return this;
+
+        ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
+
+        foreach (var kvp in _amountLookup)
+        {
+            decimal? newAmountOrNull = transform(kvp.Value);
+
+            if (newAmountOrNull is not decimal newAmount)
+            {
+                builder ??= _amountLookup.ToBuilder();
+                builder.Remove(kvp.Key);
+            }
+            else if (newAmount != kvp.Value)
             {
                 builder ??= _amountLookup.ToBuilder();
                 builder[kvp.Key] = newAmount;
