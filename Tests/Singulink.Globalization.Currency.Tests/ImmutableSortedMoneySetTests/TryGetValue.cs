@@ -11,6 +11,8 @@ public class TryGetValue
     private static readonly Money Eur25 = new(25m, "EUR");
     private static readonly ImmutableSortedMoneySet Set = [Usd100, Cad50, Eur25];
 
+    // By Currency Tests
+
     [TestMethod]
     public void GetByCurrency_CurrencyExists_ReturnsTrueAndOutputsValue()
     {
@@ -36,6 +38,8 @@ public class TryGetValue
         var disallowedCurrency = new Currency("Disallowed Currency", "XXX", "X", 2);
         Should.Throw<ArgumentException>(() => Set.TryGetValue(disallowedCurrency, out _));
     }
+
+    // By Currency Code Tests
 
     [TestMethod]
     public void GetByCurrencyCode_CurrencyExists_ReturnsTrueAndOutputsValue()

@@ -13,6 +13,8 @@ public class TryGetValue
 
     private readonly SortedMoneySet _set = ImmutableSet.ToSet();
 
+    // By Currency Tests
+
     [TestMethod]
     public void GetByCurrency_CurrencyExists_ReturnsTrueAndOutputsValue()
     {
@@ -38,6 +40,8 @@ public class TryGetValue
         var disallowedCurrency = new Currency("Disallowed Currency", "XXX", "X", 2);
         Should.Throw<ArgumentException>(() => _set.TryGetValue(disallowedCurrency, out _));
     }
+
+    // By Currency Code Tests
 
     [TestMethod]
     public void GetByCurrencyCode_CurrencyExists_ReturnsTrueAndOutputsValue()

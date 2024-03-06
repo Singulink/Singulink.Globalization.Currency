@@ -9,8 +9,8 @@ namespace Singulink.Globalization;
 /// </summary>
 public sealed class CurrencyRegistry : ISet<Currency>, IReadOnlySet<Currency>
 {
-    private static CurrencyRegistry? s_default;
-    private static CurrencyRegistry? s_system;
+    private static CurrencyRegistry? _default;
+    private static CurrencyRegistry? _system;
 
     private readonly string _name;
     private readonly HashSet<Currency> _currencies;
@@ -49,19 +49,19 @@ public sealed class CurrencyRegistry : ISet<Currency>, IReadOnlySet<Currency>
     /// </remarks>
     public static CurrencyRegistry Default
     {
-        get => s_default ??= System;
+        get => _default ??= System;
         set {
-            if (s_default != null)
+            if (_default != null)
                 throw new InvalidOperationException("Default currency registry cannot be set after it has already been set or accessed.");
 
-            s_default = value;
+            _default = value;
         }
     }
 
     /// <summary>
     /// Gets a currency registry built from system globalization data.
     /// </summary>
-    public static CurrencyRegistry System => s_system ??= Currency.CreateSystemRegistry();
+    public static CurrencyRegistry System => _system ??= Currency.CreateSystemRegistry();
 
     /// <summary>
     /// Gets a currency from this registry with the specified currency code.

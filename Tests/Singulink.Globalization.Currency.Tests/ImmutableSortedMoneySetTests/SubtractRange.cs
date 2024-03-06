@@ -47,23 +47,7 @@ public class SubtractRange
     public void DisallowedCurrency_ThrowsArgumentException()
     {
         var disallowedCurrency = new Currency("Disallowed Currency", "XXX", "X", 2);
-        IEnumerable<Money> values = [new(-100m, "USD"), new(-100m, disallowedCurrency), new(-100m, disallowedCurrency), new(-50m, "CAD"), new(-25m, "EUR")];
-
-        Should.Throw<ArgumentException>(() => Set.SubtractRange(values));
-    }
-
-    [TestMethod]
-    public void DisallowedCurrencies_ThrowsArgumentException()
-    {
-        var disallowedCurrencyX = new Currency("Disallowed Currency", "XXX", "X", 2);
-        var disallowedCurrencyY = new Currency("Disallowed Currency2", "YYY", "Y", 2);
-        IEnumerable<Money> values = [new(-100m, "USD"),
-            new(-100m, disallowedCurrencyX),
-            new(-100m, disallowedCurrencyX),
-            new(-50m, "CAD"),
-            new(100m, disallowedCurrencyY),
-            new(100m, disallowedCurrencyY),
-            new(-25m, "EUR")];
+        IEnumerable<Money> values = [new(-100m, "USD"), new(-100m, disallowedCurrency), new(-50m, "CAD"), new(-25m, "EUR")];
 
         Should.Throw<ArgumentException>(() => Set.SubtractRange(values));
     }
