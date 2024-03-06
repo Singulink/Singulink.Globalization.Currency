@@ -5,7 +5,7 @@ using Shouldly;
 namespace Singulink.Globalization.Tests.MoneyTests;
 
 [PrefixTestClass]
-public class ToStringTests
+public class ToString
 {
     private const char Nbsp = '\u00A0';
     private static readonly CultureInfo EnUS = CultureInfo.GetCultureInfo("en-US");

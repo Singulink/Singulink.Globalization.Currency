@@ -4,7 +4,7 @@ using Shouldly;
 namespace Singulink.Globalization.Tests.MoneyTests;
 
 [PrefixTestClass]
-public class CompareToTests
+public class CompareTo
 {
     private static readonly Money Usd100 = new(100m, "USD");
     private static readonly Money Usd200 = new(200m, "USD");

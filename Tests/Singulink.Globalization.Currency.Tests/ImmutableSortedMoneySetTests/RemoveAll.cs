@@ -4,7 +4,7 @@ using Shouldly;
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
 [PrefixTestClass]
-public class RemoveAllTests
+public class RemoveAll
 {
     private static readonly Currency Usd = Currency.Get("USD");
     private static readonly Currency Cad = Currency.Get("CAD");

@@ -1,41 +1,43 @@
 ﻿using PrefixClassName.MsTest;
 using Shouldly;
 
-namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
+namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
 [PrefixTestClass]
-public class TryGetAmountTests
+public class TryGetAmount
 {
     private static readonly Money Usd100 = new(100m, "USD");
     private static readonly Money Cad50 = new(50m, "CAD");
     private static readonly Money Eur25 = new(25m, "EUR");
-    private static readonly ImmutableSortedMoneySet Set = [Usd100, Cad50, Eur25];
+    private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50, Eur25];
+
+    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
 
     // public void TryGetAmount(string currencyCode, out decimal amount) tests
 
     [TestMethod]
     public void GetByCurrencyCode_CurrencyExists_ReturnsTrueAndOutputsAmount()
     {
-        Set.TryGetAmount("USD", out decimal amount).ShouldBeTrue();
+        _set.TryGetAmount("USD", out decimal amount).ShouldBeTrue();
         amount.ShouldBe(100m);
 
-        Set.TryGetAmount("CAD", out amount).ShouldBeTrue();
+        _set.TryGetAmount("CAD", out amount).ShouldBeTrue();
         amount.ShouldBe(50m);
 
-        Set.TryGetAmount("EUR", out amount).ShouldBeTrue();
+        _set.TryGetAmount("EUR", out amount).ShouldBeTrue();
         amount.ShouldBe(25m);
     }
 
     [TestMethod]
     public void GetByCurrencyCode_CurrencyDoesNotExist_ReturnsFalse()
     {
-        Set.TryGetAmount("GBP", out _).ShouldBeFalse();
+        _set.TryGetAmount("GBP", out _).ShouldBeFalse();
     }
 
     [TestMethod]
     public void GetByCurrencyCode_CurrencyDisallowed_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => Set.TryGetAmount("AAA", out _));
+        Should.Throw<ArgumentException>(() => _set.TryGetAmount("AAA", out _));
     }
 
     // public void TryGetAmount(Currency currency, out decimal amount) tests
@@ -43,25 +45,25 @@ public class TryGetAmountTests
     [TestMethod]
     public void GetByCurrency_CurrencyExists_ReturnsTrueAndOutputsAmount()
     {
-        Set.TryGetAmount(Currency.Get("USD"), out decimal amount).ShouldBeTrue();
+        _set.TryGetAmount(Currency.Get("USD"), out decimal amount).ShouldBeTrue();
         amount.ShouldBe(100m);
 
-        Set.TryGetAmount(Currency.Get("CAD"), out amount).ShouldBeTrue();
+        _set.TryGetAmount(Currency.Get("CAD"), out amount).ShouldBeTrue();
         amount.ShouldBe(50m);
 
-        Set.TryGetAmount(Currency.Get("EUR"), out amount).ShouldBeTrue();
+        _set.TryGetAmount(Currency.Get("EUR"), out amount).ShouldBeTrue();
         amount.ShouldBe(25m);
     }
 
     [TestMethod]
     public void GetByCurrency_CurrencyDoesNotExist_ReturnsFalse()
     {
-        Set.TryGetAmount(Currency.Get("GBP"), out _).ShouldBeFalse();
+        _set.TryGetAmount(Currency.Get("GBP"), out _).ShouldBeFalse();
     }
 
     [TestMethod]
     public void GetByCurrency_CurrencyDisallowed_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => Set.TryGetAmount(Currency.Get("AAA"), out _));
+        Should.Throw<ArgumentException>(() => _set.TryGetAmount(Currency.Get("AAA"), out _));
     }
 }

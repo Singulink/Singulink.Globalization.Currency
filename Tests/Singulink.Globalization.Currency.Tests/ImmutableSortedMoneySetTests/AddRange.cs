@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using PrefixClassName.MsTest;
 using Shouldly;
 
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
-[TestClass]
-public class SubtractRangeTests
+[PrefixTestClass]
+public class AddRange
 {
     private static readonly Money Usd100 = new(100m, "USD");
     private static readonly Money Cad50 = new(50m, "CAD");
@@ -19,7 +14,7 @@ public class SubtractRangeTests
     [TestMethod]
     public void AllCurrenciesExist_UpdatesValues()
     {
-        var resultSet = Set.SubtractRange([-Usd100, -Cad50, -Eur25]);
+        var resultSet = Set.AddRange([Usd100, Cad50, Eur25]);
         resultSet.Count.ShouldBe(3);
         resultSet.ShouldBe([new(200m, "USD"), new(100m, "CAD"), new(50m, "EUR")]);
     }
@@ -27,7 +22,7 @@ public class SubtractRangeTests
     [TestMethod]
     public void SomeNewCurrencies_UpdatesExistingAndAddsNewValues()
     {
-        var resultSet = Set.SubtractRange([new(-100m, "USD"), new(-50m, "JPY"), new(-25m, "CHF")]);
+        var resultSet = Set.AddRange([new(100m, "USD"), new(50m, "JPY"), new(25m, "CHF")]);
         resultSet.Count.ShouldBe(5);
         resultSet.ShouldBe([new(200m, "USD"), new(50m, "CAD"), new(25m, "EUR"), new(50m, "JPY"), new(25m, "CHF")]);
     }
@@ -35,7 +30,7 @@ public class SubtractRangeTests
     [TestMethod]
     public void AllNewCurrencies_AddsValues()
     {
-        var resultSet = Set.SubtractRange([new(-100m, "GBP"), new(-50m, "JPY"), new(-25m, "CHF")]);
+        var resultSet = Set.AddRange([new(100m, "GBP"), new(50m, "JPY"), new(25m, "CHF")]);
         resultSet.Count.ShouldBe(6);
         resultSet.ShouldBe([new(100m, "USD"), new(50m, "CAD"), new(25m, "EUR"), new(100m, "GBP"), new(50m, "JPY"), new(25m, "CHF")]);
     }
@@ -43,7 +38,7 @@ public class SubtractRangeTests
     [TestMethod]
     public void EmptyCollection_NoChange()
     {
-        var resultSet = Set.SubtractRange([]);
+        var resultSet = Set.AddRange([]);
         resultSet.Count.ShouldBe(3);
         resultSet.ShouldBe(Set);
     }
@@ -52,9 +47,9 @@ public class SubtractRangeTests
     public void DisallowedCurrency_ThrowsArgumentException()
     {
         var disallowedCurrency = new Currency("Disallowed Currency", "XXX", "X", 2);
-        IEnumerable<Money> values = [new(-100m, "USD"), new(-100m, disallowedCurrency), new(-100m, disallowedCurrency), new(-50m, "CAD"), new(-25m, "EUR")];
+        IEnumerable<Money> values = [new(100m, "USD"), new(100m, disallowedCurrency), new(100m, disallowedCurrency), new(50m, "CAD"), new(25m, "EUR")];
 
-        Should.Throw<ArgumentException>(() => Set.SubtractRange(values));
+        Should.Throw<ArgumentException>(() => Set.AddRange(values));
     }
 
     [TestMethod]
@@ -62,14 +57,14 @@ public class SubtractRangeTests
     {
         var disallowedCurrencyX = new Currency("Disallowed Currency", "XXX", "X", 2);
         var disallowedCurrencyY = new Currency("Disallowed Currency2", "YYY", "Y", 2);
-        IEnumerable<Money> values = [new(-100m, "USD"),
-            new(-100m, disallowedCurrencyX),
-            new(-100m, disallowedCurrencyX),
-            new(-50m, "CAD"),
+        IEnumerable<Money> values = [new(100m, "USD"),
+            new(100m, disallowedCurrencyX),
+            new(100m, disallowedCurrencyX),
+            new(50m, "CAD"),
             new(100m, disallowedCurrencyY),
             new(100m, disallowedCurrencyY),
-            new(-25m, "EUR")];
+            new(25m, "EUR")];
 
-        Should.Throw<ArgumentException>(() => Set.SubtractRange(values));
+        Should.Throw<ArgumentException>(() => Set.AddRange(values));
     }
 }

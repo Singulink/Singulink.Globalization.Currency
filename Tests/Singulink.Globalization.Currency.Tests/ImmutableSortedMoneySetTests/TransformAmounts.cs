@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using PrefixClassName.MsTest;
 using Shouldly;
 
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
-[TestClass]
-public class TransformAmountsTests
+[PrefixTestClass]
+public class TransformAmounts
 {
     private static readonly Money Usd100 = new(100m, "USD");
     private static readonly Money Cad50 = new(50m, "CAD");

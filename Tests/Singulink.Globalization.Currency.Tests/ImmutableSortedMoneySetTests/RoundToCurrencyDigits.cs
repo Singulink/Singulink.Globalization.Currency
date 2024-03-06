@@ -4,7 +4,7 @@ using Shouldly;
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
 [PrefixTestClass]
-public class RoundToCurrencyDigitsTests
+public class RoundToCurrencyDigits
 {
 #pragma warning disable SA1025 // Code should not contain multiple whitespace in a row
     private static readonly ImmutableSortedMoneySet RoundDownResults = [new(10.000m, "USD"), new(6.0m, "JPY")];

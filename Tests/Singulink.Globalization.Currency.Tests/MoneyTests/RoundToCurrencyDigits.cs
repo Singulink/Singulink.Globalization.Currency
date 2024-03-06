@@ -4,7 +4,7 @@ using Shouldly;
 namespace Singulink.Globalization.Tests.MoneyTests;
 
 [PrefixTestClass]
-public class RoundToCurrencyDigitsTests
+public class RoundToCurrencyDigits
 {
     private static readonly Money RoundDownResult = new(10, "USD");
     private static readonly Money RoundDownValue = new(10.004m, "USD");

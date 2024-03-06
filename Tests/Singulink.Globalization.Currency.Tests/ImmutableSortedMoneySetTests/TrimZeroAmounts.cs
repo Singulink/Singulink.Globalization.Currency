@@ -1,10 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PrefixClassName.MsTest;
 using Shouldly;
 
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
-[TestClass]
-public class TrimZeroAmountsTests
+[PrefixTestClass]
+public class TrimZeroAmounts
 {
     private static readonly Money Usd100 = new(100m, "USD");
     private static readonly Money Cad50 = new(50m, "CAD");

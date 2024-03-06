@@ -4,7 +4,7 @@ using Shouldly;
 namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
 [PrefixTestClass]
-public class SubtractTests
+public class Add
 {
     private static readonly Money Usd100 = new(100m, "USD");
     private static readonly Money Cad50 = new(50m, "CAD");
@@ -14,84 +14,85 @@ public class SubtractTests
 
     private readonly SortedMoneySet _set = ImmutableSet.ToSet();
 
-    // public void Subtract(Money value) tests
+    // public void Add(Money value) tests
 
     [TestMethod]
-    public void SubtractMoney_CurrencyExists_UpdatesValue()
+    public void AddMoney_CurrencyExists_UpdatesValue()
     {
-        _set.Subtract(-Usd100);
+        _set.Add(Usd100);
         _set.Count.ShouldBe(2);
         _set.ShouldBe([Cad50, Money.Create(200m, "USD")]);
     }
 
     [TestMethod]
-    public void SubtractMoney_NewCurrency_AddsValue()
+    public void AddMoney_NewCurrency_AddsValue()
     {
-        _set.Subtract(-Eur25);
+        _set.Add(Eur25);
         _set.Count.ShouldBe(3);
         _set.ShouldBe([Cad50, Eur25, Usd100]);
     }
 
     [TestMethod]
-    public void SubtractMoney_DefaultValue_NoChange()
+    public void AddMoney_DefaultValue_NoChange()
     {
-        _set.Subtract(default);
+        _set.Add(default);
         _set.Count.ShouldBe(2);
         _set.ShouldBe(ImmutableSet);
     }
 
     [TestMethod]
-    public void SubtractMoney_CurrencyDisallowed_ThrowsArgumentException()
+    public void AddMoney_CurrencyDisallowed_ThrowsArgumentException()
     {
         var value = new Money(100, DisallowedCurrency);
-        Should.Throw<ArgumentException>(() => _set.Subtract(value));
+        Should.Throw<ArgumentException>(() => _set.Add(value));
     }
 
-    // public void Subtract(decimal amount, string currencyCode) tests
+    // public void Add(decimal amount, string currencyCode) tests
 
     [TestMethod]
-    public void SubtractByCurrencyCode_CurrencyExists_UpdatesValue()
+    public void AddByCurrencyCode_CurrencyExists_UpdatesValue()
     {
-        _set.Subtract(-100, "USD");
+        _set.Add(100, "USD");
         _set.Count.ShouldBe(2);
         _set.ShouldBe([Cad50, new(200m, "USD")]);
     }
 
     [TestMethod]
-    public void SubtractByCurrencyCode_NewCurrency_AddsValue()
+    public void AddByCurrencyCode_NewCurrency_AddsValue()
     {
-        _set.Subtract(-25m, "EUR");
+        _set.Add(25m, "EUR");
         _set.Count.ShouldBe(3);
         _set.ShouldBe([Cad50, Eur25, Usd100]);
     }
 
     [TestMethod]
-    public void SubtractByCurrencyCode_CurrencyDisallowed_ThrowsArgumentException()
+    public void AddByCurrencyCode_CurrencyDisallowed_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => _set.Subtract(100m, DisallowedCurrency.CurrencyCode));
+        Should.Throw<ArgumentException>(() => _set.Add(100m, DisallowedCurrency.CurrencyCode));
     }
 
-    // public void Subtract(decimal amount, Currency currency) tests
+    // public void Add(decimal amount, Currency currency) tests
 
     [TestMethod]
-    public void SubtractByCurrency_CurrencyExists_UpdatesValue()
+    public void AddByCurrency_CurrencyExists_UpdatesValue()
     {
-        _set.Subtract(-100m, Currency.Get("USD"));
+        _set.Add(100m, Currency.Get("USD"));
         _set.Count.ShouldBe(2);
         _set.ShouldBe([Cad50, new(200m, "USD")]);
     }
 
     [TestMethod]
-    public void SubtractByCurrency_NewCurrency_AddsValue()
+    public void AddByCurrency_NewCurrency_AddsValue()
     {
-        _set.Subtract(-25m, Currency.Get("EUR"));
+        _set.Add(25m, Currency.Get("EUR"));
         _set.Count.ShouldBe(3);
         _set.ShouldBe([Cad50, Eur25, Usd100]);
     }
 
     [TestMethod]
-    public void SubtractByCurrency_CurrencyDisallowed_ThrowsArgumentException()
+    public void AddByCurrency_CurrencyDisallowed_ThrowsArgumentException()
     {
-        Should.Throw<ArgumentException>(() => _set.Subtract(100m, DisallowedCurrency));
+        _set.Count.ShouldBe(2);
+        Should.Throw<ArgumentException>(() => _set.Add(100m, DisallowedCurrency));
     }
 }

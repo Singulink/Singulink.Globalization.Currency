@@ -4,7 +4,7 @@ using Shouldly;
 namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
 [PrefixTestClass]
-public class SetAmountTests
+public class SetAmount
 {
     private static readonly Currency Usd = Currency.Get("USD");
     private static readonly Currency Aud = Currency.Get("AUD");

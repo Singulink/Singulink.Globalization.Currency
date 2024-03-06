@@ -6,7 +6,7 @@ namespace Singulink.Globalization.Tests.MoneyTests;
 #pragma warning disable CS1718 // Comparison made to same variable
 
 [PrefixTestClass]
-public class OperatorsTests
+public class Operators
 {
     private static readonly Money UsdMinus200 = new(-200m, "USD");
     private static readonly Money Usd0 = new(0m, "USD");

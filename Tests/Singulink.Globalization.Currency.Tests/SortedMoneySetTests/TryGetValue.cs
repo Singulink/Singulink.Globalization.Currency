@@ -4,7 +4,7 @@ using Shouldly;
 namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
 [PrefixTestClass]
-public class TryGetValueTests
+public class TryGetValue
 {
     private static readonly Money Usd100 = new(100m, "USD");
     private static readonly Money Cad50 = new(50m, "CAD");
