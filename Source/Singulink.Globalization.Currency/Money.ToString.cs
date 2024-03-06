@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -70,55 +69,20 @@ partial struct Money : IFormattable
     public string ToString(string? format, IFormatProvider? formatProvider = null)
     {
         Span<char> resultNumberFormat = stackalloc char[3];
-        ParseFormat(format, out char symbolFormat, out char decimalsFormat, out var decimalsFormatNumber, resultNumberFormat);
+        ParseFormat(format, out char symbolFormat, out char decimalsFormat, out int decimalsFormatNumber, out resultNumberFormat[0]);
 
         CultureInfo culture = GetCultureAndSetFormatProvider(ref formatProvider);
         RegionInfo? region = null;
 
-        if (symbolFormat == 'L')
-        {
-            region = GetRegionForCulture(culture);
-            symbolFormat = region.ISOCurrencySymbol == _currency?.CurrencyCode ? 'S' : 'C';
-        }
-
-        decimal absAmount = Math.Abs(_amount);
-
-        if (decimalsFormat == default || decimalsFormat == '*')
-        {
-            int numDecimalDigits = _amount.GetDecimalDigits();
-
-            if (decimalsFormat == default)
-                Math.Max(numDecimalDigits, _currency?.DecimalDigits ?? 0).TryFormat(resultNumberFormat[1..], out _);
-            else
-                (numDecimalDigits == 0 ? 0 : Math.Max(numDecimalDigits, _currency?.DecimalDigits ?? 0)).TryFormat(resultNumberFormat[1..], out _);
-        }
-        else
-        {
-            Debug.Assert(decimalsFormat is '$' or 'F', "Unexpected decimals format");
-
-            int decimalPlaces = 0;
-
-            if (decimalsFormatNumber.Length is 0)
-            {
-                decimalPlaces = _currency?.DecimalDigits ?? 0;
-                decimalPlaces.TryFormat(resultNumberFormat[1..], out _);
-            }
-            else
-            {
-                decimalsFormatNumber.CopyTo(resultNumberFormat[1..]);
-            }
-
-            var rounding = decimalsFormat is '$' ? MidpointRounding.ToEven : MidpointRounding.AwayFromZero;
-            absAmount = decimal.Round(absAmount, decimalPlaces, rounding);
-        }
+        decimal absFormatAmount = GetFormatAmountAndDecimalPlaces(Math.Abs(_amount), _currency, decimalsFormat, decimalsFormatNumber, out int formatDecimalPlaces);
+        formatDecimalPlaces.TryFormat(resultNumberFormat[1..], out int formatDecimalPlacesLength, null, CultureInfo.InvariantCulture);
+        resultNumberFormat = resultNumberFormat[..(1 + formatDecimalPlacesLength)];
 
         // Enough capacity for whole number (29) + group separators (14) + decimal separator (1) + decimals (29)
         Span<char> number = stackalloc char[73];
         var absNumberFormatInfo = GetAbsNumberFormatInfo(formatProvider);
 
-        resultNumberFormat = resultNumberFormat.TrimEnd(default(char));
-
-        if (!absAmount.TryFormat(number, out int numberLength, resultNumberFormat, absNumberFormatInfo))
+        if (!absFormatAmount.TryFormat(number, out int numberLength, resultNumberFormat, absNumberFormatInfo))
             throw new UnreachableException($"Unexpected number formatting failure (resultNumberFormat: '{resultNumberFormat}').");
 
         number = number[..numberLength];
@@ -126,9 +90,15 @@ partial struct Money : IFormattable
         if (_currency is null)
             return number.ToString(); // number must be zero with no currency so we can stop formatting here
 
-        string currencySymbol = null;
-        string pattern = null;
+        string currencySymbol;
+        string pattern;
         bool placeCurrencySymbolAsDecimalSeparator = false;
+
+        if (symbolFormat is 'L')
+        {
+            region = GetRegionForCulture(culture);
+            symbolFormat = region.ISOCurrencySymbol == _currency.CurrencyCode ? 'S' : 'C';
+        }
 
         if (symbolFormat is 'I' or 'R' or 'C')
         {
@@ -145,11 +115,13 @@ partial struct Money : IFormattable
             else
                 pattern = _amount >= 0 ? PositiveInternationalPattern : NegativeInternationalPatterns[absNumberFormatInfo.CurrencyNegativePattern];
         }
-        else if (symbolFormat is 'S')
+        else
         {
+            Debug.Assert(symbolFormat is 'S', "Unexpected symbol format.");
+
             currencySymbol = _currency.Symbol;
 
-            if (absNumberFormatInfo.NumberDecimalSeparator == "$" && (region ?? GetRegionForCulture(culture)).CurrencySymbol == Constants.ZeroWidthSpace)
+            if (absNumberFormatInfo.NumberDecimalSeparator is "$" && (region ?? GetRegionForCulture(culture)).CurrencySymbol == Constants.ZeroWidthSpace)
             {
                 if (currencySymbol is "$")
                 {
@@ -164,10 +136,6 @@ partial struct Money : IFormattable
             pattern = _amount >= 0 ?
                 PositiveCurrencyPatterns[absNumberFormatInfo.CurrencyPositivePattern] :
                 NegativeCurrencyPatterns[absNumberFormatInfo.CurrencyNegativePattern];
-        }
-        else
-        {
-            throw GetFormatEx();
         }
 
         if (currencySymbol == absNumberFormatInfo.CurrencyDecimalSeparator)
@@ -248,10 +216,12 @@ partial struct Money : IFormattable
     private static CultureInfo GetCultureAndSetFormatProvider(ref IFormatProvider? formatProvider)
     {
         CultureInfo culture;
+
         if (formatProvider == null)
             formatProvider = culture = CultureInfo.CurrentCulture;
         else
             culture = formatProvider as CultureInfo ?? CultureInfo.CurrentCulture;
+
         return culture;
     }
 
@@ -265,6 +235,25 @@ partial struct Money : IFormattable
             NumberGroupSeparator = fi.CurrencyGroupSeparator,
             NumberGroupSizes = fi.CurrencyGroupSizes,
         });
+    }
+
+    private static decimal GetFormatAmountAndDecimalPlaces(decimal amount, Currency? currency, char decimalsFormat, int decimalsFormatNumber, out int formatDecimalPlaces)
+    {
+        if (decimalsFormat == default || decimalsFormat == '*')
+        {
+            int amountDecimalDigits = amount.GetDecimalDigits();
+            formatDecimalPlaces = decimalsFormat == '*' && amountDecimalDigits == 0 ? 0 : Math.Max(amountDecimalDigits, currency?.DecimalDigits ?? 0);
+        }
+        else
+        {
+            Debug.Assert(decimalsFormat is '$' or 'F', "Unexpected decimals format");
+            formatDecimalPlaces = decimalsFormatNumber >= 0 ? decimalsFormatNumber : currency?.DecimalDigits ?? 0;
+
+            var rounding = decimalsFormat is '$' ? MidpointRounding.ToEven : MidpointRounding.AwayFromZero;
+            amount = decimal.Round(amount, formatDecimalPlaces, rounding);
+        }
+
+        return amount;
     }
 
     private static RegionInfo GetRegionForCulture(CultureInfo culture)
@@ -285,16 +274,14 @@ partial struct Money : IFormattable
         return region ?? RegionInfo.CurrentRegion;
     }
 
-    private static void ParseFormat(string? format, out char symbolFormat, out char decimalsFormat, out ReadOnlySpan<char> decimalsFormatNumber, scoped Span<char> resultNumberFormat)
+    private static void ParseFormat(string? format, out char symbolFormat, out char decimalsFormat, out int decimalsFormatNumber, out char resultNumberFormat)
     {
-        Debug.Assert(resultNumberFormat.Length == 3, "resultNumberFormat length must be 3.");
-
         if (string.IsNullOrEmpty(format))
         {
             symbolFormat = 'C';
-            resultNumberFormat[0] = 'N';
+            resultNumberFormat = 'N';
             decimalsFormat = default;
-            decimalsFormatNumber = default;
+            decimalsFormatNumber = -1;
         }
         else
         {
@@ -322,12 +309,12 @@ partial struct Money : IFormattable
 
             if (current is 'D')
             {
-                resultNumberFormat[0] = 'F';
+                resultNumberFormat = 'F';
                 Next();
             }
             else
             {
-                resultNumberFormat[0] = 'N';
+                resultNumberFormat = 'N';
 
                 if (current is 'N')
                     Next();
@@ -342,30 +329,31 @@ partial struct Money : IFormattable
 
                 if (current is not default(char) && decimalsFormat is not '*')
                 {
-                    decimalsFormatNumber = format.AsSpan()[currentIndex..];
+                    var decimalsFormatNumberSpan = format.AsSpan()[currentIndex..];
 
-                    if (decimalsFormatNumber.Length > 2 ||
-                        !int.TryParse(decimalsFormatNumber, NumberStyles.None, CultureInfo.InvariantCulture, out int decimalPlaces) ||
-                        decimalPlaces is < 0 or > 28)
+                    if (decimalsFormatNumberSpan.Length > 2 ||
+                        !int.TryParse(decimalsFormatNumberSpan, NumberStyles.None, CultureInfo.InvariantCulture, out decimalsFormatNumber) ||
+                        decimalsFormatNumber is < 0 or > 28)
                     {
-                        throw GetFormatEx();
+                        Throw();
                     }
                 }
                 else
                 {
-                    decimalsFormatNumber = default;
+                    decimalsFormatNumber = -1;
                 }
             }
             else
             {
                 decimalsFormat = default;
-                decimalsFormatNumber = default;
+                decimalsFormatNumber = -1;
             }
 
             if (current is not default(char))
-                throw GetFormatEx();
+                Throw();
         }
-    }
 
-    private static Exception GetFormatEx() => new FormatException("Format specifier was invalid.");
+        [DoesNotReturn]
+        static void Throw() => throw new FormatException("Format specifier was invalid.");
+    }
 }
