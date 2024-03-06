@@ -442,6 +442,31 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     }
 
     /// <summary>
+    /// Applies the specified transformation to each value's amount in this set. Amounts transformed to a <see langword="null"/> amount are removed.
+    /// </summary>
+    public void TransformAmounts(Func<decimal, decimal?> transform)
+    {
+        if (Count == 0)
+            return;
+
+        // TODO: Optimize if no values change.
+
+        foreach (var kvp in _amountLookup.ToList())
+        {
+            decimal? newAmountOrNull = transform(kvp.Value);
+
+            if (newAmountOrNull is not decimal newAmount)
+            {
+                _amountLookup.Remove(kvp.Key);
+            }
+            else if (newAmount != kvp.Value)
+            {
+                _amountLookup[kvp.Key] = newAmount;
+            }
+        }
+    }
+
+    /// <summary>
     /// Removes all zero amounts from this set.
     /// </summary>
     public int TrimZeroAmounts()
