@@ -17,12 +17,13 @@ namespace Singulink.Globalization;
 /// ignored when being added to or subtracted from a set.</para>
 /// </remarks>
 [CollectionBuilder(typeof(ImmutableSortedMoneySet), nameof(Create))]
-public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
+public sealed partial class ImmutableSortedMoneySet : IImmutableMoneySet
 {
     private static readonly ImmutableSortedDictionary<Currency, decimal> EmptyLookup = ImmutableSortedDictionary.Create<Currency, decimal>(CurrencyByCodeComparer.Default);
 
     private readonly CurrencyRegistry _registry;
     private readonly ImmutableSortedDictionary<Currency, decimal> _amountLookup;
+    private CurrencyCollection? _currencyCollection;
 
     /// <summary>
     /// Creates an empty immutable sorted money set that uses the <see cref="CurrencyRegistry.Default"/> currency registry.
@@ -151,9 +152,7 @@ public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
     public Money this[string currencyCode]
     {
         get {
-            var currency = _registry[currencyCode];
-
-            if (_amountLookup.TryGetValue(currency, out decimal amount))
+            if (_registry.TryGetCurrency(currencyCode, out var currency) && _amountLookup.TryGetValue(currency, out decimal amount))
                 return new Money(amount, currency);
 
             return default;
@@ -167,19 +166,18 @@ public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
             if (_amountLookup.TryGetValue(currency, out decimal amount))
                 return new Money(amount, currency);
 
-            EnsureCurrencyAllowed(currency, nameof(currency));
             return default;
         }
     }
 
-    /// <inheritdoc cref="IReadOnlyMoneySet.Registry"/>
-    public CurrencyRegistry Registry => _registry;
-
-    /// <inheritdoc cref="IReadOnlyMoneySet.Count"/>
+    /// <inheritdoc cref="IImmutableMoneySet.Count"/>
     public int Count => _amountLookup.Count;
 
     /// <inheritdoc cref="IReadOnlyMoneySet.Currencies"/>
-    public IEnumerable<Currency> Currencies => _amountLookup.Keys;
+    public CurrencyCollection Currencies => _currencyCollection ??= new(this);
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.Registry"/>
+    public CurrencyRegistry Registry => _registry;
 
     /// <inheritdoc cref="IImmutableMoneySet.Add(Money)"/>
     public ImmutableSortedMoneySet Add(Money value)
@@ -214,6 +212,35 @@ public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
         var newAmountLookup = AddRangeInternal(values, ensureCurrenciesInRegistry);
         return new ImmutableSortedMoneySet(_registry, newAmountLookup);
     }
+
+    /// <inheritdoc cref="IImmutableMoneySet.Clear"/>
+    public ImmutableSortedMoneySet Clear()
+    {
+        if (Count == 0)
+            return this;
+
+        return new ImmutableSortedMoneySet(_registry, EmptyLookup);
+    }
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.Contains(Money)"/>
+    public bool Contains(Money value) => _amountLookup.TryGetValue(value.Currency, out decimal amount) && amount == value.Amount;
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.Contains(decimal, Currency)"/>
+    public bool Contains(decimal amount, Currency currency) => _amountLookup.TryGetValue(currency, out decimal existingAmount) && existingAmount == amount;
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.Contains(decimal, string)"/>
+    public bool Contains(decimal amount, string currencyCode)
+    {
+        return _registry.TryGetCurrency(currencyCode, out var currency) &&
+            _amountLookup.TryGetValue(currency, out decimal existingAmount) &&
+            existingAmount == amount;
+    }
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.ContainsCurrency(Currency)"/>
+    public bool ContainsCurrency(Currency currency) => _amountLookup.ContainsKey(currency);
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.ContainsCurrency(string)"/>
+    public bool ContainsCurrency(string currencyCode) => _registry.TryGetCurrency(currencyCode, out var currency) && _amountLookup.ContainsKey(currency);
 
     /// <summary>
     /// Returns an enumerator that iterates through the values in this set.
@@ -534,34 +561,15 @@ public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(Currency, out decimal)"/>
-    public bool TryGetAmount(Currency currency, out decimal amount)
-    {
-        if (_amountLookup.TryGetValue(currency, out amount))
-            return true;
-
-        EnsureCurrencyAllowed(currency, nameof(currency));
-        return false;
-    }
+    public bool TryGetAmount(Currency currency, out decimal amount) => _amountLookup.TryGetValue(currency, out amount);
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(string, out decimal)"/>
     public bool TryGetAmount(string currencyCode, out decimal amount)
     {
-        var currency = _registry[currencyCode];
-        return _amountLookup.TryGetValue(currency, out amount);
-    }
+        if (_registry.TryGetCurrency(currencyCode, out var currency))
+            return _amountLookup.TryGetValue(currency, out amount);
 
-    /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(string, out Money)"/>
-    public bool TryGetValue(string currencyCode, out Money value)
-    {
-        var currency = _registry[currencyCode];
-
-        if (_amountLookup.TryGetValue(currency, out decimal amount))
-        {
-            value = new Money(amount, currency);
-            return true;
-        }
-
-        value = default;
+        amount = 0;
         return false;
     }
 
@@ -574,7 +582,15 @@ public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
             return true;
         }
 
-        EnsureCurrencyAllowed(currency, nameof(currency));
+        value = default;
+        return false;
+    }
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(string, out Money)"/>
+    public bool TryGetValue(string currencyCode, out Money value)
+    {
+        if (_registry.TryGetCurrency(currencyCode, out var currency))
+            return TryGetValue(currency, out value);
 
         value = default;
         return false;
@@ -700,6 +716,9 @@ public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
     bool IReadOnlyMoneySet.IsSorted => true;
 
     /// <inheritdoc/>
+    IReadOnlyCollection<Currency> IReadOnlyMoneySet.Currencies => Currencies;
+
+    /// <inheritdoc/>
     IImmutableMoneySet IImmutableMoneySet.Add(Money value) => Add(value);
 
     /// <inheritdoc/>
@@ -710,6 +729,9 @@ public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
 
     /// <inheritdoc/>
     IImmutableMoneySet IImmutableMoneySet.AddRange(IEnumerable<Money> values) => AddRange(values);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.Clear() => Clear();
 
     /// <inheritdoc/>
     IImmutableMoneySet IImmutableMoneySet.Remove(string currencyCode) => Remove(currencyCode);
@@ -764,6 +786,15 @@ public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
 
     /// <inheritdoc/>
     IImmutableMoneySet IImmutableMoneySet.TrimZeroAmounts() => TrimZeroAmounts();
+
+    /// <inheritdoc/>
+    void ICollection<Money>.CopyTo(Money[] array, int arrayIndex)
+    {
+        CollectionCopy.CheckParams(Count, array, arrayIndex);
+
+        foreach (var value in this)
+            array[arrayIndex++] = value;
+    }
 
     /// <inheritdoc/>
     IEnumerator<Money> IEnumerable<Money>.GetEnumerator() => GetEnumerator();

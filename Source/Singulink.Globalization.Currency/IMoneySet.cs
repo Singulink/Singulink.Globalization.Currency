@@ -6,7 +6,7 @@ namespace Singulink.Globalization;
 /// Represents a set of <see cref="Money"/> values.
 /// </summary>
 [CollectionBuilder(typeof(MoneySetBuilder), nameof(MoneySetBuilder.Create))]
-public interface IMoneySet : IReadOnlyMoneySet
+public interface IMoneySet : ICollection<Money>, IReadOnlyMoneySet
 {
 #if NET7_0_OR_GREATER
     /// <summary>
@@ -19,12 +19,17 @@ public interface IMoneySet : IReadOnlyMoneySet
 #endif
 
     /// <summary>
+    /// Gets the number of values in this set.
+    /// </summary>
+    public new int Count { get; }
+
+    /// <summary>
     /// Adds the specified value to this set.
     /// </summary>
     /// <remarks>
     /// Default values that are not associated with any currency are ignored.
     /// </remarks>
-    public void Add(Money value);
+    public new void Add(Money value);
 
     /// <summary>
     /// Adds the specified currency and amount to this set.

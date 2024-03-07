@@ -38,14 +38,10 @@ public static class TryGetAmount
         [TestMethod]
         public void GetByCurrency_CurrencyDoesNotExist_ReturnsFalse()
         {
-            Set.TryGetAmount(Currency.Get("GBP"), out _).ShouldBeFalse();
-        }
+            var newCurrency = new Currency("New Currency", "XXXX", "X", 2);
 
-        [TestMethod]
-        public void GetByCurrency_CurrencyDisallowed_ThrowsArgumentException()
-        {
-            var disallowedCurrency = new Currency("Disallowed Currency", "XXX", "X", 2);
-            Should.Throw<ArgumentException>(() => Set.TryGetAmount(disallowedCurrency, out _));
+            Set.TryGetAmount(Currency.Get("GBP"), out _).ShouldBeFalse();
+            Set.TryGetAmount(newCurrency, out _).ShouldBeFalse();
         }
 
         ///////////////////////////
@@ -67,12 +63,7 @@ public static class TryGetAmount
         public void GetByCurrencyCode_CurrencyDoesNotExist_ReturnsFalse()
         {
             Set.TryGetAmount("GBP", out _).ShouldBeFalse();
-        }
-
-        [TestMethod]
-        public void GetByCurrencyCode_CurrencyDisallowed_ThrowsArgumentException()
-        {
-            Should.Throw<ArgumentException>(() => Set.TryGetAmount("AAA", out _));
+            Set.TryGetAmount("XXXX", out _).ShouldBeFalse();
         }
     }
 }

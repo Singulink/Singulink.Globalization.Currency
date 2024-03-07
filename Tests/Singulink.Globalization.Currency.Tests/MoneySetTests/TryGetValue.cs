@@ -36,16 +36,12 @@ public static class TryGetValue
         }
 
         [TestMethod]
-        public void GetByCurrency_ValueDoesNotExist_ReturnsFalse()
+        public void GetByCurrency_CurrencyDoesNotExist_ReturnsFalse()
         {
-            _set.TryGetValue(Currency.Get("GBP"), out _).ShouldBeFalse();
-        }
+            var newCurrency = new Currency("New Currency", "XXXX", "X", 2);
 
-        [TestMethod]
-        public void GetByCurrency_CurrencyDisallowed_ThrowsArgumentException()
-        {
-            var disallowedCurrency = new Currency("Disallowed Currency", "XXX", "X", 2);
-            Should.Throw<ArgumentException>(() => _set.TryGetValue(disallowedCurrency, out _));
+            _set.TryGetValue(Currency.Get("GBP"), out _).ShouldBeFalse();
+            _set.TryGetValue(newCurrency, out _).ShouldBeFalse();
         }
 
         ///////////////////////////
@@ -64,15 +60,10 @@ public static class TryGetValue
         }
 
         [TestMethod]
-        public void GetByCurrencyCode_ValueDoesNotExist_ReturnsFalse()
+        public void GetByCurrencyCode_CurrencyDoesNotExist_ReturnsFalse()
         {
             _set.TryGetValue("GBP", out _).ShouldBeFalse();
-        }
-
-        [TestMethod]
-        public void GetByCurrencyCode_CurrencyDisallowed_ThrowsArgumentException()
-        {
-            Should.Throw<ArgumentException>(() => _set.TryGetValue("XXX", out _));
+            _set.TryGetValue("XXXX", out _).ShouldBeFalse();
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Singulink.Globalization;
 /// Represents a read-only set of <see cref="Money"/> values.
 /// </summary>
 [CollectionBuilder(typeof(MoneySetBuilder), nameof(MoneySetBuilder.Create))]
-public interface IReadOnlyMoneySet : IEnumerable<Money>, IFormattable
+public interface IReadOnlyMoneySet : IReadOnlyCollection<Money>, IFormattable
 {
 #if NET7_0_OR_GREATER
     /// <summary>
@@ -24,19 +24,14 @@ public interface IReadOnlyMoneySet : IEnumerable<Money>, IFormattable
     public Money this[string currencyCode] { get; }
 
     /// <summary>
-    /// Gets the value this set contains of the given currency. Returns the default money value if it does not contain the currency.
+    /// Gets the value this set contains of the specified currency. Returns the default money value if it does not contain the currency.
     /// </summary>
     public Money this[Currency currency] { get; }
 
     /// <summary>
-    /// Gets the number of values in this set.
-    /// </summary>
-    public int Count { get; }
-
-    /// <summary>
     /// Gets the currencies that this set contains.
     /// </summary>
-    public IEnumerable<Currency> Currencies { get; }
+    public IReadOnlyCollection<Currency> Currencies { get; }
 
     /// <summary>
     /// Gets a value indicating whether this set is sorted by each value's currency code.
@@ -47,6 +42,31 @@ public interface IReadOnlyMoneySet : IEnumerable<Money>, IFormattable
     /// Gets the currency registry associated with this set.
     /// </summary>
     CurrencyRegistry Registry { get; }
+
+    /// <summary>
+    /// Determines whether this set contains the specified value.
+    /// </summary>
+    public bool Contains(Money value);
+
+    /// <summary>
+    /// Determines whether this set contains the specified amount and currency.
+    /// </summary>
+    public bool Contains(decimal amount, Currency currency);
+
+    /// <summary>
+    /// Determines whether this set contains the specified amount and currency code.
+    /// </summary>
+    public bool Contains(decimal amount, string currencyCode);
+
+    /// <summary>
+    /// Determines whether this set contains a value with the specified currency.
+    /// </summary>
+    public bool ContainsCurrency(Currency currency);
+
+    /// <summary>
+    /// Determines whether this set contains a value with the specified currency code.
+    /// </summary>
+    public bool ContainsCurrency(string currencyCode);
 
     /// <summary>
     /// Gets the amount associated with the specified currency.

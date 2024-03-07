@@ -6,7 +6,7 @@ namespace Singulink.Globalization;
 /// Represents an immutable set of <see cref="Money"/> values.
 /// </summary>
 [CollectionBuilder(typeof(ImmutableMoneySet), nameof(ImmutableMoneySet.Create))]
-public interface IImmutableMoneySet : IReadOnlyMoneySet
+public interface IImmutableMoneySet : ICollection<Money>, IReadOnlyMoneySet
 {
 #if NET7_0_OR_GREATER
     /// <summary>
@@ -19,12 +19,17 @@ public interface IImmutableMoneySet : IReadOnlyMoneySet
 #endif
 
     /// <summary>
+    /// Gets the number of values in this set.
+    /// </summary>
+    public new int Count { get; }
+
+    /// <summary>
     /// Adds the specified value to this set and returns the resulting set.
     /// </summary>
     /// <remarks>
     /// Default values that are not associated with any currency are ignored.
     /// </remarks>
-    public IImmutableMoneySet Add(Money value);
+    public new IImmutableMoneySet Add(Money value);
 
     /// <summary>
     /// Adds the specified currency and amount to this set and returns the resulting set.
@@ -43,6 +48,11 @@ public interface IImmutableMoneySet : IReadOnlyMoneySet
     /// Default values that are not associated with any currency are ignored.
     /// </remarks>
     public IImmutableMoneySet AddRange(IEnumerable<Money> values);
+
+    /// <summary>
+    /// Returns an empty immutable set that has the same currency registry as this set.
+    /// </summary>
+    public new IImmutableMoneySet Clear();
 
     /// <summary>
     /// Removes the value with the given currency code and returns the resulting set.
@@ -143,4 +153,31 @@ public interface IImmutableMoneySet : IReadOnlyMoneySet
     /// Removes all zero amounts from this set and returns the resulting set.
     /// </summary>
     public IImmutableMoneySet TrimZeroAmounts();
+
+    #region Explicit Interface Implementations
+
+    /// <summary>
+    /// Gets a value indicating whether the set is read-only. Always returns <see langword="true"/>.
+    /// </summary>
+    bool ICollection<Money>.IsReadOnly => true;
+
+    /// <summary>
+    /// Not supported.
+    /// </summary>
+    /// <exception cref="NotSupportedException">This operation is not supported.</exception>
+    void ICollection<Money>.Add(Money item) => throw new NotSupportedException();
+
+    /// <summary>
+    /// Not supported.
+    /// </summary>
+    /// <exception cref="NotSupportedException">This operation is not supported.</exception>
+    void ICollection<Money>.Clear() => throw new NotSupportedException();
+
+    /// <summary>
+    /// Not supported.
+    /// </summary>
+    /// <exception cref="NotSupportedException">This operation is not supported.</exception>
+    bool ICollection<Money>.Remove(Money item) => throw new NotSupportedException();
+
+    #endregion
 }

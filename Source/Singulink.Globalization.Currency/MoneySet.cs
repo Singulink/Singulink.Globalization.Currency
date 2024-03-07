@@ -14,10 +14,11 @@ namespace Singulink.Globalization;
 /// Money sets never contain any default <see cref="Money"/> values (i.e. zero amount values that are not associated with any currency). Default values are
 /// ignored when being added to or subtracted from a set.</para>
 /// </remarks>
-public class MoneySet : IMoneySet
+public sealed partial class MoneySet : IMoneySet
 {
     private readonly CurrencyRegistry _registry;
     private readonly Dictionary<Currency, decimal> _amountLookup = [];
+    private CurrencyCollection? _currencyCollection;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry.
@@ -89,9 +90,7 @@ public class MoneySet : IMoneySet
     public Money this[string currencyCode]
     {
         get {
-            var currency = _registry[currencyCode];
-
-            if (_amountLookup.TryGetValue(currency, out decimal amount))
+            if (_registry.TryGetCurrency(currencyCode, out var currency) && _amountLookup.TryGetValue(currency, out decimal amount))
                 return new Money(amount, currency);
 
             return default;
@@ -105,16 +104,15 @@ public class MoneySet : IMoneySet
             if (_amountLookup.TryGetValue(currency, out decimal amount))
                 return new Money(amount, currency);
 
-            EnsureCurrencyAllowed(currency, nameof(currency));
             return default;
         }
     }
 
-    /// <inheritdoc cref="IReadOnlyMoneySet.Count"/>
+    /// <inheritdoc cref="IMoneySet.Count"/>
     public int Count => _amountLookup.Count;
 
     /// <inheritdoc cref="IReadOnlyMoneySet.Currencies"/>
-    public IReadOnlyCollection<Currency> Currencies => _amountLookup.Keys;
+    public CurrencyCollection Currencies => _currencyCollection ??= new(this);
 
     /// <inheritdoc cref="IReadOnlyMoneySet.Registry"/>
     public CurrencyRegistry Registry => _registry;
@@ -151,6 +149,31 @@ public class MoneySet : IMoneySet
         bool ensureCurrenciesInRegistry = values is not IReadOnlyMoneySet s || s.Registry != _registry;
         AddRangeInternal(values, ensureCurrenciesInRegistry);
     }
+
+    /// <summary>
+    /// Removes all values from this set.
+    /// </summary>
+    public void Clear() => _amountLookup.Clear();
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.Contains(Money)"/>
+    public bool Contains(Money value) => _amountLookup.TryGetValue(value.Currency, out decimal amount) && amount == value.Amount;
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.Contains(decimal, Currency)"/>
+    public bool Contains(decimal amount, Currency currency) => _amountLookup.TryGetValue(currency, out decimal existingAmount) && existingAmount == amount;
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.Contains(decimal, string)"/>
+    public bool Contains(decimal amount, string currencyCode)
+    {
+        return _registry.TryGetCurrency(currencyCode, out var currency) &&
+            _amountLookup.TryGetValue(currency, out decimal existingAmount) &&
+            existingAmount == amount;
+    }
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.ContainsCurrency(Currency)"/>
+    public bool ContainsCurrency(Currency currency) => _amountLookup.ContainsKey(currency);
+
+    /// <inheritdoc cref="IReadOnlyMoneySet.ContainsCurrency(string)"/>
+    public bool ContainsCurrency(string currencyCode) => _registry.TryGetCurrency(currencyCode, out var currency) && _amountLookup.ContainsKey(currency);
 
     /// <summary>
     /// Returns an enumerator that iterates through the values in this set.
@@ -482,20 +505,16 @@ public class MoneySet : IMoneySet
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(Currency, out decimal)"/>
-    public bool TryGetAmount(Currency currency, out decimal amount)
-    {
-        if (_amountLookup.TryGetValue(currency, out amount))
-            return true;
-
-        EnsureCurrencyAllowed(currency, nameof(currency));
-        return false;
-    }
+    public bool TryGetAmount(Currency currency, out decimal amount) => _amountLookup.TryGetValue(currency, out amount);
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(string, out decimal)"/>
     public bool TryGetAmount(string currencyCode, out decimal amount)
     {
-        var currency = _registry[currencyCode];
-        return _amountLookup.TryGetValue(currency, out amount);
+        if (_registry.TryGetCurrency(currencyCode, out var currency))
+            return _amountLookup.TryGetValue(currency, out amount);
+
+        amount = 0;
+        return false;
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(Currency, out Money)"/>
@@ -507,8 +526,6 @@ public class MoneySet : IMoneySet
             return true;
         }
 
-        EnsureCurrencyAllowed(currency, nameof(currency));
-
         value = default;
         return false;
     }
@@ -516,8 +533,11 @@ public class MoneySet : IMoneySet
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetValue(string, out Money)"/>
     public bool TryGetValue(string currencyCode, out Money value)
     {
-        var currency = _registry[currencyCode];
-        return TryGetValue(currency, out value);
+        if (_registry.TryGetCurrency(currencyCode, out var currency))
+            return TryGetValue(currency, out value);
+
+        value = default;
+        return false;
     }
 
     private void AddInternal(decimal amount, Currency currency)
@@ -621,7 +641,28 @@ public class MoneySet : IMoneySet
     bool IReadOnlyMoneySet.IsSorted => false;
 
     /// <inheritdoc/>
-    IEnumerable<Currency> IReadOnlyMoneySet.Currencies => Currencies;
+    bool ICollection<Money>.IsReadOnly => false;
+
+    /// <inheritdoc/>
+    IReadOnlyCollection<Currency> IReadOnlyMoneySet.Currencies => Currencies;
+
+    /// <inheritdoc/>
+    void ICollection<Money>.CopyTo(Money[] array, int arrayIndex)
+    {
+        CollectionCopy.CheckParams(Count, array, arrayIndex);
+
+        foreach (var value in this)
+            array[arrayIndex++] = value;
+    }
+
+    /// <inheritdoc/>
+    bool ICollection<Money>.Remove(Money item)
+    {
+        if (Contains(item))
+            return Remove(item.Currency);
+
+        return false;
+    }
 
     /// <inheritdoc/>
     IEnumerator<Money> IEnumerable<Money>.GetEnumerator() => GetEnumerator();
