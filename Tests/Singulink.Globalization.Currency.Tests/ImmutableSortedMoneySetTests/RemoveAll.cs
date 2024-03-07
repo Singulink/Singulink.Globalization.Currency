@@ -1,4 +1,7 @@
-﻿namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+
+namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
 [PrefixTestClass]
 public class RemoveAll
@@ -12,8 +15,6 @@ public class RemoveAll
     private static readonly Money Eur25 = new(25m, Eur);
 
     private static readonly ImmutableSortedMoneySet Set = [Usd100, Cad50, Eur25];
-
-    // public int RemoveAll(IEnumerable<Currency> currencies) tests
 
     [TestMethod]
     public void RemoveCurrencies_AllMatchingCurrencies_RemovesAllValues()
@@ -54,5 +55,20 @@ public class RemoveAll
         var disallowedCurrency = new Currency("Non-existent currency", "XXX", "X", 2);
 
         Should.Throw<ArgumentException>(() => Set.RemoveAll([disallowedCurrency]));
+    }
+
+    [TestMethod]
+    public void RemoveCurrenciesByPredicate_SomeMatches_RemovesMatching()
+    {
+        var resultSet = Set.RemoveAll(m => m.Amount > 30);
+        resultSet.Count.ShouldBe(1);
+        resultSet.ShouldBe([Eur25]);
+    }
+
+    [TestMethod]
+    public void RemoveCurrenciesByPredicate_NoMatches_NoChange()
+    {
+        var resultSet = Set.RemoveAll(m => m.Amount > 100);
+        resultSet.ShouldBeSameAs(Set);
     }
 }
