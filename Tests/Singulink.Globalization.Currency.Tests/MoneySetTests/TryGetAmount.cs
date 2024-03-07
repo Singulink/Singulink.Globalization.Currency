@@ -2,6 +2,9 @@
 public static class TryGetAmount
 {
     [PrefixTestClass]
+    public class Set : Tests<MoneySet> { }
+
+    [PrefixTestClass]
     public class SortedSet : Tests<SortedMoneySet> { }
 
     [PrefixTestClass]
@@ -16,8 +19,6 @@ public static class TryGetAmount
         private static readonly Money Cad50 = new(50m, "CAD");
         private static readonly Money Eur25 = new(25m, "EUR");
         private static readonly IReadOnlyMoneySet Set = T.Create(CurrencyRegistry.Default, [Usd100, Cad50, Eur25]);
-
-        // By Currency Tests
 
         [TestMethod]
         public void GetByCurrency_CurrencyExists_ReturnsTrueAndOutputsAmount()
@@ -45,7 +46,7 @@ public static class TryGetAmount
             Should.Throw<ArgumentException>(() => Set.TryGetAmount(disallowedCurrency, out _));
         }
 
-        // By Currency Code Tests
+        ///////////////////////////
 
         [TestMethod]
         public void GetByCurrencyCode_CurrencyExists_ReturnsTrueAndOutputsAmount()

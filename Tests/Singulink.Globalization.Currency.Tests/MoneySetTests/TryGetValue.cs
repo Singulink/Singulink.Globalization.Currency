@@ -1,7 +1,10 @@
-﻿namespace Singulink.Globalization.Tests.ReadOnlySetTests;
+﻿namespace Singulink.Globalization.Tests.MoneySetTests;
 
 public static class TryGetValue
 {
+    [PrefixTestClass]
+    public class Set : Tests<MoneySet> { }
+
     [PrefixTestClass]
     public class SortedSet : Tests<SortedMoneySet> { }
 
@@ -18,8 +21,6 @@ public static class TryGetValue
         private static readonly Money Eur25 = new(25m, "EUR");
 
         private static readonly IReadOnlyMoneySet _set = T.Create(CurrencyRegistry.Default, [Usd100, Cad50, Eur25]);
-
-        // By Currency Tests
 
         [TestMethod]
         public void GetByCurrency_CurrencyExists_ReturnsTrueAndOutputsValue()
@@ -47,7 +48,7 @@ public static class TryGetValue
             Should.Throw<ArgumentException>(() => _set.TryGetValue(disallowedCurrency, out _));
         }
 
-        // By Currency Code Tests
+        ///////////////////////////
 
         [TestMethod]
         public void GetByCurrencyCode_CurrencyExists_ReturnsTrueAndOutputsValue()
