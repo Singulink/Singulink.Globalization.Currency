@@ -22,9 +22,7 @@ public class MoneySet : IMoneySet
     /// <summary>
     /// Initializes a new instance of the <see cref="MoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry.
     /// </summary>
-    public MoneySet() : this(CurrencyRegistry.Default)
-    {
-    }
+    public MoneySet() : this(CurrencyRegistry.Default) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MoneySet"/> class with the specified currency registry.
@@ -44,9 +42,7 @@ public class MoneySet : IMoneySet
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public MoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values)
-    {
-    }
+    public MoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MoneySet"/> class with the specified currency registry and adds all the specified values.
@@ -56,6 +52,30 @@ public class MoneySet : IMoneySet
     /// </exception>
     public MoneySet(CurrencyRegistry registry, IEnumerable<Money> values)
         : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry) { }
+
+    /// <inheritdoc cref="MoneySet(IEnumerable{Money})"/>
+    public MoneySet(ReadOnlySpan<Money> values) : this(CurrencyRegistry.Default, values) { }
+
+    /// <inheritdoc cref="MoneySet(CurrencyRegistry, IEnumerable{Money})"/>
+    public MoneySet(CurrencyRegistry registry, ReadOnlySpan<Money> values)
+    {
+        _registry = registry;
+
+        foreach (var value in values)
+        {
+            var currency = value.CurrencyOrDefault;
+
+            if (currency == null)
+                continue;
+
+            EnsureCurrencyAllowed(currency, nameof(values));
+
+            if (_amountLookup.TryGetValue(currency, out decimal existingAmount))
+                _amountLookup[currency] = existingAmount + value.Amount;
+            else
+                _amountLookup.Add(currency, value.Amount);
+        }
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MoneySet"/> class. Trusted internal constructor.
@@ -588,8 +608,13 @@ public class MoneySet : IMoneySet
     #region Explicit Interface Implementations
 
 #if NET7_0_OR_GREATER
+
     /// <inheritdoc/>
     static IReadOnlyMoneySet IReadOnlyMoneySet.Create(CurrencyRegistry registry, IEnumerable<Money> values) => new MoneySet(registry, values);
+
+    /// <inheritdoc/>
+    static IMoneySet IMoneySet.Create(CurrencyRegistry registry, IEnumerable<Money> values) => new MoneySet(registry, values);
+
 #endif
 
     /// <inheritdoc/>

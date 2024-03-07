@@ -57,6 +57,30 @@ public class SortedMoneySet : IMoneySet
     public SortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values)
         : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry) { }
 
+    /// <inheritdoc cref="SortedMoneySet(IEnumerable{Money})"/>
+    public SortedMoneySet(ReadOnlySpan<Money> values) : this(CurrencyRegistry.Default, values) { }
+
+    /// <inheritdoc cref="SortedMoneySet(CurrencyRegistry, IEnumerable{Money})"/>
+    public SortedMoneySet(CurrencyRegistry registry, ReadOnlySpan<Money> values)
+    {
+        _registry = registry;
+
+        foreach (var value in values)
+        {
+            var currency = value.CurrencyOrDefault;
+
+            if (currency == null)
+                continue;
+
+            EnsureCurrencyAllowed(currency, nameof(values));
+
+            if (_amountLookup.TryGetValue(currency, out decimal existingAmount))
+                _amountLookup[currency] = existingAmount + value.Amount;
+            else
+                _amountLookup.Add(currency, value.Amount);
+        }
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SortedMoneySet"/> class. Trusted internal constructor.
     /// </summary>
@@ -593,8 +617,13 @@ public class SortedMoneySet : IMoneySet
     #region Explicit Interface Implementations
 
 #if NET7_0_OR_GREATER
+
     /// <inheritdoc/>
     static IReadOnlyMoneySet IReadOnlyMoneySet.Create(CurrencyRegistry registry, IEnumerable<Money> values) => new SortedMoneySet(registry, values);
+
+    /// <inheritdoc/>
+    static IMoneySet IMoneySet.Create(CurrencyRegistry registry, IEnumerable<Money> values) => new SortedMoneySet(registry, values);
+
 #endif
 
     /// <inheritdoc/>

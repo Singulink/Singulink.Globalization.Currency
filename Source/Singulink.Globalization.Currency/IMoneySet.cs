@@ -1,10 +1,23 @@
-﻿namespace Singulink.Globalization;
+﻿using System.Runtime.CompilerServices;
+
+namespace Singulink.Globalization;
 
 /// <summary>
 /// Represents a set of <see cref="Money"/> values.
 /// </summary>
+[CollectionBuilder(typeof(MoneySetBuilder), nameof(MoneySetBuilder.Create))]
 public interface IMoneySet : IReadOnlyMoneySet
 {
+#if NET7_0_OR_GREATER
+    /// <summary>
+    /// Creates a set that uses the specified currency registry and adds all the specified values.
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// Attempted to add a value with a currency that is not available in the currency registry.
+    /// </exception>
+    public static abstract new IMoneySet Create(CurrencyRegistry registry, IEnumerable<Money> values);
+#endif
+
     /// <summary>
     /// Adds the specified value to this set.
     /// </summary>

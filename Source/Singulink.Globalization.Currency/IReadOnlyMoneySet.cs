@@ -1,8 +1,11 @@
-﻿namespace Singulink.Globalization;
+﻿using System.Runtime.CompilerServices;
+
+namespace Singulink.Globalization;
 
 /// <summary>
 /// Represents a read-only set of <see cref="Money"/> values.
 /// </summary>
+[CollectionBuilder(typeof(MoneySetBuilder), nameof(MoneySetBuilder.Create))]
 public interface IReadOnlyMoneySet : IEnumerable<Money>, IFormattable
 {
 #if NET7_0_OR_GREATER

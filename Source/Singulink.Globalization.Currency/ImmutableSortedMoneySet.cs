@@ -687,8 +687,13 @@ public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
     #region Explicit Interface Implementations
 
 #if NET7_0_OR_GREATER
+
     /// <inheritdoc/>
     static IReadOnlyMoneySet IReadOnlyMoneySet.Create(CurrencyRegistry registry, IEnumerable<Money> values) => CreateRange(registry, values);
+
+    /// <inheritdoc/>
+    static IImmutableMoneySet IImmutableMoneySet.Create(CurrencyRegistry registry, IEnumerable<Money> values) => CreateRange(registry, values);
+
 #endif
 
     /// <inheritdoc/>
