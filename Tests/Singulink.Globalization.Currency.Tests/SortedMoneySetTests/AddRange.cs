@@ -21,7 +21,7 @@ public class AddRange
     [TestMethod]
     public void SomeNewCurrencies_UpdatesExistingAndAddsNewValues()
     {
-        _set.AddRange([new(100m, "USD"), new(50m, "JPY"), new(25m, "CHF")]);
+        _set.AddRange([new(100m, "USD"), new(50m, "JPY"), new(25m, "CHF"), new(0m, "CAD")]);
         _set.Count.ShouldBe(5);
         _set.ShouldBe([new(200m, "USD"), new(50m, "CAD"), new(25m, "EUR"), new(50m, "JPY"), new(25m, "CHF")]);
     }
@@ -29,7 +29,7 @@ public class AddRange
     [TestMethod]
     public void AllNewCurrencies_AddsValues()
     {
-        _set.AddRange([new(100m, "GBP"), new(50m, "JPY"), new(25m, "CHF")]);
+        _set.AddRange([new(100m, "GBP"), new(50m, "JPY"), new(25m, "CHF"), default]);
         _set.Count.ShouldBe(6);
         _set.ShouldBe([new(100m, "USD"), new(50m, "CAD"), new(25m, "EUR"), new(100m, "GBP"), new(50m, "JPY"), new(25m, "CHF")]);
     }
