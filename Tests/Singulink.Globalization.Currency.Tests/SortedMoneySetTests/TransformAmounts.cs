@@ -8,7 +8,7 @@ public class TransformAmounts
     private static readonly Money Eur25 = new(25m, "EUR");
     private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50, Eur25];
 
-    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
+    private readonly SortedMoneySet _set = ImmutableSet.ToSortedMoneySet();
 
     [TestMethod]
     public void NonNullOutput_AllAmountsTransformed_UpdatesValue()

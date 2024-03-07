@@ -8,7 +8,7 @@ public class Remove
     private static readonly Money Eur25 = new(25m, "EUR");
     private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50, Eur25];
 
-    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
+    private readonly SortedMoneySet _set = ImmutableSet.ToSortedMoneySet();
 
     // public bool Remove(string currencyCode) tests
 

@@ -13,7 +13,7 @@ public class RemoveAll
 
     private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50, Eur25];
 
-    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
+    private readonly SortedMoneySet _set = ImmutableSet.ToSortedMoneySet();
 
     // public int RemoveAll(IEnumerable<Currency> currencies) tests
 

@@ -11,11 +11,11 @@ public class RoundToCurrencyDigits
     private static readonly ImmutableSortedMoneySet RoundUpResults   = [new(10.010m, "USD"), new(7.0m, "JPY")];
 #pragma warning restore SA1025
 
-    private readonly SortedMoneySet _roundDownResults = RoundDownResults.ToSet();
-    private readonly SortedMoneySet _roundDownValues = RoundDownValues.ToSet();
-    private readonly SortedMoneySet _midpointValues = MidpointValues.ToSet();
-    private readonly SortedMoneySet _roundUpValues = RoundUpValues.ToSet();
-    private readonly SortedMoneySet _roundUpResults = RoundUpResults.ToSet();
+    private readonly SortedMoneySet _roundDownResults = RoundDownResults.ToSortedMoneySet();
+    private readonly SortedMoneySet _roundDownValues = RoundDownValues.ToSortedMoneySet();
+    private readonly SortedMoneySet _midpointValues = MidpointValues.ToSortedMoneySet();
+    private readonly SortedMoneySet _roundUpValues = RoundUpValues.ToSortedMoneySet();
+    private readonly SortedMoneySet _roundUpResults = RoundUpResults.ToSortedMoneySet();
 
     [TestMethod]
     public void ToEven()

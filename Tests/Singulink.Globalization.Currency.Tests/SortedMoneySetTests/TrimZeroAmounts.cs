@@ -16,7 +16,7 @@ public class TrimZeroAmounts
     [TestMethod]
     public void SomeZeroAmounts_RemovesZeroAmountValues()
     {
-        var set = AllAmountsSet.ToSet();
+        var set = AllAmountsSet.ToSortedMoneySet();
         set.TrimZeroAmounts();
         set.Count.ShouldBe(3);
         set.ShouldBe(NoZeroAmountsSet);
@@ -25,7 +25,7 @@ public class TrimZeroAmounts
     [TestMethod]
     public void NoZeroAmounts_NoChange()
     {
-        var set = NoZeroAmountsSet.ToSet();
+        var set = NoZeroAmountsSet.ToSortedMoneySet();
         set.TrimZeroAmounts();
         set.ShouldBe(NoZeroAmountsSet);
     }
@@ -33,7 +33,7 @@ public class TrimZeroAmounts
     [TestMethod]
     public void AllZeroAmounts_RemovesAllValues()
     {
-        var set = AllZeroAmountsSet.ToSet();
+        var set = AllZeroAmountsSet.ToSortedMoneySet();
         set.TrimZeroAmounts();
         set.Count.ShouldBe(0);
         set.ShouldBe([]);

@@ -9,7 +9,7 @@ public class Subtract
     private static readonly Currency DisallowedCurrency = new("Blah blah blah", "BBB", "$$", 2);
     private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50];
 
-    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
+    private readonly SortedMoneySet _set = ImmutableSet.ToSortedMoneySet();
 
     // public void Subtract(Money value) tests
 

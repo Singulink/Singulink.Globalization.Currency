@@ -9,7 +9,7 @@ public class SetValue
     private static readonly Money Aud75 = new(75m, "AUD");
     private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50, Eur25];
 
-    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
+    private readonly SortedMoneySet _set = ImmutableSet.ToSortedMoneySet();
 
     [TestMethod]
     public void SetValue_CurrencyDoesNotExist_AddsValue()

@@ -287,11 +287,6 @@ public class MoneySet : IMoneySet
     }
 
     /// <summary>
-    /// Copies the values in this set to a new immutable set that uses the same registry as this set.
-    /// </summary>
-    public ImmutableSortedMoneySet ToImmutableSet() => new ImmutableSortedMoneySet(_registry, this, false);
-
-    /// <summary>
     /// Returns a string representation of the money values this set contains.
     /// </summary>
     public override string ToString() => ToString(null, null);

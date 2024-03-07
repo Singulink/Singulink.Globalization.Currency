@@ -11,7 +11,7 @@ public class ToString
     private static readonly CultureInfo FrFR = CultureInfo.GetCultureInfo("fe-FR");
     private static readonly ImmutableSortedMoneySet Set = [Money.Create(1.23m, "USD"), Money.Create(0m, "CAD"), Money.Create(500m, "JPY")];
 
-    private readonly SortedMoneySet _set = Set.ToSet();
+    private readonly SortedMoneySet _set = Set.ToSortedMoneySet();
 
     [TestMethod]
     public void DefaultFormat()

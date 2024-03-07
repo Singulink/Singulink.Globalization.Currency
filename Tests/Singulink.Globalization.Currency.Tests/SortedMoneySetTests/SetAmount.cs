@@ -15,7 +15,7 @@ public class SetAmount
 
     private static readonly ImmutableSortedMoneySet ImmutableSet = [Usd100, Cad50, Eur25];
 
-    private readonly SortedMoneySet _set = ImmutableSet.ToSet();
+    private readonly SortedMoneySet _set = ImmutableSet.ToSortedMoneySet();
 
     // public void SetAmount(decimal amount, string currencyCode) tests
 
