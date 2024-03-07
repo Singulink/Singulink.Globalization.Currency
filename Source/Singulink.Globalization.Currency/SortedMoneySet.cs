@@ -4,9 +4,17 @@ using System.Text;
 namespace Singulink.Globalization;
 
 /// <summary>
-/// Represents a set of money that can contain values in multiple currencies.
+/// Represents a set of <see cref="Money"/> values sorted by currency code.
 /// </summary>
-public class SortedMoneySet : IReadOnlyMoneySet
+/// <remarks>
+/// <para>
+/// Money sets have one value for each currency they contain, and values are ordered by their currency. If a value is added (or subtracted) in a currency that
+/// the set already contains, the value is added to (or subtracted from) the existing value.</para>
+/// <para>
+/// Money sets never contain any default <see cref="Money"/> values (i.e. zero amount values that are not associated with any currency). Default values are
+/// ignored when being added to or subtracted from a set.</para>
+/// </remarks>
+public class SortedMoneySet : IMoneySet
 {
     private readonly CurrencyRegistry _registry;
     private readonly SortedDictionary<Currency, decimal> _amountLookup = new(CurrencyByCodeComparer.Default);
@@ -92,12 +100,7 @@ public class SortedMoneySet : IReadOnlyMoneySet
     /// <inheritdoc cref="IReadOnlyMoneySet.Registry"/>
     public CurrencyRegistry Registry => _registry;
 
-    /// <summary>
-    /// Adds the specified value to this set.
-    /// </summary>
-    /// <remarks>
-    /// Default values that are not associated with any currency are ignored.
-    /// </remarks>
+    /// <inheritdoc cref="IMoneySet.Add(Money)"/>
     public void Add(Money value)
     {
         var currency = value.CurrencyOrDefault;
@@ -109,32 +112,21 @@ public class SortedMoneySet : IReadOnlyMoneySet
         AddInternal(value.Amount, currency);
     }
 
-    /// <summary>
-    /// Adds the specified currency and amount to this set.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.Add(decimal, string)"/>
     public void Add(decimal amount, string currencyCode)
     {
         var currency = _registry[currencyCode];
         AddInternal(amount, currency);
     }
 
-    /// <summary>
-    /// Adds the specified currency and amount to this set.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.Add(decimal, Currency)"/>
     public void Add(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
         AddInternal(amount, currency);
     }
 
-    /// <summary>
-    /// Adds the specified values to this set.
-    /// </summary>
-    /// <remarks>
-    /// Default values that are not associated with any currency are ignored.
-    /// If any of the specified currencies are not present in the set's currency registry, an exception will be thrown.
-    /// However, all valid currencies will be added prior to the exception being thrown.
-    /// </remarks>
+    /// <inheritdoc cref="IMoneySet.AddRange(IEnumerable{Money})"/>
     public void AddRange(IEnumerable<Money> values)
     {
         bool ensureCurrenciesInRegistry = values is not IReadOnlyMoneySet s || s.Registry != _registry;
@@ -146,18 +138,14 @@ public class SortedMoneySet : IReadOnlyMoneySet
     /// </summary>
     public Enumerator GetEnumerator() => new(_amountLookup);
 
-    /// <summary>
-    /// Removes the value with the given currency code.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.Remove(string)"/>
     public bool Remove(string currencyCode)
     {
         var currency = _registry[currencyCode];
         return _amountLookup.Remove(currency);
     }
 
-    /// <summary>
-    /// Removes the value with the given currency.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.Remove(Currency)"/>
     public bool Remove(Currency currency)
     {
         bool removed = _amountLookup.Remove(currency);
@@ -170,14 +158,7 @@ public class SortedMoneySet : IReadOnlyMoneySet
         return removed;
     }
 
-    /// <summary>
-    /// Removes all the values from this set that match the specified currencies.
-    /// </summary>
-    /// <remarks>
-    /// If any of the specified currencies are not present in the set's currency registry, an exception will be thrown.
-    /// However, all valid currencies will be removed prior to the exception being thrown.
-    /// </remarks>
-    /// <exception cref="ArgumentException">"The following currencies are not present in the set's currency registry.".</exception>
+    /// <inheritdoc cref="IMoneySet.RemoveAll(IEnumerable{Currency})"/>
     public int RemoveAll(IEnumerable<Currency> currencies)
     {
         int count = 0;
@@ -202,9 +183,7 @@ public class SortedMoneySet : IReadOnlyMoneySet
         return count;
     }
 
-    /// <summary>
-    /// Removes all the values from this set that match the specified predicate and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.RemoveAll(Func{Money, bool})"/>
     public int RemoveAll(Func<Money, bool> predicate)
     {
         List<Currency> currenciesToRemove = null;
@@ -231,15 +210,10 @@ public class SortedMoneySet : IReadOnlyMoneySet
         return 0;
     }
 
-    /// <summary>
-    /// Rounds each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using <see cref="MidpointRounding.ToEven"/> midpoint rounding
-    /// (i.e. "banker's rounding").
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.RoundToCurrencyDigits()"/>
     public void RoundToCurrencyDigits() => RoundToCurrencyDigits(MidpointRounding.ToEven);
 
-    /// <summary>
-    /// Rounds each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using the specified midpoint rounding mode.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.RoundToCurrencyDigits(MidpointRounding)"/>
     public void RoundToCurrencyDigits(MidpointRounding mode)
     {
         if (Count == 0)
@@ -267,9 +241,7 @@ public class SortedMoneySet : IReadOnlyMoneySet
         }
     }
 
-    /// <summary>
-    /// Sets the value this set contains for the currency of the specified value.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.SetValue(Money)"/>
     public void SetValue(Money value)
     {
         var currency = value.CurrencyOrDefault;
@@ -280,52 +252,34 @@ public class SortedMoneySet : IReadOnlyMoneySet
         SetAmount(value.Amount, currency);
     }
 
-    /// <summary>
-    /// Sets the amount the set contains for the specified currency code.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.SetAmount(decimal, string)"/>
     public void SetAmount(decimal amount, string currencyCode)
     {
         var currency = _registry[currencyCode];
         _amountLookup[currency] = amount;
     }
 
-    /// <summary>
-    /// Sets the amount the set contains for the specified currency code.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.SetAmount(decimal, Currency)"/>
     public void SetAmount(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
         _amountLookup[currency] = amount;
     }
 
-    /// <summary>
-    /// Subtracts the specified value from this set. Zero amounts are not trimmed from the set.
-    /// </summary>
-    /// <remarks>
-    /// Default values that are not associated with any currency are ignored.
-    /// </remarks>
+    /// <inheritdoc cref="IMoneySet.Subtract(Money)"/>
     public void Subtract(Money value) => Add(-value);
 
-    /// <summary>
-    /// Subtracts the specified currency and amount from this set.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.Subtract(decimal, string)"/>
     public void Subtract(decimal amount, string currencyCode) => Add(-amount, currencyCode);
 
-    /// <summary>
-    /// Adds the specified currency and amount to this set.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.Subtract(decimal, Currency)"/>
     public void Subtract(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
         AddInternal(-amount, currency);
     }
 
-    /// <summary>
-    /// Subtracts the specified values from this set. Zero amounts are not trimmed from the set.
-    /// </summary>
-    /// <remarks>
-    /// Default values that are not associated with any currency are ignored.
-    /// </remarks>
+    /// <inheritdoc cref="IMoneySet.SubtractRange(IEnumerable{Money})"/>
     public void SubtractRange(IEnumerable<Money> values)
     {
         bool ensureCurrenciesInRegistry = values is not IReadOnlyMoneySet s || s.Registry != _registry;
@@ -401,9 +355,7 @@ public class SortedMoneySet : IReadOnlyMoneySet
         }
     }
 
-    /// <summary>
-    /// Applies the specified transformation to each value's amount in this set.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.TransformValues(Func{Money, decimal})"/>
     public void TransformValues(Func<Money, decimal> transform)
     {
         if (Count == 0)
@@ -422,9 +374,7 @@ public class SortedMoneySet : IReadOnlyMoneySet
         }
     }
 
-    /// <summary>
-    /// Applies the specified transformation to each value's amount in this set. Values transformed to a <see langword="null"/> amount are removed.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.TransformValues(Func{Money, decimal?})"/>
     public void TransformValues(Func<Money, decimal?> transform)
     {
         if (Count == 0)
@@ -447,9 +397,7 @@ public class SortedMoneySet : IReadOnlyMoneySet
         }
     }
 
-    /// <summary>
-    /// Applies the specified transformation to each value's amount in this set.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.TransformAmounts(Func{decimal, decimal})"/>
     public void TransformAmounts(Func<decimal, decimal> transform)
     {
         if (Count == 0)
@@ -469,9 +417,7 @@ public class SortedMoneySet : IReadOnlyMoneySet
         }
     }
 
-    /// <summary>
-    /// Applies the specified transformation to each value's amount in this set. Amounts transformed to a <see langword="null"/> amount are removed.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.TransformAmounts(Func{decimal, decimal?})"/>
     public void TransformAmounts(Func<decimal, decimal?> transform)
     {
         if (Count == 0)
@@ -494,9 +440,7 @@ public class SortedMoneySet : IReadOnlyMoneySet
         }
     }
 
-    /// <summary>
-    /// Removes all zero amounts from this set.
-    /// </summary>
+    /// <inheritdoc cref="IMoneySet.TrimZeroAmounts"/>
     public int TrimZeroAmounts()
     {
         List<Currency> currenciesToRemove = null;
@@ -677,7 +621,7 @@ public class SortedMoneySet : IReadOnlyMoneySet
         /// </summary>
         public Money Current => new(_amountLookupEnumerator.Current.Value, _amountLookupEnumerator.Current.Key);
 
-        /// <inheritdoc cref="Current"/>
+        /// <inheritdoc/>
         object? IEnumerator.Current => Current;
 
         internal Enumerator(SortedDictionary<Currency, decimal> amountLookup)
