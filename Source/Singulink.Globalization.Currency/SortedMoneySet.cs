@@ -409,11 +409,38 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
         if (Count == 0)
             return;
 
+        // TODO: Optimize if no values change.
+
         foreach (var kvp in _amountLookup.ToList())
         {
             decimal newAmount = transform(new Money(kvp.Value, kvp.Key));
 
             if (newAmount != kvp.Value)
+            {
+                _amountLookup[kvp.Key] = newAmount;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Applies the specified transformation to each value's amount in this set. Values transformed to a <see langword="null"/> amount are removed.
+    /// </summary>
+    public void TransformValues(Func<Money, decimal?> transform)
+    {
+        if (Count == 0)
+            return;
+
+        // TODO: Optimize if no values change.
+
+        foreach (var kvp in _amountLookup.ToList())
+        {
+            decimal? newAmountOrNull = transform(new Money(kvp.Value, kvp.Key));
+
+            if (newAmountOrNull is not decimal newAmount)
+            {
+                _amountLookup.Remove(kvp.Key);
+            }
+            else if (newAmount != kvp.Value)
             {
                 _amountLookup[kvp.Key] = newAmount;
             }
@@ -427,6 +454,8 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     {
         if (Count == 0)
             return;
+
+        // TODO: Optimize if no values change.
 
         foreach (var kvp in _amountLookup.ToList())
         {
@@ -472,7 +501,7 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
     {
         List<Currency> currenciesToRemove = null;
 
-        foreach (var kvp in _amountLookup.ToList())
+        foreach (var kvp in _amountLookup)
         {
             if (kvp.Value == 0)
             {
