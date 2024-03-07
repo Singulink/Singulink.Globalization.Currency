@@ -24,7 +24,7 @@ partial struct Money : IFormattable
     private static readonly ConditionalWeakTable<NumberFormatInfo, NumberFormatInfo> _absNumberFormatInfoLookup = [];
 
     /// <summary>
-    /// Returns a string representation of this value's currency and amount.
+    /// Returns a culture-dependent international string representation of this value's currency and amount.
     /// </summary>
     public override string ToString() => ToString(null, null);
 
@@ -337,6 +337,9 @@ partial struct Money : IFormattable
                     {
                         Throw();
                     }
+
+                    // Processed format to the end, return early to skip the validation/throw at the end.
+                    return;
                 }
                 else
                 {
