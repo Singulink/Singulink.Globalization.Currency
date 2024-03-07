@@ -1,7 +1,4 @@
-﻿using PrefixClassName.MsTest;
-using Shouldly;
-
-namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
+﻿namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
 [PrefixTestClass]
 public class TryGetAmount

@@ -1,7 +1,4 @@
-﻿using PrefixClassName.MsTest;
-using Shouldly;
-
-namespace Singulink.Globalization.Tests.MoneyTests;
+﻿namespace Singulink.Globalization.Tests.MoneyTests;
 
 [PrefixTestClass]
 public class RoundToCurrencyDigits

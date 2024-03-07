@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-
-namespace Singulink.Globalization.Utilities;
+﻿namespace Singulink.Globalization.Utilities;
 
 internal static class CultureInfoExtensions
 {

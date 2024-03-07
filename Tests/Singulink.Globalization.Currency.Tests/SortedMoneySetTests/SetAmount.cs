@@ -1,7 +1,4 @@
-﻿using PrefixClassName.MsTest;
-using Shouldly;
-
-namespace Singulink.Globalization.Tests.SortedMoneySetTests;
+﻿namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
 [PrefixTestClass]
 public class SetAmount

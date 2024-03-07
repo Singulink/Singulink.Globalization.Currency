@@ -1,6 +1,4 @@
 ﻿using System.Globalization;
-using PrefixClassName.MsTest;
-using Shouldly;
 
 namespace Singulink.Globalization.Tests.MoneyTests;
 
@@ -11,7 +9,7 @@ public class ToString
 
     private static readonly CultureInfo EnUS = CultureInfo.GetCultureInfo("en-US");
     private static readonly CultureInfo FrFR = CultureInfo.GetCultureInfo("fe-FR");
-    private static readonly CultureInfo KeaCV = CultureInfo.GetCultureInfo("kea-CV"); // currency symbol $ as decimal separator
+    private static readonly CultureInfo KeaCV = CultureInfo.GetCultureInfo("kea-CV"); // $ as decimal separator, no actual currency symbol
 
     [TestMethod]
     public void DefaultFormat()

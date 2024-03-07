@@ -1,6 +1,3 @@
-using PrefixClassName.MsTest;
-using Shouldly;
-
 namespace Singulink.Globalization.Tests.SortedMoneySetTests;
 
 [PrefixTestClass]

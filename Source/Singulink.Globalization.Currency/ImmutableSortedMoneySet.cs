@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -416,7 +416,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// Returns a string representation of the money values this set contains.
     /// </summary>
     /// <param name="format">The format to use for each money value. See <see cref="Money.ToString(string?, IFormatProvider?)"/> for valid money formats.
-    /// Prepend the format with the <c>"!"</c> character to ignore zero amount values.</param>
+    /// Prepend the desired money format with the <c>!</c> character to ignore zero amount values.</param>
     /// <param name="formatProvider">The format provider that will be used to obtain number format information. This should be a <see cref="CultureInfo"/>
     /// instance for formats that depend on the culture, otherwise the current culture is used.</param>
     public string ToString(string? format, IFormatProvider? formatProvider = null)
