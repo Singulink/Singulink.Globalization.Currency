@@ -3,8 +3,18 @@
 /// <summary>
 /// Represents a read-only set of <see cref="Money"/> values.
 /// </summary>
-public interface IReadOnlyMoneySet : IEnumerable<Money>
+public interface IReadOnlyMoneySet : IEnumerable<Money>, IFormattable
 {
+#if NET7_0_OR_GREATER
+    /// <summary>
+    /// Creates a set that uses the specified currency registry and adds all the specified values.
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// Attempted to add a value with a currency that is not available in the currency registry.
+    /// </exception>
+    public static abstract IReadOnlyMoneySet Create(CurrencyRegistry registry, IEnumerable<Money> values);
+#endif
+
     /// <summary>
     /// Gets the value this set contains with the specified currency code. Returns the default money value if it does not contain the currency.
     /// </summary>

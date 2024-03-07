@@ -6,7 +6,7 @@ namespace Singulink.Globalization;
 /// <summary>
 /// Represents a set of money that can contain values in multiple currencies.
 /// </summary>
-public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
+public class SortedMoneySet : IReadOnlyMoneySet
 {
     private readonly CurrencyRegistry _registry;
     private readonly SortedDictionary<Currency, decimal> _amountLookup = new(CurrencyByCodeComparer.Default);
@@ -649,13 +649,18 @@ public class SortedMoneySet : IReadOnlyMoneySet, IFormattable
 
     #region Explicit Interface Implementations
 
-    /// <inheritdoc cref="IReadOnlyMoneySet.Currencies"/>
+#if NET7_0_OR_GREATER
+    /// <inheritdoc/>
+    static IReadOnlyMoneySet IReadOnlyMoneySet.Create(CurrencyRegistry registry, IEnumerable<Money> values) => new SortedMoneySet(registry, values);
+#endif
+
+    /// <inheritdoc/>
     IEnumerable<Currency> IReadOnlyMoneySet.Currencies => Currencies;
 
-    /// <inheritdoc cref="GetEnumerator"/>
+    /// <inheritdoc/>
     IEnumerator<Money> IEnumerable<Money>.GetEnumerator() => GetEnumerator();
 
-    /// <inheritdoc cref="GetEnumerator"/>
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion

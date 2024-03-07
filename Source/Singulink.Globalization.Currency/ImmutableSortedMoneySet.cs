@@ -6,7 +6,7 @@ using System.Text;
 namespace Singulink.Globalization;
 
 /// <summary>
-/// Represents an immutable set of <see cref="Money"/> values.
+/// Represents an immutable set of <see cref="Money"/> values sorted by currency code.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -17,7 +17,7 @@ namespace Singulink.Globalization;
 /// ignored when being added to or subtracted from a set.</para>
 /// </remarks>
 [CollectionBuilder(typeof(ImmutableSortedMoneySet), nameof(Create))]
-public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
+public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
 {
     private static readonly ImmutableSortedDictionary<Currency, decimal> EmptyLookup = ImmutableSortedDictionary.Create<Currency, decimal>(CurrencyByCodeComparer.Default);
 
@@ -181,12 +181,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// <inheritdoc cref="IReadOnlyMoneySet.Currencies"/>
     public IEnumerable<Currency> Currencies => _amountLookup.Keys;
 
-    /// <summary>
-    /// Adds the specified value to this set and returns the resulting set.
-    /// </summary>
-    /// <remarks>
-    /// Default values that are not associated with any currency are ignored.
-    /// </remarks>
+    /// <inheritdoc cref="IImmutableMoneySet.Add(Money)"/>
     public ImmutableSortedMoneySet Add(Money value)
     {
         var currency = value.CurrencyOrDefault;
@@ -198,30 +193,21 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return AddInternal(value.Amount, currency);
     }
 
-    /// <summary>
-    /// Adds the specified currency and amount to this set and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.Add(decimal, string)"/>
     public ImmutableSortedMoneySet Add(decimal amount, string currencyCode)
     {
         var currency = _registry[currencyCode];
         return AddInternal(amount, currency);
     }
 
-    /// <summary>
-    /// Adds the specified currency and amount to this set and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.Add(decimal, Currency)"/>
     public ImmutableSortedMoneySet Add(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
         return AddInternal(amount, currency);
     }
 
-    /// <summary>
-    /// Adds the specified values to this set and returns the resulting set.
-    /// </summary>
-    /// <remarks>
-    /// Default values that are not associated with any currency are ignored.
-    /// </remarks>
+    /// <inheritdoc cref="IImmutableMoneySet.AddRange(IEnumerable{Money})"/>
     public ImmutableSortedMoneySet AddRange(IEnumerable<Money> values)
     {
         bool ensureCurrenciesInRegistry = values is not IReadOnlyMoneySet s || s.Registry != _registry;
@@ -234,9 +220,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
     /// </summary>
     public Enumerator GetEnumerator() => new(_amountLookup);
 
-    /// <summary>
-    /// Removes the value with the given currency code and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.Remove(string)"/>
     public ImmutableSortedMoneySet Remove(string currencyCode)
     {
         var currency = _registry[currencyCode];
@@ -244,9 +228,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return updatedLookup == _amountLookup ? this : new ImmutableSortedMoneySet(_registry, updatedLookup);
     }
 
-    /// <summary>
-    /// Removes the value with the given currency and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.Remove(Currency)"/>
     public ImmutableSortedMoneySet Remove(Currency currency)
     {
         var updatedLookup = _amountLookup.Remove(currency);
@@ -260,9 +242,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return new ImmutableSortedMoneySet(_registry, updatedLookup);
     }
 
-    /// <summary>
-    /// Removes all the values from this set that match the specified currencies and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.RemoveAll(IEnumerable{Currency})"/>
     public ImmutableSortedMoneySet RemoveAll(IEnumerable<Currency> currencies)
     {
         ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
@@ -283,9 +263,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
-    /// <summary>
-    /// Removes all the values from this set that match the specified predicate and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.RemoveAll(Func{Money, bool})"/>
     public ImmutableSortedMoneySet RemoveAll(Func<Money, bool> predicate)
     {
         ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
@@ -302,16 +280,10 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
-    /// <summary>
-    /// Rounds each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using <see cref="MidpointRounding.ToEven"/> midpoint rounding
-    /// (i.e. "banker's rounding") and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.RoundToCurrencyDigits()"/>
     public ImmutableSortedMoneySet RoundToCurrencyDigits() => RoundToCurrencyDigits(MidpointRounding.ToEven);
 
-    /// <summary>
-    /// Rounds each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using the specified midpoint rounding mode and returns the resulting
-    /// set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.RoundToCurrencyDigits(MidpointRounding)"/>
     public ImmutableSortedMoneySet RoundToCurrencyDigits(MidpointRounding mode)
     {
         if (Count == 0)
@@ -333,9 +305,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
-    /// <summary>
-    /// Sets the value this set contains for the currency of the specified value and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.SetValue(Money)"/>
     public ImmutableSortedMoneySet SetValue(Money value)
     {
         var currency = value.CurrencyOrDefault;
@@ -346,9 +316,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return SetAmount(value.Amount, currency);
     }
 
-    /// <summary>
-    /// Sets the amount the set contains for the specified currency code and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.SetAmount(decimal, string)"/>
     public ImmutableSortedMoneySet SetAmount(decimal amount, string currencyCode)
     {
         var currency = _registry[currencyCode];
@@ -356,9 +324,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return updatedLookup == _amountLookup ? this : new ImmutableSortedMoneySet(_registry, updatedLookup);
     }
 
-    /// <summary>
-    /// Sets the amount the set contains for the specified currency code and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.SetAmount(decimal, Currency)"/>
     public ImmutableSortedMoneySet SetAmount(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
@@ -367,34 +333,20 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return updatedLookup == _amountLookup ? this : new ImmutableSortedMoneySet(_registry, updatedLookup);
     }
 
-    /// <summary>
-    /// Subtracts the specified value from this set and returns the resulting set. Zero amounts are not trimmed from the set.
-    /// </summary>
-    /// <remarks>
-    /// Default values that are not associated with any currency are ignored.
-    /// </remarks>
+    /// <inheritdoc cref="IImmutableMoneySet.Subtract(Money)"/>
     public ImmutableSortedMoneySet Subtract(Money value) => Add(-value);
 
-    /// <summary>
-    /// Subtracts the specified currency and amount from this set and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.Subtract(decimal, string)"/>
     public ImmutableSortedMoneySet Subtract(decimal amount, string currencyCode) => Add(-amount, currencyCode);
 
-    /// <summary>
-    /// Adds the specified currency and amount to this set and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.Subtract(decimal, Currency)"/>
     public ImmutableSortedMoneySet Subtract(decimal amount, Currency currency)
     {
         EnsureCurrencyAllowed(currency, nameof(currency));
         return AddInternal(-amount, currency);
     }
 
-    /// <summary>
-    /// Subtracts the specified values from this set and returns the resulting set. Zero amounts are not trimmed from the set.
-    /// </summary>
-    /// <remarks>
-    /// Default values that are not associated with any currency are ignored.
-    /// </remarks>
+    /// <inheritdoc cref="IImmutableMoneySet.SubtractRange(IEnumerable{Money})"/>
     public ImmutableSortedMoneySet SubtractRange(IEnumerable<Money> values)
     {
         bool ensureCurrenciesInRegistry = values is not IReadOnlyMoneySet s || s.Registry != _registry;
@@ -471,9 +423,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         }
     }
 
-    /// <summary>
-    /// Applies the specified transformation to each value's amount in this set and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.TransformValues(Func{Money, decimal})"/>
     public ImmutableSortedMoneySet TransformValues(Func<Money, decimal> transform)
     {
         if (Count == 0)
@@ -495,10 +445,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
-    /// <summary>
-    /// Applies the specified transformation to each value's amount in this set and returns the resulting set. Values transformed to a <see langword="null"/>
-    /// amount are removed.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.TransformValues(Func{Money, decimal?})"/>
     public ImmutableSortedMoneySet TransformValues(Func<Money, decimal?> transform)
     {
         if (Count == 0)
@@ -525,9 +472,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
-    /// <summary>
-    /// Applies the specified transformation to each value's amount in this set and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.TransformAmounts(Func{decimal, decimal})"/>
     public ImmutableSortedMoneySet TransformAmounts(Func<decimal, decimal> transform)
     {
         if (Count == 0)
@@ -549,10 +494,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
-    /// <summary>
-    /// Applies the specified transformation to each value's amount in this set and returns the resulting set. Amounts transformed to a <see langword="null"/>
-    /// amount are removed.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.TransformAmounts(Func{decimal, decimal?})"/>
     public ImmutableSortedMoneySet TransformAmounts(Func<decimal, decimal?> transform)
     {
         if (Count == 0)
@@ -579,9 +521,7 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
         return builder != null ? new ImmutableSortedMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
-    /// <summary>
-    /// Removes all zero amounts from this set and returns the resulting set.
-    /// </summary>
+    /// <inheritdoc cref="IImmutableMoneySet.TrimZeroAmounts"/>
     public ImmutableSortedMoneySet TrimZeroAmounts()
     {
         ImmutableSortedDictionary<Currency, decimal>.Builder builder = null;
@@ -751,10 +691,81 @@ public sealed class ImmutableSortedMoneySet : IReadOnlyMoneySet, IFormattable
 
     #region Explicit Interface Implementations
 
-    /// <inheritdoc cref="GetEnumerator"/>
+#if NET7_0_OR_GREATER
+    /// <inheritdoc/>
+    static IReadOnlyMoneySet IReadOnlyMoneySet.Create(CurrencyRegistry registry, IEnumerable<Money> values) => CreateRange(registry, values);
+#endif
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.Add(Money value) => Add(value);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.Add(decimal amount, string currencyCode) => Add(amount, currencyCode);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.Add(decimal amount, Currency currency) => Add(amount, currency);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.AddRange(IEnumerable<Money> values) => AddRange(values);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.Remove(string currencyCode) => Remove(currencyCode);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.Remove(Currency currency) => Remove(currency);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.RemoveAll(IEnumerable<Currency> currencies) => RemoveAll(currencies);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.RemoveAll(Func<Money, bool> predicate) => RemoveAll(predicate);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.RoundToCurrencyDigits() => RoundToCurrencyDigits();
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.RoundToCurrencyDigits(MidpointRounding mode) => RoundToCurrencyDigits(mode);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.SetValue(Money value) => SetValue(value);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.SetAmount(decimal amount, string currencyCode) => SetAmount(amount, currencyCode);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.SetAmount(decimal amount, Currency currency) => SetAmount(amount, currency);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.Subtract(Money value) => Subtract(value);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.Subtract(decimal amount, string currencyCode) => Subtract(amount, currencyCode);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.Subtract(decimal amount, Currency currency) => Subtract(amount, currency);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.SubtractRange(IEnumerable<Money> values) => SubtractRange(values);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.TransformValues(Func<Money, decimal> transform) => TransformValues(transform);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.TransformValues(Func<Money, decimal?> transform) => TransformValues(transform);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.TransformAmounts(Func<decimal, decimal> transform) => TransformAmounts(transform);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.TransformAmounts(Func<decimal, decimal?> transform) => TransformAmounts(transform);
+
+    /// <inheritdoc/>
+    IImmutableMoneySet IImmutableMoneySet.TrimZeroAmounts() => TrimZeroAmounts();
+
+    /// <inheritdoc/>
     IEnumerator<Money> IEnumerable<Money>.GetEnumerator() => GetEnumerator();
 
-    /// <inheritdoc cref="GetEnumerator"/>
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion
