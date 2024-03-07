@@ -618,6 +618,9 @@ public class MoneySet : IMoneySet
 #endif
 
     /// <inheritdoc/>
+    bool IReadOnlyMoneySet.IsSorted => false;
+
+    /// <inheritdoc/>
     IEnumerable<Currency> IReadOnlyMoneySet.Currencies => Currencies;
 
     /// <inheritdoc/>

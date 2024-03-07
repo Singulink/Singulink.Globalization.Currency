@@ -1,6 +1,6 @@
 ﻿namespace Singulink.Globalization.Tests.MoneySetTests;
 
-public static partial class Add
+public static partial class RemoveAll
 {
     [PrefixTestClass]
     public class Set : Mutable<MoneySet> { }

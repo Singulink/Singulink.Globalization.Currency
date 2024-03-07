@@ -29,11 +29,6 @@ public interface IReadOnlyMoneySet : IEnumerable<Money>, IFormattable
     public Money this[Currency currency] { get; }
 
     /// <summary>
-    /// Gets the currency registry associated with this set.
-    /// </summary>
-    CurrencyRegistry Registry { get; }
-
-    /// <summary>
     /// Gets the number of values in this set.
     /// </summary>
     public int Count { get; }
@@ -42,6 +37,16 @@ public interface IReadOnlyMoneySet : IEnumerable<Money>, IFormattable
     /// Gets the currencies that this set contains.
     /// </summary>
     public IEnumerable<Currency> Currencies { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this set is sorted by each value's currency code.
+    /// </summary>
+    public bool IsSorted { get; }
+
+    /// <summary>
+    /// Gets the currency registry associated with this set.
+    /// </summary>
+    CurrencyRegistry Registry { get; }
 
     /// <summary>
     /// Gets the amount associated with the specified currency.

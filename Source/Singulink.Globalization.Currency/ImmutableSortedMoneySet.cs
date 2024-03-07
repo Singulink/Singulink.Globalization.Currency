@@ -697,6 +697,9 @@ public sealed class ImmutableSortedMoneySet : IImmutableMoneySet
 #endif
 
     /// <inheritdoc/>
+    bool IReadOnlyMoneySet.IsSorted => true;
+
+    /// <inheritdoc/>
     IImmutableMoneySet IImmutableMoneySet.Add(Money value) => Add(value);
 
     /// <inheritdoc/>

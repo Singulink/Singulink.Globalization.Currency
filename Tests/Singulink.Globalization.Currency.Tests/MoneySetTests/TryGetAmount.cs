@@ -1,4 +1,5 @@
 ﻿namespace Singulink.Globalization.Tests.MoneySetTests;
+
 public static class TryGetAmount
 {
     [PrefixTestClass]
@@ -18,6 +19,7 @@ public static class TryGetAmount
         private static readonly Money Usd100 = new(100m, "USD");
         private static readonly Money Cad50 = new(50m, "CAD");
         private static readonly Money Eur25 = new(25m, "EUR");
+
         private static readonly IReadOnlyMoneySet Set = T.Create(CurrencyRegistry.Default, [Usd100, Cad50, Eur25]);
 
         [TestMethod]

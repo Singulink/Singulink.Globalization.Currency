@@ -14,7 +14,7 @@ public static class TryGetValue
     [PrefixTestClass]
     public class ImmutableSortedSet : Tests<ImmutableSortedMoneySet> { }
 
-    public abstract class Tests<T> where T : IReadOnlyMoneySet
+    public class Tests<T> where T : IReadOnlyMoneySet
     {
         private static readonly Money Usd100 = new(100m, "USD");
         private static readonly Money Cad50 = new(50m, "CAD");
