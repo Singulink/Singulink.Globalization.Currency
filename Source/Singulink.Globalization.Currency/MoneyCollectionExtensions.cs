@@ -1,6 +1,4 @@
-﻿using Microsoft.Win32;
-
-namespace Singulink.Globalization;
+﻿namespace Singulink.Globalization;
 
 /// <summary>
 /// Provides a set of static methods for converting between money collection types.

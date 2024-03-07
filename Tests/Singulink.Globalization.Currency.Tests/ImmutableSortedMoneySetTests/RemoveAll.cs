@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-
-namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
+﻿namespace Singulink.Globalization.Tests.ImmutableSortedMoneySetTests;
 
 [PrefixTestClass]
 public class RemoveAll

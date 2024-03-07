@@ -54,9 +54,8 @@ public class SortedMoneySet : IMoneySet
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public SortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values) : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry)
-    {
-    }
+    public SortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values)
+        : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SortedMoneySet"/> class. Trusted internal constructor.

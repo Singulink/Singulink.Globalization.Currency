@@ -777,7 +777,7 @@ public sealed class ImmutableMoneySet : IImmutableMoneySet
         /// </summary>
         public Money Current => new(_amountLookupEnumerator.Current.Value, _amountLookupEnumerator.Current.Key);
 
-        /// <inheritdoc cref="Current"/>
+        /// <inheritdoc/>
         object? IEnumerator.Current => Current;
 
         internal Enumerator(ImmutableDictionary<Currency, decimal> amountLookup)
