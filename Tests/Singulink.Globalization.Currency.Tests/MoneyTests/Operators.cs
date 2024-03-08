@@ -146,6 +146,19 @@ public class Operators
     }
 
     [TestMethod]
+    public void Addition_OneDefault_ReturnsNonDefaultValue()
+    {
+        (Usd100 + Money.Default).ShouldBe(Usd100);
+        (Money.Default + Usd100).ShouldBe(Usd100);
+    }
+
+    [TestMethod]
+    public void Addition_BothDefault_ReturnsDefault()
+    {
+        (Money.Default + Money.Default).ShouldBe(Money.Default);
+    }
+
+    [TestMethod]
     public void Addition_MoneyAndDecimal_ReturnsCorrectResult()
     {
         (Usd100 + 200m).ShouldBe(Usd300);
@@ -179,6 +192,19 @@ public class Operators
     public void Subtraction_DifferentCurrency_ThrowsArgumentException()
     {
         Should.Throw<ArgumentException>(() => Usd200 - Cad100);
+    }
+
+    [TestMethod]
+    public void Subtraction_OneDefault_ReturnsNonDefaultValue()
+    {
+        (Usd100 - Money.Default).ShouldBe(Usd100);
+        (Money.Default - Usd100).ShouldBe(-Usd100);
+    }
+
+    [TestMethod]
+    public void Subtraction_BothDefault_ReturnsDefault()
+    {
+        (Money.Default - Money.Default).ShouldBe(Money.Default);
     }
 
     [TestMethod]
@@ -303,10 +329,24 @@ public class Operators
     }
 
     [TestMethod]
+    public void Increment_DefaultValue_Throws()
+    {
+        var value = Money.Default;
+        Should.Throw<ArgumentException>(() => value++);
+    }
+
+    [TestMethod]
     public void Decrement_ReturnsCorrectResult()
     {
         var value = Usd100;
         (--value).ShouldBe(new Money(99m, "USD"));
+    }
+
+    [TestMethod]
+    public void Decrement_DefaultVakue_Throws()
+    {
+        var value = Money.Default;
+        Should.Throw<ArgumentException>(() => value--);
     }
 
     [TestMethod]
@@ -322,6 +362,12 @@ public class Operators
     }
 
     [TestMethod]
+    public void UnaryPlus_DefaultValue_ReturnsSameValue()
+    {
+        (+Money.Default).ShouldBe(Money.Default);
+    }
+
+    [TestMethod]
     public void UnaryMinus_PositiveValue_ReturnsNegativeValue()
     {
         (-Usd200).ShouldBe(UsdMinus200);
@@ -331,5 +377,11 @@ public class Operators
     public void UnaryMinus_NegativeValue_ReturnsPositiveValue()
     {
         (-UsdMinus200).ShouldBe(Usd200);
+    }
+
+    [TestMethod]
+    public void UnaryMinus_DefaultValue_ReturnsSameValue()
+    {
+        (-Money.Default).ShouldBe(Money.Default);
     }
 }

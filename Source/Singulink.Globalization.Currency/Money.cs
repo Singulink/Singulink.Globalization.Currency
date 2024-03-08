@@ -2,8 +2,6 @@ using System.Runtime.CompilerServices;
 
 namespace Singulink.Globalization;
 
-#pragma warning disable SA1203 // Constants should appear before fields
-
 /// <summary>
 /// Represents a monetary amount in a specific currency.
 /// </summary>
@@ -18,7 +16,8 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     private readonly Currency? _currency;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Money"/> struct with the specified amount and currency code.
+    /// Initializes a new instance of the <see cref="Money"/> struct with the specified amount and currency code from the <see cref="CurrencyRegistry.Default"/>
+    /// currency registry.
     /// </summary>
     public Money(decimal amount, string currencyCode) : this(amount, Currency.Get(currencyCode)) { }
 
@@ -32,7 +31,7 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     }
 
     /// <summary>
-    /// Creates a new <see cref="Money"/> value with the specified amount and currency code.
+    /// Creates a new <see cref="Money"/> value with the specified amount and currency code from the <see cref="CurrencyRegistry.Default"/> currency registry.
     /// </summary>
     public static Money Create(decimal amount, string currencyCode) => new(amount, currencyCode);
 
@@ -42,8 +41,9 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     public static Money Create(decimal amount, Currency currency) => new(amount, currency);
 
     /// <summary>
-    /// Creates a new <see cref="Money"/> value with the specified amount and currency code. Allows creating default money values by passing <c>0</c> for
-    /// the amount and <see langword="null"/> for the currency code. Currency code must be provided if the amount is non-zero.
+    /// Creates a new <see cref="Money"/> value with the specified amount and currency code from the <see cref="CurrencyRegistry.Default"/> currency registry.
+    /// Allows creating default money values by passing <c>0</c> for the amount and <see langword="null"/> for the currency code. Currency code must be provided
+    /// if the amount is non-zero.
     /// </summary>
     public static Money CreateDefaultable(decimal amount, string? currencyCode) => CreateDefaultable(amount, currencyCode is null ? null : Currency.Get(currencyCode));
 
@@ -220,7 +220,7 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     public static bool Equals(Money x, Money y) => x.Equals(y);
 
     /// <summary>
-    /// Determines whether this value is equal to the specifiied object.
+    /// Determines whether this value is equal to the specified object.
     /// </summary>
     public override bool Equals(object? obj) => obj is Money value && Equals(value);
 

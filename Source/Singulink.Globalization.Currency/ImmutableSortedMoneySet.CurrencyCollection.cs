@@ -69,13 +69,13 @@ partial class ImmutableSortedMoneySet
         /// Not supported.
         /// </summary>
         /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-        void ICollection<Currency>.Add(Currency item) => throw new NotSupportedException();
+        void ICollection<Currency>.Add(Currency? item) => throw new NotSupportedException();
 
         /// <summary>
         /// Not supported.
         /// </summary>
         /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-        bool ICollection<Currency>.Remove(Currency item) => throw new NotSupportedException();
+        bool ICollection<Currency>.Remove(Currency? item) => throw new NotSupportedException();
 
         #endregion
 

@@ -107,11 +107,6 @@ public sealed class CurrencyRegistry : ISet<Currency>
     public int Count => _currencies.Count;
 
     /// <summary>
-    /// Gets a value indicating whether the set is read-only. Always returns true.
-    /// </summary>
-    bool ICollection<Currency>.IsReadOnly => true;
-
-    /// <summary>
     /// Gets a currency from this registry with the specified currency code.
     /// </summary>
     public bool TryGetCurrency(string currencyCode, [MaybeNullWhen(false)] out Currency currency) => _currencyLookup.TryGetValue(currencyCode, out currency);
@@ -175,11 +170,20 @@ public sealed class CurrencyRegistry : ISet<Currency>
         return new(_orderedCurrencies);
     }
 
+    #region Explicit Interface Implementations
+
+    /// <summary>
+    /// Gets a value indicating whether the set is read-only. Always returns <see langword="true"/>.
+    /// </summary>
+    bool ICollection<Currency>.IsReadOnly => true;
+
     /// <inheritdoc cref="GetEnumerator"/>
     IEnumerator<Currency> IEnumerable<Currency>.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc cref="GetEnumerator"/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    #endregion
 
     #region Not Supported
 
@@ -187,37 +191,37 @@ public sealed class CurrencyRegistry : ISet<Currency>
     /// Not supported.
     /// </summary>
     /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-    bool ISet<Currency>.Add(Currency item) => throw new NotSupportedException();
+    bool ISet<Currency>.Add(Currency? item) => throw new NotSupportedException();
 
     /// <summary>
     /// Not supported.
     /// </summary>
     /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-    void ISet<Currency>.ExceptWith(IEnumerable<Currency> other) => throw new NotSupportedException();
+    void ISet<Currency>.ExceptWith(IEnumerable<Currency>? other) => throw new NotSupportedException();
 
     /// <summary>
     /// Not supported.
     /// </summary>
     /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-    void ISet<Currency>.IntersectWith(IEnumerable<Currency> other) => throw new NotSupportedException();
+    void ISet<Currency>.IntersectWith(IEnumerable<Currency>? other) => throw new NotSupportedException();
 
     /// <summary>
     /// Not supported.
     /// </summary>
     /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-    void ISet<Currency>.SymmetricExceptWith(IEnumerable<Currency> other) => throw new NotSupportedException();
+    void ISet<Currency>.SymmetricExceptWith(IEnumerable<Currency>? other) => throw new NotSupportedException();
 
     /// <summary>
     /// Not supported.
     /// </summary>
     /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-    void ISet<Currency>.UnionWith(IEnumerable<Currency> other) => throw new NotSupportedException();
+    void ISet<Currency>.UnionWith(IEnumerable<Currency>? other) => throw new NotSupportedException();
 
     /// <summary>
     /// Not supported.
     /// </summary>
     /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-    void ICollection<Currency>.Add(Currency item) => throw new NotSupportedException();
+    void ICollection<Currency>.Add(Currency? item) => throw new NotSupportedException();
 
     /// <summary>
     /// Not supported.
@@ -229,7 +233,7 @@ public sealed class CurrencyRegistry : ISet<Currency>
     /// Not supported.
     /// </summary>
     /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-    bool ICollection<Currency>.Remove(Currency item) => throw new NotSupportedException();
+    bool ICollection<Currency>.Remove(Currency? item) => throw new NotSupportedException();
 
     #endregion
 

@@ -8,6 +8,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\CompareTo.cs" Link="MoneyTests\CompareTo.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\CreateDefaultable.cs" Link="MoneyTests\CreateDefaultable.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\CurrencyProperty.cs" Link="MoneyTests\CurrencyProperty.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\Operators.cs" Link="MoneyTests\Operators.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\RoundToCurrencyDigits.cs" Link="MoneyTests\RoundToCurrencyDigits.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\ToString.cs" Link="MoneyTests\ToString.cs" />
