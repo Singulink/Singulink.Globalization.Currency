@@ -49,16 +49,10 @@ partial class SortedMoneySet
         }
 
         /// <inheritdoc/>
-        IEnumerator<Currency> IEnumerable<Currency>.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        IEnumerator<Currency> IEnumerable<Currency>.GetEnumerator() => GetEnumerator();
 
         /// <inheritdoc/>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
 
@@ -74,13 +68,13 @@ partial class SortedMoneySet
         /// Not supported.
         /// </summary>
         /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-        void ICollection<Currency>.Add(Currency item) => throw new NotImplementedException();
+        void ICollection<Currency>.Add(Currency item) => throw new NotSupportedException();
 
         /// <summary>
         /// Not supported.
         /// </summary>
         /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-        bool ICollection<Currency>.Remove(Currency item) => throw new NotImplementedException();
+        bool ICollection<Currency>.Remove(Currency item) => throw new NotSupportedException();
 
         #endregion
 
