@@ -40,7 +40,7 @@ public sealed class CurrencyRegistry : ISet<Currency>, IReadOnlySet<Currency>
 
     /// <summary>
     /// Gets or sets the default currency registry. The default registry can only be set once and cannot be set after it has been accessed. If it is not
-    /// set explicity then it gets set to the <see cref="System"/> registry on first access.
+    /// set explicitly then it gets set to the <see cref="System"/> registry on first access.
     /// </summary>
     /// <exception cref="InvalidOperationException">Attempt to set the default registry after it has already been set or accessed.</exception>
     /// <remarks>
