@@ -36,6 +36,19 @@ public sealed partial class MoneySet : IMoneySet
         _registry = registry;
     }
 
+    /// <inheritdoc cref="MoneySet(ReadOnlySpan{Money})"/>
+    public MoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values) { }
+
+    /// <inheritdoc cref="MoneySet(CurrencyRegistry, ReadOnlySpan{Money})"/>
+    public MoneySet(CurrencyRegistry registry, IEnumerable<Money> values)
+        : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry) { }
+
+    /// <inheritdoc cref="MoneySet(ReadOnlySpan{Money})"/>
+    public MoneySet(params Money[] values) : this(CurrencyRegistry.Default, values) { }
+
+    /// <inheritdoc cref="MoneySet(CurrencyRegistry, ReadOnlySpan{Money})"/>
+    public MoneySet(CurrencyRegistry registry, params Money[] values) : this(registry, values.AsSpan()) { }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="MoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry and adds all
     /// the specified values.
@@ -43,7 +56,7 @@ public sealed partial class MoneySet : IMoneySet
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public MoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values) { }
+    public MoneySet(ReadOnlySpan<Money> values) : this(CurrencyRegistry.Default, values) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MoneySet"/> class with the specified currency registry and adds all the specified values.
@@ -51,13 +64,6 @@ public sealed partial class MoneySet : IMoneySet
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public MoneySet(CurrencyRegistry registry, IEnumerable<Money> values)
-        : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry) { }
-
-    /// <inheritdoc cref="MoneySet(IEnumerable{Money})"/>
-    public MoneySet(ReadOnlySpan<Money> values) : this(CurrencyRegistry.Default, values) { }
-
-    /// <inheritdoc cref="MoneySet(CurrencyRegistry, IEnumerable{Money})"/>
     public MoneySet(CurrencyRegistry registry, ReadOnlySpan<Money> values)
     {
         _registry = registry;

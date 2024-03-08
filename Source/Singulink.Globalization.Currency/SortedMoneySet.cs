@@ -23,9 +23,7 @@ public sealed partial class SortedMoneySet : IMoneySet
     /// <summary>
     /// Initializes a new instance of the <see cref="SortedMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry.
     /// </summary>
-    public SortedMoneySet() : this(CurrencyRegistry.Default)
-    {
-    }
+    public SortedMoneySet() : this(CurrencyRegistry.Default) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SortedMoneySet"/> class with the specified currency registry.
@@ -38,6 +36,19 @@ public sealed partial class SortedMoneySet : IMoneySet
         _registry = registry;
     }
 
+    /// <inheritdoc cref="MoneySet(ReadOnlySpan{Money})"/>
+    public SortedMoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values) { }
+
+    /// <inheritdoc cref="MoneySet(CurrencyRegistry, ReadOnlySpan{Money})"/>
+    public SortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values)
+        : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry) { }
+
+    /// <inheritdoc cref="MoneySet(ReadOnlySpan{Money})"/>
+    public SortedMoneySet(params Money[] values) : this(CurrencyRegistry.Default, values) { }
+
+    /// <inheritdoc cref="MoneySet(CurrencyRegistry, ReadOnlySpan{Money})"/>
+    public SortedMoneySet(CurrencyRegistry registry, params Money[] values) : this(registry, values.AsSpan()) { }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SortedMoneySet"/> class with the <see cref="CurrencyRegistry.Default"/> currency registry and adds all
     /// the specified values.
@@ -45,9 +56,7 @@ public sealed partial class SortedMoneySet : IMoneySet
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public SortedMoneySet(IEnumerable<Money> values) : this(CurrencyRegistry.Default, values)
-    {
-    }
+    public SortedMoneySet(ReadOnlySpan<Money> values) : this(CurrencyRegistry.Default, values) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SortedMoneySet"/> class with the specified currency registry and adds all the specified values.
@@ -55,13 +64,6 @@ public sealed partial class SortedMoneySet : IMoneySet
     /// <exception cref="ArgumentException">
     /// Attempted to add a value with a currency that is not available in the currency registry.
     /// </exception>
-    public SortedMoneySet(CurrencyRegistry registry, IEnumerable<Money> values)
-        : this(registry, values, values is not IReadOnlyMoneySet s || s.Registry != registry) { }
-
-    /// <inheritdoc cref="SortedMoneySet(IEnumerable{Money})"/>
-    public SortedMoneySet(ReadOnlySpan<Money> values) : this(CurrencyRegistry.Default, values) { }
-
-    /// <inheritdoc cref="SortedMoneySet(CurrencyRegistry, IEnumerable{Money})"/>
     public SortedMoneySet(CurrencyRegistry registry, ReadOnlySpan<Money> values)
     {
         _registry = registry;
