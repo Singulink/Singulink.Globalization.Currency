@@ -3,10 +3,10 @@
 public static partial class SetAmount
 {
     [PrefixTestClass]
-    public class Set : Mutable<MoneySet>;
+    public class TMoneySet : Mutable<MoneySet>;
 
     [PrefixTestClass]
-    public class SortedSet : Mutable<SortedMoneySet>;
+    public class TSortedMoneySet : Mutable<SortedMoneySet>;
 
     public class Mutable<T> where T : IMoneySet
     {

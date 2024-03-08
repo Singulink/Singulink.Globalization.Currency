@@ -3,10 +3,10 @@
 public static partial class SubtractRange
 {
     [PrefixTestClass]
-    public class ImmutableSet : Immutable<ImmutableMoneySet>;
+    public class TImmutableMoneySet : Immutable<ImmutableMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSortedSet : Immutable<ImmutableSortedMoneySet>;
+    public class TImmutableSortedMoneySet : Immutable<ImmutableSortedMoneySet>;
 
     public class Immutable<T> where T : IImmutableMoneySet
     {

@@ -3,16 +3,16 @@
 public static class TryGetValue
 {
     [PrefixTestClass]
-    public class Set : Tests<MoneySet>;
+    public class TMoneySet : Tests<MoneySet>;
 
     [PrefixTestClass]
-    public class SortedSet : Tests<SortedMoneySet>;
+    public class TSortedMoneySet : Tests<SortedMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSet : Tests<ImmutableMoneySet>;
+    public class TImmutableMoneySet : Tests<ImmutableMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSortedSet : Tests<ImmutableSortedMoneySet>;
+    public class TImmutableSortedMoneySet : Tests<ImmutableSortedMoneySet>;
 
     public class Tests<T> where T : IReadOnlyMoneySet
     {

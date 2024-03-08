@@ -3,10 +3,10 @@
 public static partial class SetValue
 {
     [PrefixTestClass]
-    public class ImmutableSet : Immutable<ImmutableMoneySet>;
+    public class TImmutableMoneySet : Immutable<ImmutableMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSortedSet : Immutable<ImmutableSortedMoneySet>;
+    public class TImmutableSortedMoneySet : Immutable<ImmutableSortedMoneySet>;
 
     public class Immutable<T> where T : IImmutableMoneySet
     {
