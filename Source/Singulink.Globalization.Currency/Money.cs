@@ -133,25 +133,28 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
         return x._amount >= y._amount;
     }
 
-    public static Money operator +(Money x, Money y) => CreateDefaultable(x._amount + y._amount, CombineCurrencies(x._currency, y._currency));
+    public static Money operator +(Money x, Money y) => CreateDefaultable(x._amount + y._amount, CombineCurrenciesForAddOrSubtract(x._currency, y._currency));
 
     public static Money operator +(Money x, decimal y) => CreateDefaultable(x._amount + y, x._currency);
 
-    public static Money operator +(decimal x, Money y) => y + x;
-
-    public static Money operator -(Money x, Money y) => CreateDefaultable(x._amount - y._amount, CombineCurrencies(x._currency, y._currency));
+    public static Money operator -(Money x, Money y) => CreateDefaultable(x._amount - y._amount, CombineCurrenciesForAddOrSubtract(x._currency, y._currency));
 
     public static Money operator -(Money x, decimal y) => CreateDefaultable(x._amount - y, x._currency);
 
-    public static Money operator -(decimal x, Money y) => CreateDefaultable(x - y._amount, y._currency);
-
     public static Money operator *(Money x, decimal y) => CreateDefaultable(x._amount * y, x._currency);
-
-    public static Money operator *(decimal x, Money y) => y * x;
 
     public static Money operator /(Money x, decimal y) => CreateDefaultable(x._amount / y, x._currency);
 
-    public static Money operator /(decimal x, Money y) => CreateDefaultable(x / y._amount, y._currency);
+    public static decimal operator /(Money x, Money y)
+    {
+        if (x._currency != y._currency)
+        {
+            void Throw() => throw new ArgumentException("Currencies must match to divide money values.");
+            Throw();
+        }
+
+        return x._amount / y._amount;
+    }
 
     public static Money operator ++(Money value)
     {
@@ -245,7 +248,7 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Currency? CombineCurrencies(Currency? x, Currency? y)
+    private static Currency? CombineCurrenciesForAddOrSubtract(Currency? x, Currency? y)
     {
         if (x == y)
             return x;
@@ -255,7 +258,7 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
 
         if (y is not null)
         {
-            static void Throw() => throw new ArgumentException("Currencies must match (or one of the values can be a default value that has no currency associated with it).");
+            static void Throw() => throw new ArgumentException("Currencies must match to add or subtract money values (or one of the values can be a default value that has no currency associated with it).");
             Throw();
         }
 

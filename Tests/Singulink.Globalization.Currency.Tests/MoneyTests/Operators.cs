@@ -146,40 +146,34 @@ public class Operators
     }
 
     [TestMethod]
-    public void Addition_OneDefault_ReturnsNonDefaultValue()
+    public void Addition_BothMoneyOneDefault_ReturnsNonDefaultValue()
     {
         (Usd100 + Money.Default).ShouldBe(Usd100);
         (Money.Default + Usd100).ShouldBe(Usd100);
     }
 
     [TestMethod]
-    public void Addition_BothDefault_ReturnsDefault()
+    public void Addition_BothDefaultMoney_ReturnsDefault()
     {
         (Money.Default + Money.Default).ShouldBe(Money.Default);
+    }
+
+    [TestMethod]
+    public void Addition_DefaultMoneyAndZero_ReturnsDefault()
+    {
+        (Money.Default + 0m).ShouldBe(Money.Default);
+    }
+
+    [TestMethod]
+    public void Addition_DefaultMoneyAndDecimal_Throws()
+    {
+        Should.Throw<ArgumentException>(() => Money.Default + 5);
     }
 
     [TestMethod]
     public void Addition_MoneyAndDecimal_ReturnsCorrectResult()
     {
         (Usd100 + 200m).ShouldBe(Usd300);
-    }
-
-    [TestMethod]
-    public void Addition_MoneyAndNegativeDecimal_ReturnsCorrectResult()
-    {
-        (Usd200 + -100m).ShouldBe(Usd100);
-    }
-
-    [TestMethod]
-    public void Addition_DecimalAndMoney_ReturnsCorrectResult()
-    {
-        (100m + Usd200).ShouldBe(Usd300);
-    }
-
-    [TestMethod]
-    public void Addition_NegativeDecimalAndMoney_ReturnsCorrectResult()
-    {
-        (-100m + Usd200).ShouldBe(Usd100);
     }
 
     [TestMethod]
@@ -195,16 +189,28 @@ public class Operators
     }
 
     [TestMethod]
-    public void Subtraction_OneDefault_ReturnsNonDefaultValue()
+    public void Subtraction_BothMoneyOneDefault_ReturnsNonDefaultValue()
     {
         (Usd100 - Money.Default).ShouldBe(Usd100);
         (Money.Default - Usd100).ShouldBe(-Usd100);
     }
 
     [TestMethod]
-    public void Subtraction_BothDefault_ReturnsDefault()
+    public void Subtraction_BothDefaultMoney_ReturnsDefault()
     {
         (Money.Default - Money.Default).ShouldBe(Money.Default);
+    }
+
+    [TestMethod]
+    public void Subtraction_DefaultMoneyAndZero_ReturnsDefault()
+    {
+        (Money.Default - 0m).ShouldBe(Money.Default);
+    }
+
+    [TestMethod]
+    public void Subtraction_DefaultMoneyAndDecimal_Throws()
+    {
+        Should.Throw<ArgumentException>(() => Money.Default - 5);
     }
 
     [TestMethod]
@@ -217,30 +223,6 @@ public class Operators
     public void Subtraction_MoneyAndNegativeDecimal_ReturnsCorrectResult()
     {
         (Usd200 - -100m).ShouldBe(Usd300);
-    }
-
-    [TestMethod]
-    public void Subtraction_DecimalAndMoney_ReturnsCorrectResult()
-    {
-        (200m - Usd100).ShouldBe(Usd100);
-    }
-
-    [TestMethod]
-    public void Subtraction_NegativeDecimalAndMoney_ReturnsCorrectResult()
-    {
-        (-100m - Usd200).ShouldBe(-Usd300);
-    }
-
-    [TestMethod]
-    public void Subtraction_DecimalMinusMoney_ReturnsCorrectResult()
-    {
-        (200m - Usd100).ShouldBe(Usd100);
-    }
-
-    [TestMethod]
-    public void Subtraction_NegativeDecimalMinusMoney_ReturnsCorrectResult()
-    {
-        (-100m - Usd200).ShouldBe(-Usd300);
     }
 
     [TestMethod]
@@ -259,24 +241,6 @@ public class Operators
     public void Multiplication_MoneyAndZero_ReturnsZero()
     {
         (Usd100 * 0m).ShouldBe(Usd0);
-    }
-
-    [TestMethod]
-    public void Multiplication_DecimalAndMoney_ReturnsCorrectResult()
-    {
-        (2m * Usd100).ShouldBe(Usd200);
-    }
-
-    [TestMethod]
-    public void Multiplication_NegativeDecimalAndMoney_ReturnsCorrectResult()
-    {
-        (-2m * Usd100).ShouldBe(-Usd200);
-    }
-
-    [TestMethod]
-    public void Multiplication_ZeroAndMoney_ReturnsZero()
-    {
-        (0m * Usd100).ShouldBe(Usd0);
     }
 
     [TestMethod]
@@ -304,21 +268,28 @@ public class Operators
     }
 
     [TestMethod]
-    public void Division_DecimalAndMoney_ReturnsCorrectResult()
+    public void Division_SameCurrency_ReturnsCorrectResult()
     {
-        (20000m / Usd100).ShouldBe(Usd200);
+        (Usd200 / Usd100).ShouldBe(2m);
     }
 
     [TestMethod]
-    public void Division_NegativeDecimalAndMoney_ReturnsCorrectResult()
+    public void Division_OneDefaultMoney_Throws()
     {
-        (-20000m / Usd100).ShouldBe(UsdMinus200);
+        Should.Throw<ArgumentException>(() => Money.Default / Usd100);
+        Should.Throw<ArgumentException>(() => Usd100 / Money.Default);
     }
 
     [TestMethod]
-    public void Division_DecimalAndZeroMoney_ThrowsDivideByZeroException()
+    public void Division_DifferentCurrencies_Throws()
     {
-        Should.Throw<DivideByZeroException>(() => 200m / Usd0);
+        Should.Throw<ArgumentException>(() => Usd100 / Cad100);
+    }
+
+    [TestMethod]
+    public void Division_BothDefaultMoney_ThrowsDivideByZeroException()
+    {
+        Should.Throw<DivideByZeroException>(() => Money.Default / Money.Default);
     }
 
     [TestMethod]
@@ -343,7 +314,7 @@ public class Operators
     }
 
     [TestMethod]
-    public void Decrement_DefaultVakue_Throws()
+    public void Decrement_DefaultValue_Throws()
     {
         var value = Money.Default;
         Should.Throw<ArgumentException>(() => value--);
