@@ -647,7 +647,7 @@ public sealed partial class SortedMoneySet : IMoneySet
 #endif
 
     /// <inheritdoc/>
-    bool IReadOnlyMoneySet.IsSorted => false;
+    bool IReadOnlyMoneySet.IsSorted => true;
 
     /// <inheritdoc/>
     bool ICollection<Money>.IsReadOnly => false;
