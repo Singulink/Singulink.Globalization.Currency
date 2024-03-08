@@ -20,8 +20,10 @@ partial struct Money : IFormattable
     private static readonly ImmutableArray<string> NegativeReverseInternationalPatterns
         = ["(n) $", "-n $", "-n $", "n- $", "(n) $", "-n $", "n- $", "n- $", "-n $", "-n $", "n- $", "n- $", "-n $", "n- $", "(n) $", "(n) $"];
 
-    private static readonly ConditionalWeakTable<CultureInfo, RegionInfo?> _regionInfoLookup = [];
-    private static readonly ConditionalWeakTable<NumberFormatInfo, NumberFormatInfo> _absNumberFormatInfoLookup = [];
+#pragma warning disable IDE0028 // Simplify collection initialization (not supported on NS2)
+    private static readonly ConditionalWeakTable<CultureInfo, RegionInfo?> _regionInfoLookup = new();
+    private static readonly ConditionalWeakTable<NumberFormatInfo, NumberFormatInfo> _absNumberFormatInfoLookup = new();
+#pragma warning restore IDE0028
 
     /// <summary>
     /// Returns a culture-dependent international string representation of this value's currency and amount.
@@ -68,24 +70,34 @@ partial struct Money : IFormattable
     /// <exception cref="FormatException">Format specifier was invalid.</exception>
     public string ToString(string? format, IFormatProvider? formatProvider = null)
     {
+#if NETSTANDARD
+        ParseFormat(format, out char symbolFormat, out char decimalsFormat, out int decimalsFormatNumber, out char resultNumberFormatType);
+#else
         Span<char> resultNumberFormat = stackalloc char[3];
         ParseFormat(format, out char symbolFormat, out char decimalsFormat, out int decimalsFormatNumber, out resultNumberFormat[0]);
+#endif
 
         CultureInfo culture = GetCultureAndSetFormatProvider(ref formatProvider);
         RegionInfo? region = null;
 
         decimal absFormatAmount = GetFormatAmountAndDecimalPlaces(Math.Abs(_amount), _currency, decimalsFormat, decimalsFormatNumber, out int formatDecimalPlaces);
+        var absNumberFormatInfo = GetAbsNumberFormatInfo(formatProvider);
+
+#if NETSTANDARD
+        string resultNumberFormat = $"{resultNumberFormatType}{formatDecimalPlaces}";
+        string number = absFormatAmount.ToString(resultNumberFormat, absNumberFormatInfo);
+#else
         formatDecimalPlaces.TryFormat(resultNumberFormat[1..], out int formatDecimalPlacesLength, null, CultureInfo.InvariantCulture);
         resultNumberFormat = resultNumberFormat[..(1 + formatDecimalPlacesLength)];
 
         // Enough capacity for whole number (29) + group separators (14) + decimal separator (1) + decimals (29)
         Span<char> number = stackalloc char[73];
-        var absNumberFormatInfo = GetAbsNumberFormatInfo(formatProvider);
 
         if (!absFormatAmount.TryFormat(number, out int numberLength, resultNumberFormat, absNumberFormatInfo))
             throw new UnreachableException($"Unexpected number formatting failure (resultNumberFormat: '{resultNumberFormat}').");
 
         number = number[..numberLength];
+#endif
 
         if (_currency is null)
             return number.ToString(); // number must be zero with no currency so we can stop formatting here
@@ -141,7 +153,11 @@ partial struct Money : IFormattable
         if (currencySymbol == absNumberFormatInfo.CurrencyDecimalSeparator)
             currencySymbol = string.Empty;
 
+#if NETSTANDARD
+        return ApplyPattern(number.AsSpan(), pattern, currencySymbol, absNumberFormatInfo.NegativeSign, placeCurrencySymbolAsDecimalSeparator);
+#else
         return ApplyPattern(number, pattern, currencySymbol, absNumberFormatInfo.NegativeSign, placeCurrencySymbolAsDecimalSeparator);
+#endif
     }
 
     private static string ApplyPattern(ReadOnlySpan<char> number, string pattern, string currencySymbol, string negativeSign, bool placeCurrencySymbolAsDecimalSeparator)
@@ -162,12 +178,12 @@ partial struct Money : IFormattable
                         if (decimalIndex == -1)
                         {
                             Append(ref remaining, number);
-                            Append(ref remaining, currencySymbol);
+                            Append(ref remaining, currencySymbol.AsSpan());
                         }
                         else
                         {
                             Append(ref remaining, number[..decimalIndex]);
-                            Append(ref remaining, currencySymbol);
+                            Append(ref remaining, currencySymbol.AsSpan());
                             Append(ref remaining, number[(decimalIndex + 1)..]);
                         }
                     }
@@ -180,11 +196,11 @@ partial struct Money : IFormattable
 
                 case '$':
                     if (!placeCurrencySymbolAsDecimalSeparator && currencySymbol != Constants.ZeroWidthSpace)
-                        Append(ref remaining, currencySymbol);
+                        Append(ref remaining, currencySymbol.AsSpan());
                     break;
 
                 case '-':
-                    Append(ref remaining, negativeSign);
+                    Append(ref remaining, negativeSign.AsSpan());
                     break;
 
                 case ' ':
@@ -217,7 +233,7 @@ partial struct Money : IFormattable
     {
         CultureInfo culture;
 
-        if (formatProvider == null)
+        if (formatProvider is null)
             formatProvider = culture = CultureInfo.CurrentCulture;
         else
             culture = formatProvider as CultureInfo ?? CultureInfo.CurrentCulture;
@@ -242,7 +258,7 @@ partial struct Money : IFormattable
         if (decimalsFormat == default || decimalsFormat == '*')
         {
             int amountDecimalDigits = amount.GetDecimalDigits();
-            formatDecimalPlaces = decimalsFormat == '*' && amountDecimalDigits == 0 ? 0 : Math.Max(amountDecimalDigits, currency?.DecimalDigits ?? 0);
+            formatDecimalPlaces = decimalsFormat == '*' && amountDecimalDigits is 0 ? 0 : Math.Max(amountDecimalDigits, currency?.DecimalDigits ?? 0);
         }
         else
         {
@@ -265,10 +281,14 @@ partial struct Money : IFormattable
             try
             {
                 region = new RegionInfo(culture.Name);
+#if NETSTANDARD
+                _regionInfoLookup.Add(culture, region);
+#endif
             }
             catch { }
-
+#if !NETSTANDARD
             _regionInfoLookup.AddOrUpdate(culture, region);
+#endif
         }
 
         return region ?? RegionInfo.CurrentRegion;
@@ -332,7 +352,11 @@ partial struct Money : IFormattable
                     var decimalsFormatNumberSpan = format.AsSpan()[currentIndex..];
 
                     if (decimalsFormatNumberSpan.Length > 2 ||
+#if NETSTANDARD
+                        !int.TryParse(decimalsFormatNumberSpan.ToString(), NumberStyles.None, CultureInfo.InvariantCulture, out decimalsFormatNumber) ||
+#else
                         !int.TryParse(decimalsFormatNumberSpan, NumberStyles.None, CultureInfo.InvariantCulture, out decimalsFormatNumber) ||
+#endif
                         decimalsFormatNumber is < 0 or > 28)
                     {
                         Throw();

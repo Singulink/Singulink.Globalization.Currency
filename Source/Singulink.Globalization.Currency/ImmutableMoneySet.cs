@@ -57,7 +57,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
         var amountLookup = EmptyLookup;
         var currency = value.CurrencyOrDefault;
 
-        if (currency != null)
+        if (currency is not null)
         {
             EnsureCurrencyAllowed(registry, currency, nameof(value));
             amountLookup = amountLookup.Add(currency, value.Amount);
@@ -88,7 +88,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
     /// </exception>
     public static ImmutableMoneySet Create(CurrencyRegistry registry, ReadOnlySpan<Money> values)
     {
-        if (values.Length == 0)
+        if (values.Length is 0)
             return Create(registry);
 
         var builder = EmptyLookup.ToBuilder();
@@ -97,14 +97,14 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
         {
             var currency = value.CurrencyOrDefault;
 
-            if (currency == null)
+            if (currency is null)
                 continue;
 
             EnsureCurrencyAllowed(registry, currency, nameof(values));
 
             if (builder.TryGetValue(currency, out decimal existingAmount))
             {
-                if (value.Amount == 0)
+                if (value.Amount is 0)
                     continue;
 
                 builder[currency] = existingAmount + value.Amount;
@@ -182,7 +182,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
     {
         var currency = value.CurrencyOrDefault;
 
-        if (currency == null)
+        if (currency is null)
             return this;
 
         EnsureCurrencyAllowed(currency, nameof(value));
@@ -214,7 +214,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
     /// <inheritdoc cref="IImmutableMoneySet.Clear"/>
     public ImmutableMoneySet Clear()
     {
-        if (Count == 0)
+        if (Count is 0)
             return this;
 
         return new ImmutableMoneySet(_registry, EmptyLookup);
@@ -285,7 +285,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
             }
         }
 
-        return builder != null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
+        return builder is not null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
     /// <inheritdoc cref="IImmutableMoneySet.RemoveAll(Func{Money, bool})"/>
@@ -302,7 +302,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
             }
         }
 
-        return builder != null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
+        return builder is not null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
     /// <inheritdoc cref="IImmutableMoneySet.RoundToCurrencyDigits()"/>
@@ -311,7 +311,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
     /// <inheritdoc cref="IImmutableMoneySet.RoundToCurrencyDigits(MidpointRounding)"/>
     public ImmutableMoneySet RoundToCurrencyDigits(MidpointRounding mode)
     {
-        if (Count == 0)
+        if (Count is 0)
             return this;
 
         ImmutableDictionary<Currency, decimal>.Builder builder = null;
@@ -327,7 +327,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
             }
         }
 
-        return builder != null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
+        return builder is not null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
     /// <inheritdoc cref="IImmutableMoneySet.SetValue(Money)"/>
@@ -335,7 +335,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
     {
         var currency = value.CurrencyOrDefault;
 
-        if (currency == null)
+        if (currency is null)
             return this;
 
         return SetAmount(value.Amount, currency);
@@ -396,7 +396,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
         bool ignoreZeroAmounts;
         int count;
 
-        if (format != null && format.StartsWith('!'))
+        if (format is not null && format.Length > 0 && format[0] is '!')
         {
             format = format[1..];
             ignoreZeroAmounts = true;
@@ -408,7 +408,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
             count = Count;
         }
 
-        if (count == 0)
+        if (count is 0)
             return string.Empty;
 
         var sb = new StringBuilder(count * 8);
@@ -416,7 +416,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
 
         foreach (var value in this)
         {
-            if (ignoreZeroAmounts && value.Amount == 0)
+            if (ignoreZeroAmounts && value.Amount is 0)
                 continue;
 
             if (first)
@@ -446,7 +446,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
     /// <inheritdoc cref="IImmutableMoneySet.TransformValues(Func{Money, decimal})"/>
     public ImmutableMoneySet TransformValues(Func<Money, decimal> transform)
     {
-        if (Count == 0)
+        if (Count is 0)
             return this;
 
         ImmutableDictionary<Currency, decimal>.Builder builder = null;
@@ -462,13 +462,13 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
             }
         }
 
-        return builder != null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
+        return builder is not null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
     /// <inheritdoc cref="IImmutableMoneySet.TransformValues(Func{Money, decimal?})"/>
     public ImmutableMoneySet TransformValues(Func<Money, decimal?> transform)
     {
-        if (Count == 0)
+        if (Count is 0)
             return this;
 
         ImmutableDictionary<Currency, decimal>.Builder builder = null;
@@ -489,13 +489,13 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
             }
         }
 
-        return builder != null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
+        return builder is not null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
     /// <inheritdoc cref="IImmutableMoneySet.TransformAmounts(Func{decimal, decimal})"/>
     public ImmutableMoneySet TransformAmounts(Func<decimal, decimal> transform)
     {
-        if (Count == 0)
+        if (Count is 0)
             return this;
 
         ImmutableDictionary<Currency, decimal>.Builder builder = null;
@@ -511,13 +511,13 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
             }
         }
 
-        return builder != null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
+        return builder is not null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
     /// <inheritdoc cref="IImmutableMoneySet.TransformAmounts(Func{decimal, decimal?})"/>
     public ImmutableMoneySet TransformAmounts(Func<decimal, decimal?> transform)
     {
-        if (Count == 0)
+        if (Count is 0)
             return this;
 
         ImmutableDictionary<Currency, decimal>.Builder builder = null;
@@ -538,7 +538,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
             }
         }
 
-        return builder != null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
+        return builder is not null ? new ImmutableMoneySet(_registry, builder.ToImmutable()) : this;
     }
 
     /// <inheritdoc cref="IImmutableMoneySet.TrimZeroAmounts"/>
@@ -548,14 +548,14 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
 
         foreach (var kvp in _amountLookup)
         {
-            if (kvp.Value == 0)
+            if (kvp.Value is 0)
             {
                 builder ??= _amountLookup.ToBuilder();
                 builder.Remove(kvp.Key);
             }
         }
 
-        return builder == null ? this : new ImmutableMoneySet(_registry, builder.ToImmutable());
+        return builder is null ? this : new ImmutableMoneySet(_registry, builder.ToImmutable());
     }
 
     /// <inheritdoc cref="IReadOnlyMoneySet.TryGetAmount(Currency, out decimal)"/>
@@ -612,7 +612,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
             amountLookup = _amountLookup.Add(currency, amount);
         }
 
-        return amountLookup == null ? this : new ImmutableMoneySet(_registry, amountLookup);
+        return amountLookup is null ? this : new ImmutableMoneySet(_registry, amountLookup);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -624,7 +624,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
         {
             var currency = value.CurrencyOrDefault;
 
-            if (currency == null)
+            if (currency is null)
                 continue;
 
             if (ensureCurrenciesInRegistry)
@@ -632,7 +632,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
 
             if (builder?.TryGetValue(currency, out decimal existingAmount) ?? _amountLookup.TryGetValue(currency, out existingAmount))
             {
-                if (value.Amount == 0)
+                if (value.Amount is 0)
                     continue;
 
                 builder ??= _amountLookup.ToBuilder();
@@ -645,7 +645,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
             }
         }
 
-        return builder != null ? builder.ToImmutable() : _amountLookup;
+        return builder is not null ? builder.ToImmutable() : _amountLookup;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -657,7 +657,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
         {
             var currency = value.CurrencyOrDefault;
 
-            if (currency == null)
+            if (currency is null)
                 continue;
 
             if (ensureCurrenciesInRegistry)
@@ -665,7 +665,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
 
             if (builder?.TryGetValue(currency, out decimal existingAmount) ?? _amountLookup.TryGetValue(currency, out existingAmount))
             {
-                if (value.Amount == 0)
+                if (value.Amount is 0)
                     continue;
 
                 builder ??= _amountLookup.ToBuilder();
@@ -678,7 +678,7 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
             }
         }
 
-        return builder != null ? builder.ToImmutable() : _amountLookup;
+        return builder is not null ? builder.ToImmutable() : _amountLookup;
     }
 
     private void EnsureCurrencyAllowed(Currency currency, string paramName) => EnsureCurrencyAllowed(_registry, currency, paramName);
@@ -707,10 +707,15 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
 #endif
 
     /// <inheritdoc/>
-    bool IReadOnlyMoneySet.IsSorted => false;
+    IReadOnlyCollection<Currency> IReadOnlyMoneySet.Currencies => Currencies;
 
     /// <inheritdoc/>
-    IReadOnlyCollection<Currency> IReadOnlyMoneySet.Currencies => Currencies;
+    bool IReadOnlyMoneySet.IsSorted => false;
+
+    /// <summary>
+    /// Gets a value indicating whether the set is read-only. Always returns <see langword="true"/>.
+    /// </summary>
+    bool ICollection<Money>.IsReadOnly => true;
 
     /// <inheritdoc/>
     IImmutableMoneySet IImmutableMoneySet.Add(Money value) => Add(value);
@@ -795,6 +800,28 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    #endregion
+
+    #region Not Supported
+
+    /// <summary>
+    /// Not supported.
+    /// </summary>
+    /// <exception cref="NotSupportedException">This operation is not supported.</exception>
+    void ICollection<Money>.Add(Money item) => throw new NotSupportedException();
+
+    /// <summary>
+    /// Not supported.
+    /// </summary>
+    /// <exception cref="NotSupportedException">This operation is not supported.</exception>
+    void ICollection<Money>.Clear() => throw new NotSupportedException();
+
+    /// <summary>
+    /// Not supported.
+    /// </summary>
+    /// <exception cref="NotSupportedException">This operation is not supported.</exception>
+    bool ICollection<Money>.Remove(Money item) => throw new NotSupportedException();
 
     #endregion
 

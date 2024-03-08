@@ -72,14 +72,14 @@ public sealed partial class MoneySet : IMoneySet
         {
             var currency = value.CurrencyOrDefault;
 
-            if (currency == null)
+            if (currency is null)
                 continue;
 
             EnsureCurrencyAllowed(currency, nameof(values));
 
             if (_amountLookup.TryGetValue(currency, out decimal existingAmount))
             {
-                if (value.Amount == 0)
+                if (value.Amount is 0)
                     continue;
 
                 _amountLookup[currency] = existingAmount + value.Amount;
@@ -135,7 +135,7 @@ public sealed partial class MoneySet : IMoneySet
     {
         var currency = value.CurrencyOrDefault;
 
-        if (currency == null)
+        if (currency is null)
             return;
 
         EnsureCurrencyAllowed(currency, nameof(value));
@@ -232,7 +232,7 @@ public sealed partial class MoneySet : IMoneySet
                 count++;
         }
 
-        if (disallowedCurrencies != null)
+        if (disallowedCurrencies is not null)
             ThrowCurrenciesDisallowed(disallowedCurrencies, nameof(currencies));
 
         return count;
@@ -252,7 +252,7 @@ public sealed partial class MoneySet : IMoneySet
             }
         }
 
-        if (currenciesToRemove != null)
+        if (currenciesToRemove is not null)
         {
             foreach (var currency in currenciesToRemove)
             {
@@ -271,7 +271,7 @@ public sealed partial class MoneySet : IMoneySet
     /// <inheritdoc cref="IMoneySet.RoundToCurrencyDigits(MidpointRounding)"/>
     public void RoundToCurrencyDigits(MidpointRounding mode)
     {
-        if (Count == 0)
+        if (Count is 0)
             return;
 
         List<KeyValuePair<Currency, decimal>> updatedEntries = null;
@@ -287,7 +287,7 @@ public sealed partial class MoneySet : IMoneySet
             }
         }
 
-        if (updatedEntries == null)
+        if (updatedEntries is null)
             return;
 
         foreach (var entry in updatedEntries)
@@ -301,7 +301,7 @@ public sealed partial class MoneySet : IMoneySet
     {
         var currency = value.CurrencyOrDefault;
 
-        if (currency == null)
+        if (currency is null)
             return;
 
         SetAmount(value.Amount, currency);
@@ -358,7 +358,7 @@ public sealed partial class MoneySet : IMoneySet
         bool ignoreZeroAmounts;
         int count;
 
-        if (format != null && format.StartsWith('!'))
+        if (format is not null && format.Length > 0 && format[0] is '!')
         {
             format = format[1..];
             ignoreZeroAmounts = true;
@@ -370,7 +370,7 @@ public sealed partial class MoneySet : IMoneySet
             count = Count;
         }
 
-        if (count == 0)
+        if (count is 0)
             return string.Empty;
 
         var sb = new StringBuilder(count * 8);
@@ -378,7 +378,7 @@ public sealed partial class MoneySet : IMoneySet
 
         foreach (var value in this)
         {
-            if (ignoreZeroAmounts && value.Amount == 0)
+            if (ignoreZeroAmounts && value.Amount is 0)
                 continue;
 
             if (first)
@@ -408,7 +408,7 @@ public sealed partial class MoneySet : IMoneySet
     /// <inheritdoc cref="IMoneySet.TransformValues(Func{Money, decimal})"/>
     public void TransformValues(Func<Money, decimal> transform)
     {
-        if (Count == 0)
+        if (Count is 0)
             return;
 
         // TODO: Optimize if no values change.
@@ -427,7 +427,7 @@ public sealed partial class MoneySet : IMoneySet
     /// <inheritdoc cref="IMoneySet.TransformValues(Func{Money, decimal?})"/>
     public void TransformValues(Func<Money, decimal?> transform)
     {
-        if (Count == 0)
+        if (Count is 0)
             return;
 
         // TODO: Optimize if no values change.
@@ -450,7 +450,7 @@ public sealed partial class MoneySet : IMoneySet
     /// <inheritdoc cref="IMoneySet.TransformAmounts(Func{decimal, decimal})"/>
     public void TransformAmounts(Func<decimal, decimal> transform)
     {
-        if (Count == 0)
+        if (Count is 0)
             return;
 
         // TODO: Optimize if no values change.
@@ -470,7 +470,7 @@ public sealed partial class MoneySet : IMoneySet
     /// <inheritdoc cref="IMoneySet.TransformAmounts(Func{decimal, decimal?})"/>
     public void TransformAmounts(Func<decimal, decimal?> transform)
     {
-        if (Count == 0)
+        if (Count is 0)
             return;
 
         // TODO: Optimize if no values change.
@@ -497,14 +497,14 @@ public sealed partial class MoneySet : IMoneySet
 
         foreach (var kvp in _amountLookup)
         {
-            if (kvp.Value == 0)
+            if (kvp.Value is 0)
             {
                 currenciesToRemove ??= [];
                 currenciesToRemove.Add(kvp.Key);
             }
         }
 
-        if (currenciesToRemove != null)
+        if (currenciesToRemove is not null)
         {
             foreach (var currency in currenciesToRemove)
             {
@@ -573,7 +573,7 @@ public sealed partial class MoneySet : IMoneySet
         {
             var currency = value.CurrencyOrDefault;
 
-            if (currency == null)
+            if (currency is null)
                 continue;
 
             if (ensureCurrenciesInRegistry && !_registry.Contains(currency))
@@ -585,7 +585,7 @@ public sealed partial class MoneySet : IMoneySet
 
             if (_amountLookup.TryGetValue(currency, out decimal existingAmount))
             {
-                if (value.Amount == 0)
+                if (value.Amount is 0)
                     continue;
 
                 _amountLookup[currency] = existingAmount + value.Amount;
@@ -596,7 +596,7 @@ public sealed partial class MoneySet : IMoneySet
             }
         }
 
-        if (disallowedCurrencies != null)
+        if (disallowedCurrencies is not null)
             ThrowCurrenciesDisallowed(disallowedCurrencies, nameof(values));
     }
 
@@ -608,7 +608,7 @@ public sealed partial class MoneySet : IMoneySet
         {
             var currency = value.CurrencyOrDefault;
 
-            if (currency == null)
+            if (currency is null)
                 continue;
 
             if (ensureCurrenciesInRegistry && !_registry.Contains(currency))
@@ -620,7 +620,7 @@ public sealed partial class MoneySet : IMoneySet
 
             if (_amountLookup.TryGetValue(currency, out decimal existingAmount))
             {
-                if (value.Amount == 0)
+                if (value.Amount is 0)
                     continue;
 
                 _amountLookup[currency] = existingAmount - value.Amount;
@@ -631,7 +631,7 @@ public sealed partial class MoneySet : IMoneySet
             }
         }
 
-        if (disallowedCurrencies != null)
+        if (disallowedCurrencies is not null)
             ThrowCurrenciesDisallowed(disallowedCurrencies, nameof(values));
     }
 

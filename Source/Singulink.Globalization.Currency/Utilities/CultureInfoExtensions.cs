@@ -8,7 +8,7 @@ internal static class CultureInfoExtensions
     /// </summary>
     public static CultureInfo? GetNeutralCulture(this CultureInfo culture)
     {
-        if (culture == null)
+        if (culture is null)
             throw new ArgumentNullException(nameof(culture));
 
         while (true)
@@ -18,7 +18,7 @@ internal static class CultureInfoExtensions
 
             culture = culture.Parent;
 
-            if (culture == null)
+            if (culture is null)
                 return null;
         }
     }

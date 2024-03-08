@@ -1,7 +1,8 @@
 <Project>
   <PropertyGroup>
     <LangVersion>12.0</LangVersion>
-    <Nullable>enable</Nullable>
+    <Nullable Condition="'$(TargetFramework)' != 'netstandard2.0'">enable</Nullable>
+    <Nullable Condition="'$(TargetFramework)' == 'netstandard2.0'">annotations</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 

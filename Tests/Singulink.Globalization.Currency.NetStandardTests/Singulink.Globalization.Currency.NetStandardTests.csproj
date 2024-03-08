@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net481</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\CompareTo.cs" Link="MoneyTests\CompareTo.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\Operators.cs" Link="MoneyTests\Operators.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\RoundToCurrencyDigits.cs" Link="MoneyTests\RoundToCurrencyDigits.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\ToString.cs" Link="MoneyTests\ToString.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Singulink.Globalization.Currency\Singulink.Globalization.Currency.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MoneyTests\" />
+  </ItemGroup>
+</Project>

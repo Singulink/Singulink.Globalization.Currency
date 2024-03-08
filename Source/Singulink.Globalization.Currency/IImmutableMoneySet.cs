@@ -153,31 +153,4 @@ public interface IImmutableMoneySet : ICollection<Money>, IReadOnlyMoneySet
     /// Removes all zero amounts from this set and returns the resulting set.
     /// </summary>
     public IImmutableMoneySet TrimZeroAmounts();
-
-    #region Explicit Interface Implementations
-
-    /// <summary>
-    /// Gets a value indicating whether the set is read-only. Always returns <see langword="true"/>.
-    /// </summary>
-    bool ICollection<Money>.IsReadOnly => true;
-
-    /// <summary>
-    /// Not supported.
-    /// </summary>
-    /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-    void ICollection<Money>.Add(Money item) => throw new NotSupportedException();
-
-    /// <summary>
-    /// Not supported.
-    /// </summary>
-    /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-    void ICollection<Money>.Clear() => throw new NotSupportedException();
-
-    /// <summary>
-    /// Not supported.
-    /// </summary>
-    /// <exception cref="NotSupportedException">This operation is not supported.</exception>
-    bool ICollection<Money>.Remove(Money item) => throw new NotSupportedException();
-
-    #endregion
 }

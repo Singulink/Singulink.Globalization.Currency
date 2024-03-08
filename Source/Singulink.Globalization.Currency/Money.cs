@@ -45,7 +45,7 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     /// Creates a new <see cref="Money"/> value with the specified amount and currency code. Allows creating default money values by passing <c>0</c> for
     /// the amount and <see langword="null"/> for the currency code. Currency code must be provided if the amount is non-zero.
     /// </summary>
-    public static Money CreateDefaultable(decimal amount, string? currencyCode) => CreateDefaultable(amount, currencyCode == null ? null : Currency.Get(currencyCode));
+    public static Money CreateDefaultable(decimal amount, string? currencyCode) => CreateDefaultable(amount, currencyCode is null ? null : Currency.Get(currencyCode));
 
     /// <summary>
     /// Creates a new <see cref="Money"/> value with the specified amount and currency. Allows creating default money values by passing <c>0</c> for
@@ -53,7 +53,7 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     /// </summary>
     public static Money CreateDefaultable(decimal amount, Currency? currency)
     {
-        if (currency == null)
+        if (currency is null)
         {
             if (amount != 0)
                 ThrowCurrencyRequiredForNonZeroAmount();
@@ -99,7 +99,7 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     /// </summary>
     [MemberNotNullWhen(false, nameof(CurrencyOrDefault))]
     [MemberNotNullWhen(false, nameof(_currency))]
-    public bool IsDefault => _currency == null;
+    public bool IsDefault => _currency is null;
 
     #region Operators
 
@@ -194,13 +194,13 @@ public readonly partial struct Money : IFormattable, IComparable<Money>, IEquata
     /// </summary>
     public Money RoundToCurrencyDigits(MidpointRounding mode)
     {
-        return _currency == null ? this : new Money(Math.Round(_amount, _currency.DecimalDigits, mode), Currency);
+        return _currency is null ? this : new Money(Math.Round(_amount, _currency.DecimalDigits, mode), Currency);
     }
 
     /// <summary>
     /// Returns <see cref="Default"/> if this value's <see cref="Amount"/> is <c>0</c>, otherwise returns this value.
     /// </summary>
-    public Money ToDefaultIfZero() => _amount == 0 ? default : this;
+    public Money ToDefaultIfZero() => _amount is 0 ? default : this;
 
     #region Equality and Comparison
 

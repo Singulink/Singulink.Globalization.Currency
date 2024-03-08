@@ -7,7 +7,12 @@ namespace Singulink.Globalization;
 /// <summary>
 /// Represents a collection of currencies.
 /// </summary>
-public sealed class CurrencyRegistry : ISet<Currency>, IReadOnlySet<Currency>
+public sealed class CurrencyRegistry : ISet<Currency>
+#if !NETSTANDARD
+#pragma warning disable SA1001 // Commas should be spaced correctly
+    , IReadOnlySet<Currency>
+#pragma warning restore SA1001
+#endif
 {
     private static CurrencyRegistry? _default;
     private static CurrencyRegistry? _system;
@@ -25,7 +30,7 @@ public sealed class CurrencyRegistry : ISet<Currency>, IReadOnlySet<Currency>
     {
         _name = name.Trim();
 
-        if (_name.Length == 0)
+        if (_name.Length is 0)
             throw new ArgumentException("Name is required.", nameof(name));
 
         _currencies = [];
@@ -33,8 +38,19 @@ public sealed class CurrencyRegistry : ISet<Currency>, IReadOnlySet<Currency>
 
         foreach (var currency in currencies)
         {
+#if NETSTANDARD
+            if (_currencies.Add(currency))
+            {
+                if (_currencyLookup.ContainsKey(currency.CurrencyCode))
+                    throw new ArgumentException($"Multiple currencies with currency code '{currency.CurrencyCode}'.", nameof(currencies));
+
+                _currencyLookup.Add(currency.CurrencyCode, currency);
+            }
+#else
             if (_currencies.Add(currency) && !_currencyLookup.TryAdd(currency.CurrencyCode, currency))
                 throw new ArgumentException($"Multiple currencies with currency code '{currency.CurrencyCode}'.", nameof(currencies));
+#endif
+
         }
     }
 
@@ -51,7 +67,7 @@ public sealed class CurrencyRegistry : ISet<Currency>, IReadOnlySet<Currency>
     {
         get => _default ??= System;
         set {
-            if (_default != null)
+            if (_default is not null)
                 throw new InvalidOperationException("Default currency registry cannot be set after it has already been set or accessed.");
 
             _default = value;

@@ -35,7 +35,7 @@ public class Currency : IFormattable
     public Money MinorUnit => new Money(new decimal(1, 0, 0, false, (byte)DecimalDigits), this);
 
     /// <summary>
-    /// Gets a list containing language identifers and currency names.
+    /// Gets a list containing language identifiers and currency names.
     /// </summary>
     public IEnumerable<(string CultureName, string Name)> LocalizedNames => _localizedNameLookup?.Select(kvp => (kvp.Key, kvp.Value)) ?? Array.Empty<(string, string)>();
 
@@ -54,7 +54,7 @@ public class Currency : IFormattable
     /// is not found.
     /// </remarks>
     public Currency(string name, string currencyCode, string symbol, int decimalDigits, params (string CultureName, string Name)[] localizedNames)
-        : this(name, currencyCode, symbol, decimalDigits, localizedNames.Length == 0 ? null : localizedNames.AsEnumerable()) { }
+        : this(name, currencyCode, symbol, decimalDigits, localizedNames.Length is 0 ? null : localizedNames.AsEnumerable()) { }
 
     /// <inheritdoc cref="Currency(string, string, string, int, ValueTuple{string, string}[])"/>
     public Currency(string name, string currencyCode, string symbol, int decimalDigits, IEnumerable<(string CultureName, string Name)>? localizedNames = null)
@@ -63,16 +63,16 @@ public class Currency : IFormattable
         name = name.Trim();
         symbol = symbol.Trim();
 
-        if (currencyCode.Length == 0)
+        if (currencyCode.Length is 0)
             throw new ArgumentException("Currency code is required.", nameof(currencyCode));
 
         if (currencyCode.Length > 20)
             throw new ArgumentOutOfRangeException(nameof(currencyCode), "Currency code has a maximum length of 20 characters.");
 
-        if (name.Length == 0)
+        if (name.Length is 0)
             throw new ArgumentException("Name is required.", nameof(name));
 
-        if (symbol.Length == 0)
+        if (symbol.Length is 0)
             throw new ArgumentException("Symbol is required.", nameof(symbol));
 
         if (symbol.Length > 20)
@@ -86,14 +86,23 @@ public class Currency : IFormattable
         Symbol = symbol;
         DecimalDigits = decimalDigits;
 
-        if (localizedNames != null)
+        if (localizedNames is not null)
         {
-            foreach (var (cultureName, localName) in localizedNames)
+            foreach (var localizedName in localizedNames)
             {
-                _localizedNameLookup ??= new(StringComparer.OrdinalIgnoreCase);
+                string cultureName = CoerceCultureName(localizedName.CultureName);
+                string localName = CoerceCurrencyName(localizedName.Name);
 
-                if (!_localizedNameLookup.TryAdd(CoerceCultureName(cultureName), CoerceCurrencyName(localName)))
+                _localizedNameLookup ??= new(StringComparer.OrdinalIgnoreCase);
+#if NETSTANDARD
+                if (_localizedNameLookup.ContainsKey(cultureName))
                     throw new ArgumentException($"Duplicate culture name '{cultureName}' in localized names.", nameof(localizedNames));
+
+                _localizedNameLookup.Add(cultureName, localName);
+#else
+                if (!_localizedNameLookup.TryAdd(cultureName, localName))
+                    throw new ArgumentException($"Duplicate culture name '{cultureName}' in localized names.", nameof(localizedNames));
+#endif
             }
         }
 
@@ -159,7 +168,7 @@ public class Currency : IFormattable
 
         string name;
 
-        if (_localizedNameLookup == null)
+        if (_localizedNameLookup is null)
         {
             name = Name;
         }
@@ -167,7 +176,7 @@ public class Currency : IFormattable
         {
             var neutralCulture = culture.GetNeutralCulture();
 
-            if (neutralCulture == null || !_localizedNameLookup.TryGetValue(neutralCulture.Name, out name))
+            if (neutralCulture is null || !_localizedNameLookup.TryGetValue(neutralCulture.Name, out name))
                 name = Name;
         }
 
@@ -220,9 +229,13 @@ public class Currency : IFormattable
 
                 if (localizedNameLookup.TryGetValue(localizationCultureName, out string existingLocalizedName) && existingLocalizedName != localizedName)
                 {
-                    // This shouldn't happen, but if the data changes and it does then make this future-proof by adding the localized name to the specific
-                    // culture instead to override the different neutral culture name that was set.
+                    // This shouldn't happen in .NET+, but if the data changes and it does then make this future-proof by adding the localized name to the
+                    // specific culture instead to override the different neutral culture name that was set.
+
+                    // This *does* happen on .NET Framework, so neutral culture name will be whatever specific culture name was first.
+#if !NETSTANDARD
                     Debug.Fail("Neutral localization culture name was already set to a different name.");
+#endif
                     localizedNameLookup.Add(culture.Name, localizedName);
                 }
                 else
