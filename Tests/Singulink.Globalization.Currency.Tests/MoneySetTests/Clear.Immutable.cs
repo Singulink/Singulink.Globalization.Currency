@@ -2,14 +2,15 @@
 
 public static partial class Clear
 {
+    [PrefixTestClass]
+    public class ImmutableSet : Immutable<ImmutableMoneySet>;
+
+    [PrefixTestClass]
+    public class ImmutableSortedSet : Immutable<ImmutableSortedMoneySet>;
+
     public class Immutable<T> where T : IImmutableMoneySet
     {
-        private static readonly Money Usd100 = new(100m, "USD");
-        private static readonly Money Cad50 = new(50m, "CAD");
-        private static readonly Money Eur25 = new(25m, "EUR");
-        private static readonly Currency DisallowedCurrency = new("Blah blah blah", "BBB", "$$", 2);
-
-        private static readonly IImmutableMoneySet Set = T.Create(CurrencyRegistry.Default, [Usd100, Cad50]);
+        private static readonly IImmutableMoneySet Set = T.Create(CurrencyRegistry.Default, [new(100m, "USD"), new(50m, "CAD"), new(25m, "EUR")]);
 
         [TestMethod]
         public void Clear_PopulatedSet_RemovesAllValues()

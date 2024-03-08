@@ -2,6 +2,12 @@
 
 public static partial class TransformAmounts
 {
+    [PrefixTestClass]
+    public class ImmutableSet : Immutable<ImmutableMoneySet>;
+
+    [PrefixTestClass]
+    public class ImmutableSortedSet : Immutable<ImmutableSortedMoneySet>;
+
     public class Immutable<T> where T : IImmutableMoneySet
     {
         private static readonly Money Usd100 = new(100m, "USD");
@@ -31,6 +37,8 @@ public static partial class TransformAmounts
             var resultSet = emptySet.TransformAmounts(x => x * 2);
             resultSet.ShouldBeSameAs(emptySet);
         }
+
+        ///////////////////////////
 
         [TestMethod]
         public void NullableOutput_AllAmountsTransformed_UpdatesValues()

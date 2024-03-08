@@ -2,6 +2,12 @@
 
 public static partial class RemoveAll
 {
+    [PrefixTestClass]
+    public class ImmutableSet : Immutable<ImmutableMoneySet>;
+
+    [PrefixTestClass]
+    public class ImmutableSortedSet : Immutable<ImmutableSortedMoneySet>;
+
     public class Immutable<T> where T : IImmutableMoneySet
     {
         private static readonly Currency Usd = Currency.Get("USD");
@@ -50,9 +56,7 @@ public static partial class RemoveAll
         [TestMethod]
         public void RemoveCurrencies_CurrencyDisallowed_ThrowsArgumentException()
         {
-            var disallowedCurrency = new Currency("Non-existent currency", "XXX", "X", 2);
-
-            Should.Throw<ArgumentException>(() => Set.RemoveAll([disallowedCurrency]));
+            Should.Throw<ArgumentException>(() => Set.RemoveAll([Common.CurrencyX]));
         }
 
         ///////////////////////////

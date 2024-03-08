@@ -2,11 +2,16 @@
 
 public static partial class SetAmount
 {
+    [PrefixTestClass]
+    public class ImmutableSet : Immutable<ImmutableMoneySet>;
+
+    [PrefixTestClass]
+    public class ImmutableSortedSet : Immutable<ImmutableSortedMoneySet>;
+
     public class Immutable<T> where T : IImmutableMoneySet
     {
         private static readonly Currency Usd = Currency.Get("USD");
         private static readonly Currency Aud = Currency.Get("AUD");
-        private static readonly Currency DisallowedCurrency = new Currency("Blah blah blah", "BBB", "$$", 2);
 
         private static readonly Money Usd0 = new(0m, "USD");
         private static readonly Money Usd100 = new(100m, "USD");
@@ -50,7 +55,7 @@ public static partial class SetAmount
         [TestMethod]
         public void SetByCurrencyCode_CurrencyDisallowed_ThrowsArgumentException()
         {
-            Should.Throw<ArgumentException>(() => Set.SetAmount(123m, DisallowedCurrency.CurrencyCode));
+            Should.Throw<ArgumentException>(() => Set.SetAmount(123m, "XXXX"));
         }
 
         /////////////////////////////////////////////
@@ -90,7 +95,7 @@ public static partial class SetAmount
         [TestMethod]
         public void SetByCurrency_CurrencyDisallowed_ThrowsArgumentException()
         {
-            Should.Throw<ArgumentException>(() => Set.SetAmount(123m, DisallowedCurrency));
+            Should.Throw<ArgumentException>(() => Set.SetAmount(123m, Common.CurrencyX));
         }
     }
 }

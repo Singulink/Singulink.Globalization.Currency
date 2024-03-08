@@ -3,16 +3,16 @@
 public static class TryGetValue
 {
     [PrefixTestClass]
-    public class Set : Tests<MoneySet> { }
+    public class Set : Tests<MoneySet>;
 
     [PrefixTestClass]
-    public class SortedSet : Tests<SortedMoneySet> { }
+    public class SortedSet : Tests<SortedMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSet : Tests<ImmutableMoneySet> { }
+    public class ImmutableSet : Tests<ImmutableMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSortedSet : Tests<ImmutableSortedMoneySet> { }
+    public class ImmutableSortedSet : Tests<ImmutableSortedMoneySet>;
 
     public class Tests<T> where T : IReadOnlyMoneySet
     {
@@ -38,10 +38,8 @@ public static class TryGetValue
         [TestMethod]
         public void GetByCurrency_CurrencyDoesNotExist_ReturnsFalse()
         {
-            var newCurrency = new Currency("New Currency", "XXXX", "X", 2);
-
             _set.TryGetValue(Currency.Get("GBP"), out _).ShouldBeFalse();
-            _set.TryGetValue(newCurrency, out _).ShouldBeFalse();
+            _set.TryGetValue(Common.CurrencyX, out _).ShouldBeFalse();
         }
 
         ///////////////////////////

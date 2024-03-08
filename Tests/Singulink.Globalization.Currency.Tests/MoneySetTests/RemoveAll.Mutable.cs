@@ -2,6 +2,12 @@
 
 public static partial class RemoveAll
 {
+    [PrefixTestClass]
+    public class Set : Mutable<MoneySet>;
+
+    [PrefixTestClass]
+    public class SortedSet : Mutable<SortedMoneySet>;
+
     public class Mutable<T> where T : IMoneySet
     {
         private static readonly Currency Usd = Currency.Get("USD");
@@ -59,10 +65,8 @@ public static partial class RemoveAll
         [TestMethod]
         public void RemoveCurrencies_CurrencyDisallowed_RemovesAllAllowedCurrenciesAndThrowsArgumentException()
         {
-            var disallowedCurrency = new Currency("Non-existent currency", "XXX", "X", 2);
-
-            Should.Throw<ArgumentException>(() => _set.RemoveAll([Usd, disallowedCurrency, disallowedCurrency, Cad]))
-                .Message.ShouldBe($"The following currencies are not present in the set's currency registry: {disallowedCurrency} (Parameter 'currencies')");
+            Should.Throw<ArgumentException>(() => _set.RemoveAll([Usd, Common.CurrencyX, Common.CurrencyX, Cad]))
+                .Message.ShouldBe($"The following currencies are not present in the set's currency registry: {Common.CurrencyX} (Parameter 'currencies')");
 
             _set.Count.ShouldBe(1);
             _set.ShouldBe([Eur25], ignoreOrder: true);
@@ -71,12 +75,9 @@ public static partial class RemoveAll
         [TestMethod]
         public void RemoveCurrencies_CurrenciesDisallowed_RemovesAllAllowedCurrenciesAndThrowsArgumentException()
         {
-            var disallowedCurrencyX = new Currency("Non-existent currency X", "XXX", "X", 2);
-            var disallowedCurrencyY = new Currency("Non-existent currency Y", "YYY", "Y", 2);
-
-            Should.Throw<ArgumentException>(() => _set.RemoveAll([Usd, disallowedCurrencyX, disallowedCurrencyY, disallowedCurrencyX, Cad]))
+            Should.Throw<ArgumentException>(() => _set.RemoveAll([Usd, Common.CurrencyX, Common.CurrencyY, Common.CurrencyX, Cad]))
                 .Message.ShouldBe("The following currencies are not present in the set's currency registry: " +
-                    $"{disallowedCurrencyX}, {disallowedCurrencyY} (Parameter 'currencies')");
+                    $"{Common.CurrencyX}, {Common.CurrencyY} (Parameter 'currencies')");
 
             _set.Count.ShouldBe(1);
             _set.ShouldBe([Eur25], ignoreOrder: true);

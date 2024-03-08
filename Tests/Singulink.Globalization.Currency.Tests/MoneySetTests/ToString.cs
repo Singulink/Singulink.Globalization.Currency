@@ -5,16 +5,16 @@ namespace Singulink.Globalization.Tests.MoneySetTests;
 public static class ToString
 {
     [PrefixTestClass]
-    public class Set : Tests<MoneySet> { }
+    public class Set : Tests<MoneySet>;
 
     [PrefixTestClass]
-    public class SortedSet : Tests<SortedMoneySet> { }
+    public class SortedSet : Tests<SortedMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSet : Tests<ImmutableMoneySet> { }
+    public class ImmutableSet : Tests<ImmutableMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSortedSet : Tests<ImmutableSortedMoneySet> { }
+    public class ImmutableSortedSet : Tests<ImmutableSortedMoneySet>;
 
     public class Tests<T> where T : IReadOnlyMoneySet
     {

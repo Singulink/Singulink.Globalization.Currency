@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Singulink.Globalization.Tests.MoneySetTests;
+﻿namespace Singulink.Globalization.Tests.MoneySetTests;
 public static class Indexers
 {
     [PrefixTestClass]
-    public class Set : Tests<MoneySet> { }
+    public class Set : Tests<MoneySet>;
 
     [PrefixTestClass]
-    public class SortedSet : Tests<SortedMoneySet> { }
+    public class SortedSet : Tests<SortedMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSet : Tests<ImmutableMoneySet> { }
+    public class ImmutableSet : Tests<ImmutableMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSortedSet : Tests<ImmutableSortedMoneySet> { }
+    public class ImmutableSortedSet : Tests<ImmutableSortedMoneySet>;
 
     public class Tests<T> where T : IReadOnlyMoneySet
     {
@@ -31,19 +25,15 @@ public static class Indexers
         public void Currency_ValueExists_ReturnsValue()
         {
             _set[Currency.Get("USD")].ShouldBe(Usd100);
-
             _set[Currency.Get("CAD")].ShouldBe(Cad50);
-
             _set[Currency.Get("EUR")].ShouldBe(Eur25);
         }
 
         [TestMethod]
         public void Currency_ValueDoesNotExist_ReturnsDefault()
         {
-            var newCurrency = new Currency("New Currency", "XXXX", "X", 2);
-
             _set[Currency.Get("GBP")].IsDefault.ShouldBeTrue();
-            _set[newCurrency].IsDefault.ShouldBeTrue();
+            _set[Common.CurrencyX].IsDefault.ShouldBeTrue();
         }
 
         ///////////////////////////
@@ -52,9 +42,7 @@ public static class Indexers
         public void CurrencyCode_ValueExists_ReturnsValue()
         {
             _set["USD"].ShouldBe(Usd100);
-
             _set["CAD"].ShouldBe(Cad50);
-
             _set["EUR"].ShouldBe(Eur25);
         }
 

@@ -2,6 +2,12 @@
 
 public static partial class Remove
 {
+    [PrefixTestClass]
+    public class Set : Mutable<MoneySet>;
+
+    [PrefixTestClass]
+    public class SortedSet : Mutable<SortedMoneySet>;
+
     public class Mutable<T> where T : IMoneySet
     {
         private static readonly Money Usd100 = new(100m, "USD");
@@ -55,8 +61,7 @@ public static partial class Remove
         [TestMethod]
         public void RemoveCurrency_DisallowedCurrency_ThrowsArgumentException()
         {
-            var disallowedCurrency = new Currency("XXX", "Disallowed currency", "X", 2);
-            Should.Throw<ArgumentException>(() => _set.Remove(disallowedCurrency));
+            Should.Throw<ArgumentException>(() => _set.Remove(Common.CurrencyX));
         }
     }
 }

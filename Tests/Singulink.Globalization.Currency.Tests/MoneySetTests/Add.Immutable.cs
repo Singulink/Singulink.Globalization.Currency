@@ -2,12 +2,17 @@
 
 public static partial class Add
 {
+    [PrefixTestClass]
+    public class ImmutableSet : Immutable<ImmutableMoneySet>;
+
+    [PrefixTestClass]
+    public class ImmutableSortedSet : Immutable<ImmutableSortedMoneySet>;
+
     public class Immutable<T> where T : IImmutableMoneySet
     {
         private static readonly Money Usd100 = new(100m, "USD");
         private static readonly Money Cad50 = new(50m, "CAD");
         private static readonly Money Eur25 = new(25m, "EUR");
-        private static readonly Currency DisallowedCurrency = new("Blah blah blah", "BBB", "$$", 2);
 
         private static readonly IImmutableMoneySet Set = T.Create(CurrencyRegistry.Default, [Usd100, Cad50]);
 
@@ -40,7 +45,7 @@ public static partial class Add
         [TestMethod]
         public void AddMoney_CurrencyDisallowed_ThrowsException()
         {
-            var value = new Money(100, DisallowedCurrency);
+            var value = new Money(100, Common.CurrencyX);
             Should.Throw<ArgumentException>(() => Set.Add(value));
         }
 
@@ -65,7 +70,7 @@ public static partial class Add
         [TestMethod]
         public void AddByCurrencyCode_CurrencyDisallowed_ThrowsArgumentException()
         {
-            Should.Throw<ArgumentException>(() => Set.Add(100m, DisallowedCurrency.CurrencyCode));
+            Should.Throw<ArgumentException>(() => Set.Add(100m, Common.CurrencyX.CurrencyCode));
         }
 
         ///////////////////////////
@@ -90,7 +95,7 @@ public static partial class Add
         public void AddByCurrency_CurrencyDisallowed_ThrowsArgumentException()
         {
             Set.Count.ShouldBe(2);
-            Should.Throw<ArgumentException>(() => Set.Add(100m, DisallowedCurrency));
+            Should.Throw<ArgumentException>(() => Set.Add(100m, Common.CurrencyX));
         }
     }
 }

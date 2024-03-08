@@ -2,6 +2,12 @@
 
 public static partial class RoundToCurrencyDigits
 {
+    [PrefixTestClass]
+    public class Set : Mutable<MoneySet>;
+
+    [PrefixTestClass]
+    public class SortedSet : Mutable<SortedMoneySet>;
+
     public class Mutable<T> where T : IMoneySet
     {
 #pragma warning disable SA1025 // Code should not contain multiple whitespace in a row

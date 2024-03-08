@@ -2,6 +2,12 @@
 
 public static partial class SubtractRange
 {
+    [PrefixTestClass]
+    public class ImmutableSet : Immutable<ImmutableMoneySet>;
+
+    [PrefixTestClass]
+    public class ImmutableSortedSet : Immutable<ImmutableSortedMoneySet>;
+
     public class Immutable<T> where T : IImmutableMoneySet
     {
         private static readonly Money Usd100 = new(100m, "USD");
@@ -44,8 +50,7 @@ public static partial class SubtractRange
         [TestMethod]
         public void DisallowedCurrency_ThrowsArgumentException()
         {
-            var disallowedCurrency = new Currency("Disallowed Currency", "XXX", "X", 2);
-            IEnumerable<Money> values = [new(-100m, "USD"), new(-100m, disallowedCurrency), new(-50m, "CAD"), new(-25m, "EUR")];
+            IEnumerable<Money> values = [new(-100m, "USD"), new(-100m, Common.CurrencyX), new(-50m, "CAD"), new(-25m, "EUR")];
 
             Should.Throw<ArgumentException>(() => Set.SubtractRange(values));
         }

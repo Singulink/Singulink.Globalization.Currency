@@ -2,6 +2,12 @@
 
 public static partial class SetValue
 {
+    [PrefixTestClass]
+    public class ImmutableSet : Immutable<ImmutableMoneySet>;
+
+    [PrefixTestClass]
+    public class ImmutableSortedSet : Immutable<ImmutableSortedMoneySet>;
+
     public class Immutable<T> where T : IImmutableMoneySet
     {
         private static readonly Money Usd100 = new(100m, "USD");
@@ -43,7 +49,7 @@ public static partial class SetValue
         [TestMethod]
         public void SetValue_CurrencyDisallowed_ThrowsArgumentException()
         {
-            var value = new Money(100, new Currency("Blah blah blah", "BBB", "$$", 2));
+            var value = new Money(100, Common.CurrencyX);
             Should.Throw<ArgumentException>(() => Set.SetValue(value));
         }
     }

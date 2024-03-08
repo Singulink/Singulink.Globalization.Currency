@@ -2,6 +2,12 @@
 
 public static partial class TransformAmounts
 {
+    [PrefixTestClass]
+    public class Set : Mutable<MoneySet>;
+
+    [PrefixTestClass]
+    public class SortedSet : Mutable<SortedMoneySet>;
+
     public class Mutable<T> where T : IMoneySet
     {
         private static readonly Money Usd100 = new(100m, "USD");
@@ -33,6 +39,8 @@ public static partial class TransformAmounts
             emptySet.TransformAmounts(x => x * 2);
             emptySet.Count.ShouldBe(0);
         }
+
+        ///////////////////////////
 
         [TestMethod]
         public void NullableOutput_AllAmountsTransformed_UpdatesValue()

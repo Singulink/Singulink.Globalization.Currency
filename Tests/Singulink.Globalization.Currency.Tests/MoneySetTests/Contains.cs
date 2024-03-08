@@ -1,24 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace Singulink.Globalization.Tests.MoneySetTests;
+﻿namespace Singulink.Globalization.Tests.MoneySetTests;
 public static class Contains
 {
     [PrefixTestClass]
-    public class Set : Tests<MoneySet> { }
+    public class Set : Tests<MoneySet>;
 
     [PrefixTestClass]
-    public class SortedSet : Tests<SortedMoneySet> { }
+    public class SortedSet : Tests<SortedMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSet : Tests<ImmutableMoneySet> { }
+    public class ImmutableSet : Tests<ImmutableMoneySet>;
 
     [PrefixTestClass]
-    public class ImmutableSortedSet : Tests<ImmutableSortedMoneySet> { }
+    public class ImmutableSortedSet : Tests<ImmutableSortedMoneySet>;
 
     public class Tests<T> where T : IReadOnlyMoneySet
     {
@@ -32,56 +25,46 @@ public static class Contains
         public void Money_ValueExists_ReturnsTrue()
         {
             Set.Contains(Usd100).ShouldBeTrue();
-
             Set.Contains(Cad50).ShouldBeTrue();
-
             Set.Contains(Eur25).ShouldBeTrue();
         }
 
         [TestMethod]
         public void Money_ValueDoesNotExist_ReturnsFalse()
         {
-            var newCurrency = new Currency("New Currency", "XXXX", "X", 2);
-
             Set.Contains(Money.Create(0m, "GBP")).ShouldBeFalse();
-            Set.Contains(Money.Create(0m, newCurrency)).ShouldBeFalse();
+            Set.Contains(Money.Create(0m, Common.CurrencyX)).ShouldBeFalse();
         }
 
         ///////////////////////////
 
         [TestMethod]
-        public void CurrencyAmount_ValueExists_ReturnsTrue()
+        public void AmountAndCurrency_ValueExists_ReturnsTrue()
         {
             Set.Contains(Usd100.Amount, Usd100.Currency).ShouldBeTrue();
-
             Set.Contains(Cad50.Amount, Cad50.Currency).ShouldBeTrue();
-
             Set.Contains(Eur25.Amount, Eur25.Currency).ShouldBeTrue();
         }
 
         [TestMethod]
-        public void CurrencyAmount_ValueDoesNotExist_ReturnsFalse()
+        public void AmountAndCurrency_ValueDoesNotExist_ReturnsFalse()
         {
-            var newCurrency = new Currency("New Currency", "XXXX", "X", 2);
-
             Set.Contains(0m, Currency.Get("GBP")).ShouldBeFalse();
-            Set.Contains(0m, newCurrency).ShouldBeFalse();
+            Set.Contains(0m, Common.CurrencyX).ShouldBeFalse();
         }
 
         ///////////////////////////
 
         [TestMethod]
-        public void CurrencyCodeAmount_ValueExists_ReturnsTrue()
+        public void AmountAndCurrencyCode_ValueExists_ReturnsTrue()
         {
             Set.Contains(Usd100.Amount, Usd100.Currency.CurrencyCode).ShouldBeTrue();
-
             Set.Contains(Cad50.Amount, Cad50.Currency.CurrencyCode).ShouldBeTrue();
-
             Set.Contains(Eur25.Amount, Eur25.Currency.CurrencyCode).ShouldBeTrue();
         }
 
         [TestMethod]
-        public void CurrencyCodeAmount_ValueDoesNotExist_ReturnsFalse()
+        public void AmountAndCurrencyCode_ValueDoesNotExist_ReturnsFalse()
         {
             Set.Contains(0m, "GBP").ShouldBeFalse();
             Set.Contains(0m, "XXXX").ShouldBeFalse();
