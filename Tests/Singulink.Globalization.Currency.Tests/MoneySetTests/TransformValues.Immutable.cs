@@ -33,7 +33,7 @@ public static partial class TransformValues
         [TestMethod]
         public void NonNullOutput_EmptySet_NoChange()
         {
-            ImmutableSortedMoneySet emptySet = [];
+            IImmutableMoneySet emptySet = T.Create(CurrencyRegistry.Default, []);
             var resultSet = emptySet.TransformValues(x => x.Amount * 2);
             resultSet.ShouldBeSameAs(emptySet);
         }
@@ -58,7 +58,7 @@ public static partial class TransformValues
         [TestMethod]
         public void NullableOutput_EmptySet_NoChange()
         {
-            ImmutableSortedMoneySet emptySet = [];
+            IImmutableMoneySet emptySet = T.Create(CurrencyRegistry.Default, []);
             var resultSet = emptySet.TransformValues(x => (decimal?)x.Amount * 2);
             resultSet.ShouldBeSameAs(emptySet);
         }
