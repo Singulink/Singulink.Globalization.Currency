@@ -20,7 +20,7 @@ public static class TryGetValue
         private static readonly Money Cad50 = new(50m, "CAD");
         private static readonly Money Eur25 = new(25m, "EUR");
 
-        private static readonly IReadOnlyMoneySet _set = T.Create(CurrencyRegistry.Default, [Usd100, Cad50, Eur25]);
+        private readonly IReadOnlyMoneySet _set = T.Create(CurrencyRegistry.Default, [Usd100, Cad50, Eur25]);
 
         [TestMethod]
         public void GetByCurrency_CurrencyExists_ReturnsTrueAndOutputsValue()

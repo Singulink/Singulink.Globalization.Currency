@@ -4,7 +4,7 @@
 public class IsSorted
 {
     [TestMethod]
-    public void UnsortedSets_IsFalse()
+    public void UnsortedSets_GetsFalse()
     {
         IReadOnlyMoneySet sortedMoneySet = new MoneySet();
         IReadOnlyMoneySet immutableSortedMoneySet = ImmutableMoneySet.Create();
@@ -14,7 +14,7 @@ public class IsSorted
     }
 
     [TestMethod]
-    public void SortedSets_IsTrue()
+    public void SortedSets_GetsTrue()
     {
         IReadOnlyMoneySet sortedMoneySet = new SortedMoneySet();
         IReadOnlyMoneySet immutableSortedMoneySet = ImmutableSortedMoneySet.Create();

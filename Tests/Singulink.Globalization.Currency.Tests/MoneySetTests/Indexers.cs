@@ -19,10 +19,10 @@ public static class Indexers
         private static readonly Money Cad50 = new(50m, "CAD");
         private static readonly Money Eur25 = new(25m, "EUR");
 
-        private static readonly IReadOnlyMoneySet _set = T.Create(CurrencyRegistry.Default, [Usd100, Cad50, Eur25]);
+        private readonly IReadOnlyMoneySet _set = T.Create(CurrencyRegistry.Default, [Usd100, Cad50, Eur25]);
 
         [TestMethod]
-        public void Currency_ValueExists_ReturnsValue()
+        public void Currency_ValueExists_GetsValue()
         {
             _set[Currency.Get("USD")].ShouldBe(Usd100);
             _set[Currency.Get("CAD")].ShouldBe(Cad50);
@@ -30,7 +30,7 @@ public static class Indexers
         }
 
         [TestMethod]
-        public void Currency_ValueDoesNotExist_ReturnsDefault()
+        public void Currency_ValueDoesNotExist_GetsDefault()
         {
             _set[Currency.Get("GBP")].IsDefault.ShouldBeTrue();
             _set[Common.CurrencyX].IsDefault.ShouldBeTrue();
@@ -39,7 +39,7 @@ public static class Indexers
         ///////////////////////////
 
         [TestMethod]
-        public void CurrencyCode_ValueExists_ReturnsValue()
+        public void CurrencyCode_ValueExists_GetsValue()
         {
             _set["USD"].ShouldBe(Usd100);
             _set["CAD"].ShouldBe(Cad50);
@@ -47,7 +47,7 @@ public static class Indexers
         }
 
         [TestMethod]
-        public void CurrencyCode_ValueDoesNotExist_ReturnsDefault()
+        public void CurrencyCode_ValueDoesNotExist_GetsDefault()
         {
             _set["GBP"].IsDefault.ShouldBeTrue();
             _set["XXXX"].IsDefault.ShouldBeTrue();
