@@ -104,12 +104,10 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
 
             if (builder.TryGetValue(currency, out decimal existingAmount))
             {
-                decimal newAmount = existingAmount + value.Amount;
-
-                if (newAmount == existingAmount)
+                if (value.Amount == 0)
                     continue;
 
-                builder[currency] = newAmount;
+                builder[currency] = existingAmount + value.Amount;
             }
             else
             {
@@ -634,13 +632,11 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
 
             if (builder?.TryGetValue(currency, out decimal existingAmount) ?? _amountLookup.TryGetValue(currency, out existingAmount))
             {
-                decimal newAmount = existingAmount + value.Amount;
-
-                if (newAmount == existingAmount)
+                if (value.Amount == 0)
                     continue;
 
                 builder ??= _amountLookup.ToBuilder();
-                builder[currency] = newAmount;
+                builder[currency] = existingAmount + value.Amount;
             }
             else
             {
@@ -669,13 +665,11 @@ public sealed partial class ImmutableMoneySet : IImmutableMoneySet
 
             if (builder?.TryGetValue(currency, out decimal existingAmount) ?? _amountLookup.TryGetValue(currency, out existingAmount))
             {
-                decimal newAmount = existingAmount - value.Amount;
-
-                if (newAmount == existingAmount)
+                if (value.Amount == 0)
                     continue;
 
                 builder ??= _amountLookup.ToBuilder();
-                builder[currency] = newAmount;
+                builder[currency] = existingAmount - value.Amount;
             }
             else
             {

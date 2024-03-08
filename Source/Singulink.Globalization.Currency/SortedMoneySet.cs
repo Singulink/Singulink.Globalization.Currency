@@ -76,9 +76,16 @@ public sealed partial class SortedMoneySet : IMoneySet
             EnsureCurrencyAllowed(currency, nameof(values));
 
             if (_amountLookup.TryGetValue(currency, out decimal existingAmount))
+            {
+                if (value.Amount == 0)
+                    continue;
+
                 _amountLookup[currency] = existingAmount + value.Amount;
+            }
             else
+            {
                 _amountLookup.Add(currency, value.Amount);
+            }
         }
     }
 
@@ -580,9 +587,16 @@ public sealed partial class SortedMoneySet : IMoneySet
             }
 
             if (_amountLookup.TryGetValue(currency, out decimal existingAmount))
+            {
+                if (value.Amount == 0)
+                    continue;
+
                 _amountLookup[currency] = existingAmount + value.Amount;
+            }
             else
+            {
                 _amountLookup.Add(currency, value.Amount);
+            }
         }
 
         if (disallowedCurrencies != null)
@@ -608,9 +622,16 @@ public sealed partial class SortedMoneySet : IMoneySet
             }
 
             if (_amountLookup.TryGetValue(currency, out decimal existingAmount))
+            {
+                if (value.Amount == 0)
+                    continue;
+
                 _amountLookup[currency] = existingAmount - value.Amount;
+            }
             else
+            {
                 _amountLookup.Add(currency, -value.Amount);
+            }
         }
 
         if (disallowedCurrencies != null)
