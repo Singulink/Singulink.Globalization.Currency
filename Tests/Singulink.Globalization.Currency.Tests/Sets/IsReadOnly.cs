@@ -20,7 +20,7 @@ public static class IsReadOnly
         public void IsMutableCollection()
         {
             var set = T.Create(CurrencyRegistry.Default, []);
-            Common.CheckMutableCollection(set);
+            set.ShouldBeMutableCollection();
         }
     }
 
@@ -30,7 +30,7 @@ public static class IsReadOnly
         public void IsReadOnlyCollection()
         {
             var set = T.Create(CurrencyRegistry.Default, []);
-            Common.CheckReadOnlyCollection(set);
+            set.ShouldBeReadOnlyCollection();
         }
     }
 }

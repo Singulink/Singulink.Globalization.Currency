@@ -29,7 +29,7 @@ public static class Currencies
         [TestMethod]
         public void GetCurrencies_GetsReadOnlyCollection()
         {
-            Common.CheckReadOnlyCollection((ICollection<Currency>)_set.Currencies);
+            ((ICollection<Currency>)_set.Currencies).ShouldBeReadOnlyCollection();
         }
 
         [TestMethod]

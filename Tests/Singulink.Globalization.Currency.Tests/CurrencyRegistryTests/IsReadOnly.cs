@@ -6,6 +6,6 @@ public class IsReadOnly
     [TestMethod]
     public void IsReadOnlyCollection()
     {
-        Common.CheckReadOnlyCollection(CurrencyRegistry.Default);
+        CurrencyRegistry.Default.ShouldBeReadOnlyCollection();
     }
 }
