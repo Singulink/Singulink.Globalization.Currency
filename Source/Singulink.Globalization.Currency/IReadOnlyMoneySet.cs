@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Singulink.Globalization.Internal;
 
 namespace Singulink.Globalization;
 

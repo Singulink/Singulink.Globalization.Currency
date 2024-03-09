@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
 
-namespace Singulink.Globalization;
+namespace Singulink.Globalization.Internal;
 
 /// <summary>
-/// Factory for creating <see cref="MoneySet"/> instances.
+/// Factory for creating <see cref="MoneySet"/> instances. This class is not visible to intellisense and is only used only for collection expression support on
+/// <see cref="IMoneySet"/> and <see cref="IReadOnlyMoneySet"/>.
 /// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class MoneySetBuilder
