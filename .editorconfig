@@ -10,14 +10,23 @@ root = true
 guidelines = 160
 
 ########### Project XML files ###########
-[*.{csproj, props, targets}]
+[*.csproj]
 
-#### Core EditorConfig Options ####
-
-# Indentation and spacing
-indent_size = 4
+indent_size = 2
 indent_style = space
-tab_width = 4
+tab_width = 2
+
+[*.props]
+
+indent_size = 2
+indent_style = space
+tab_width = 2
+
+[*.targets]
+
+indent_size = 2
+indent_style = space
+tab_width = 2
 
 ########### C# files ###########
 [*.cs]
