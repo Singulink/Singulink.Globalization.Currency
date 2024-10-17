@@ -1,252 +1,216 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace Singulink.Globalization;
 
 /// <summary>
 /// Provides information about a currency, such as the currency code, localized names, symbol and decimal digits.
 /// </summary>
-public class Currency : IFormattable
+[DebuggerDisplay("{CurrencyCode,nq}")]
+public partial class Currency : IFormattable
 {
-    private Dictionary<string, string>? _localizedNameLookup;
+    private readonly string _currencyCode;
+    private readonly int _decimalDigits;
+    private readonly ICurrencyLocalizer _localizer;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Currency"/> class without localization support.
+    /// </summary>
+    /// <param name="currencyCode">The unique currency code of the currency, typically the three letter ISO code, i.e. <c>"USD"</c>.</param>
+    /// <param name="decimalDigits">The number of decimal digits that is standard for the currency.</param>
+    /// <param name="name">The name of the currency, i.e. <c>"Dollars"</c>.</param>
+    /// <param name="symbol">The currency symbol, i.e. <c>"$"</c>. The currency code is used as the symbol if the symbol is not provided.</param>
+    /// <remarks>
+    /// NOTE: Currency codes and symbols are not validated as parsable to allow this library to be used for a wide range of usages (such as defining
+    /// cryptocurrencies, some of which do conform to ISO 4217 standards that ensure values can be reliably parsed). If you create a currency that contains
+    /// unparsable symbols/codes, then any parsing operations that depend on the offending symbol/code will throw an <see cref="InvalidOperationException"/>.
+    /// See <see cref="IsSymbolOrCodeParsable(string, out string?)"/> for more information on this topic.
+    /// </remarks>
+    public Currency(string currencyCode, int decimalDigits, string name, string? symbol = null)
+        : this(currencyCode, decimalDigits, new InvariantCurrencyLocalizer(name, symbol ?? currencyCode)) { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Currency"/> class using the specified localizer to provide localized currency names and symbols.
+    /// </summary>
+    /// <param name="currencyCode">The unique currency code of the currency, typically the three letter ISO code, i.e. <c>"USD"</c>.</param>
+    /// <param name="decimalDigits">The number of decimal digits that is standard for the currency.</param>
+    /// <param name="localizer">The currency localizer implementation that provides localized names and symbols for the currency.</param>
+    /// <remarks>
+    /// NOTE: Currency codes and symbols are not validated as parsable to allow this library to be used for a wide range of usages (such as defining
+    /// cryptocurrencies, some of which do conform to ISO 4217 standards that ensure values can be reliably parsed). If you create a currency that contains
+    /// unparsable symbols/codes, then any parsing operations that depend on the offending symbol/code will throw an <see cref="InvalidOperationException"/>.
+    /// See <see cref="IsSymbolOrCodeParsable(string, out string?)"/> for more information on this topic.
+    /// </remarks>
+    public Currency(string currencyCode, int decimalDigits, ICurrencyLocalizer localizer)
+    {
+        if (decimalDigits < 0 || decimalDigits > 28)
+            throw new ArgumentOutOfRangeException(nameof(decimalDigits), "Decimal digits must be between 0 and 28.");
+
+        _currencyCode = currencyCode;
+        _decimalDigits = decimalDigits;
+        _localizer = localizer;
+    }
 
     /// <summary>
     /// Gets the currency code assigned to the currency, which is the three letter ISO currency code for system currencies.
     /// </summary>
-    public string CurrencyCode { get; }
+    public string CurrencyCode => _currencyCode;
 
     /// <summary>
     /// Gets the standard number of decimal digits for monetary amounts of this currency.
     /// </summary>
-    public int DecimalDigits { get; }
+    public int DecimalDigits => _decimalDigits;
 
     /// <summary>
-    /// Gets the name of this currency. Returns the English name for system currencies.
+    /// Gets the invariant symbol of this currency. To get the localized symbol use <see cref="GetLocalizedSymbol(CultureInfo)"/>.
     /// </summary>
-    public string Name { get; }
+    public string Symbol => _localizer.GetSymbol(this, CultureInfo.InvariantCulture);
 
     /// <summary>
-    /// Gets the symbol used by this currency.
+    /// Gets the invariant name of this currency. Returns the English name for system currencies. To get the localized name use <see
+    /// cref="GetLocalizedName(CultureInfo)"/>.
     /// </summary>
-    public string Symbol { get; }
+    public string Name => _localizer.GetName(this, CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Gets a monetary amount representing the minor unit of the currency based on the number of decimal digits it has (i.e. USD will return <c>USD 0.01</c>).
     /// </summary>
-    public Money MinorUnit => new Money(new decimal(1, 0, 0, false, (byte)DecimalDigits), this);
+    public MonetaryValue MinorUnit => new(new decimal(1, 0, 0, false, (byte)DecimalDigits), this);
 
     /// <summary>
-    /// Gets a list containing language identifiers and currency names.
+    /// Gets the currency associated with the specified currency code from the <see cref="CurrencyRegistry.Default"/> registry.
     /// </summary>
-    public IEnumerable<(string CultureName, string Name)> LocalizedNames => _localizedNameLookup?.Select(kvp => (kvp.Key, kvp.Value)) ?? Array.Empty<(string, string)>();
+    /// <param name="currencyCode">The currency code of the currency to get.</param>
+    public static Currency GetCurrency(TargetDependentStringKey currencyCode) => CurrencyRegistry.Default[currencyCode];
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Currency"/> class.
+    /// Gets the localized symbol for the currency in the specified culture (or the current culture if no culture is provided).
     /// </summary>
-    /// <param name="name">The name of the currency, i.e. <c>"Dollars"</c>.</param>
-    /// <param name="currencyCode">The unique currency code of the currency, typically the three letter ISO code, i.e. <c>"USD"</c>.</param>
-    /// <param name="symbol">The currency symbol, i.e. <c>"$"</c>.</param>
-    /// <param name="decimalDigits">The number of decimal digits that is standard for the currency.</param>
-    /// <param name="localizedNames">A collection of culture and currency name pairs for localizing the currency name.</param>
+    public string GetLocalizedSymbol(CultureInfo? culture = null) => _localizer.GetSymbol(this, culture ?? CultureInfo.CurrentCulture);
+
+    /// <summary>
+    /// Gets the localized name for the currency in the specified culture (or the current culture if no culture is provided).
+    /// </summary>
+    public string GetLocalizedName(CultureInfo? culture = null) => _localizer.GetName(this, culture ?? CultureInfo.CurrentCulture);
+
+    /// <summary>
+    /// Checks whether the specified symbol/code can be reliably parsed. If this method returns <see langword="false"/>, then adding a currency that uses the
+    /// symbol/code to a currency registry will cause parsing operations that depend on the offending symbol/code to throw an `<see
+    /// cref="InvalidOperationException"/>, as it may otherwise result in unpredictable parsing errors or incorrect results.
+    /// </summary>
+    /// <param name="symbolOrCode">The symbol or code to check.</param>
+    /// <param name="error">When this method returns <see langword="false"/>, this will contain an error message that describes why the symbol or code is not
+    /// parsable.</param>
     /// <remarks>
-    /// The culture names in the <paramref name="localizedNames"/> collection should match the <see cref="CultureInfo.Name"/> property for the cultures they
-    /// target. For example, <c>"en"</c> sets a default name for English cultures and <c>"en-US"</c> sets a US English specific variant of the name. It is not
-    /// necessary to add entries for localized names that match the <paramref name="name"/> value since that is the default fallback if a culture-specific name
-    /// is not found.
+    /// <para>
+    /// In order for a symbol or code to be considered parsable, it must not contain any of the following characters: <c>'+'</c>, <c>'-'</c> (minus sign),
+    /// <c>'−'</c> (minus-hyphen), <c>'('</c> or <c>')'</c>, numbers or whitespace (except for the non-breaking space character <c>'\u202F'</c>).</para>
+    /// <para>
+    /// You can use this method to pre-validate custom or user-provided symbols/codes that may be added to a registry that will be used for parsing to avoid
+    /// ending up with a registry that can't be used for parsing later. Currencies and registries that contain unparsable symbols/codes can still be used for
+    /// formatting monetary values and doing any other operations that do not involve parsing (including any lookup operations like <see
+    /// cref="CurrencyRegistry.TryGetCurrency(string, out Currency)"/> and <see cref="CurrencyRegistry.TryGetCurrenciesBySymbol(string, out
+    /// IReadOnlyList{Currency})"/>.</para>
     /// </remarks>
-    public Currency(string name, string currencyCode, string symbol, int decimalDigits, params (string CultureName, string Name)[] localizedNames)
-        : this(name, currencyCode, symbol, decimalDigits, localizedNames.Length is 0 ? null : localizedNames.AsEnumerable()) { }
-
-    /// <inheritdoc cref="Currency(string, string, string, int, ValueTuple{string, string}[])"/>
-    public Currency(string name, string currencyCode, string symbol, int decimalDigits, IEnumerable<(string CultureName, string Name)>? localizedNames = null)
+    public static bool IsSymbolOrCodeParsable(string symbolOrCode, [NotNullWhen(false)] out string? error)
     {
-        currencyCode = currencyCode.Trim();
-        name = name.Trim();
-        symbol = symbol.Trim();
-
-        if (currencyCode.Length is 0)
-            throw new ArgumentException("Currency code is required.", nameof(currencyCode));
-
-        if (currencyCode.Length > 20)
-            throw new ArgumentOutOfRangeException(nameof(currencyCode), "Currency code has a maximum length of 20 characters.");
-
-        if (name.Length is 0)
-            throw new ArgumentException("Name is required.", nameof(name));
-
-        if (symbol.Length is 0)
-            throw new ArgumentException("Symbol is required.", nameof(symbol));
-
-        if (symbol.Length > 20)
-            throw new ArgumentOutOfRangeException(nameof(symbol), "Symbol has a maximum length of 20 characters.");
-
-        if (decimalDigits < 0 || decimalDigits > 28)
-            throw new ArgumentOutOfRangeException(nameof(decimalDigits), "Decimal digits must be between 0 and 28.");
-
-        CurrencyCode = currencyCode;
-        Name = name;
-        Symbol = symbol;
-        DecimalDigits = decimalDigits;
-
-        if (localizedNames is not null)
+        if (symbolOrCode.Length is 0)
         {
-            foreach (var localizedName in localizedNames)
-            {
-                string cultureName = CoerceCultureName(localizedName.CultureName);
-                string localName = CoerceCurrencyName(localizedName.Name);
-
-                _localizedNameLookup ??= new(StringComparer.OrdinalIgnoreCase);
-#if NETSTANDARD
-                if (_localizedNameLookup.ContainsKey(cultureName))
-                    throw new ArgumentException($"Duplicate culture name '{cultureName}' in localized names.", nameof(localizedNames));
-
-                _localizedNameLookup.Add(cultureName, localName);
-#else
-                if (!_localizedNameLookup.TryAdd(cultureName, localName))
-                    throw new ArgumentException($"Duplicate culture name '{cultureName}' in localized names.", nameof(localizedNames));
-#endif
-            }
+            error = "Symbol/code cannot be empty.";
+            return false;
         }
 
-        static string CoerceCultureName(string? language)
+        if (symbolOrCode.Any(c => char.IsNumber(c) || (char.IsWhiteSpace(c) && c is not '\u202F')))
         {
-            language = language?.Trim();
-            return !string.IsNullOrEmpty(language) ? language : throw new ArgumentException("Localized names contained a culture name that is null or empty", nameof(localizedNames));
+            error = "Symbol/code cannot contain any numbers or whitespace.";
+            return false;
         }
 
-        static string CoerceCurrencyName(string? localName)
+        // Note: the two hyphens below are different characters, don't remove one of them
+        if (symbolOrCode.Any(c => c is '+' or '-' or '−' or '(' or ')'))
         {
-            localName = localName?.Trim();
-            return !string.IsNullOrEmpty(localName) ? localName : throw new ArgumentException("Localized names contained a currency name that is null or empty", nameof(localizedNames));
+            error = "Symbol/code cannot contain any of the following characters: + - ( )";
+            return false;
         }
+
+        error = null;
+        return true;
     }
-
-    /// <summary>
-    /// Gets the currency associated with the specified currency code from the default registry.
-    /// </summary>
-    /// <param name="currencyCode">The currency code of the currency to get.</param>
-    /// <param name="currency">The singleton currency object with the specified currency code.</param>
-    /// <returns>True if the currency was found, otherwise false.</returns>
-    public static bool TryGet(string currencyCode, [MaybeNullWhen(false)] out Currency currency) => CurrencyRegistry.Default.TryGetCurrency(currencyCode, out currency);
-
-    /// <summary>
-    /// Gets the currency associated with the specified currency code from the default registry.
-    /// </summary>
-    /// <param name="currencyCode">The currency code of the currency to get.</param>
-    public static Currency Get(string currencyCode) => CurrencyRegistry.Default[currencyCode];
-
-    #region String Formatting
 
     /// <summary>
     /// Returns the localized string representation of the currency containing the currency's name and currency code.
     /// </summary>
-    /// <remarks>
-    /// If a localized currency name is available for the current culture or its neutral parent culture then that is used, otherwise the name falls
-    /// back to the <see cref="Name"/> property.
-    /// </remarks>
     public override string ToString() => ToString(null);
+
+    /// <summary>
+    /// Returns a localized string representation of the currency using the specified format and format provider. If the format provider is not a <see
+    /// cref="CultureInfo"/> instance, it is ignored and the current culture is used instead.
+    /// </summary>
+    string IFormattable.ToString(string? format, IFormatProvider? provider) => ToString(format, provider as CultureInfo);
 
     /// <summary>
     /// Returns a localized string representation of the currency using the specified format and culture.
     /// </summary>
-    /// <remarks>
-    /// If a localized currency name is available for the specified culture or its neutral parent culture then that is used, otherwise the name falls
-    /// back to the <see cref="Name"/> property. If a culture is not provided then the current culture is used.
-    /// </remarks>
-    /// <param name="format">Valid values are <c>"N"</c> for the name of the currency or <c>"F"</c> for the name and currency code. The default format if none
-    /// is provided is <c>"F"</c>.</param>
-    /// <param name="culture">The culture that should be used to localize the name of the currency.</param>
+    /// <param name="format">Valid values are <c>"L"</c> (long) for the name and currency code or <c>"S"</c> (short) for just the name of the currency. The
+    /// default format if none is provided is <c>"L"</c>.</param>
+    /// <param name="culture">The culture that should be used to localize the name of the currency (the current culture is used if this parameter is not
+    /// provided.</param>
     /// <exception cref="FormatException">Format string was invalid.</exception>
     public string ToString(string? format, CultureInfo? culture = null)
     {
         char f = default;
 
         if (string.IsNullOrEmpty(format))
-            f = 'F';
+            f = 'L';
         else if (format.Length == 1)
             f = char.ToUpperInvariant(format[0]);
 
         culture ??= CultureInfo.CurrentCulture;
 
-        string name;
-
-        if (_localizedNameLookup is null)
-        {
-            name = Name;
-        }
-        else if (!_localizedNameLookup.TryGetValue(culture.Name, out name))
-        {
-            var neutralCulture = culture.GetNeutralCulture();
-
-            if (neutralCulture is null || !_localizedNameLookup.TryGetValue(neutralCulture.Name, out name))
-                name = Name;
-        }
-
-        if (f == 'N')
-            return name;
-        else if (f == 'F')
-            return $"{name} ({CurrencyCode})";
+        if (f == 'L')
+            return $"{GetLocalizedName(culture)} ({_currencyCode})";
+        if (f == 'S')
+            return GetLocalizedName(culture);
 
         throw new FormatException("Invalid format string.");
     }
 
     /// <summary>
-    /// Returns a localized string representation of the currency using the specified format and format provider.
+    /// Gets the currency associated with the specified currency code from the <see cref="CurrencyRegistry.Default"/> registry.
     /// </summary>
-    string IFormattable.ToString(string? format, IFormatProvider? formatProvider) => ToString(format, formatProvider as CultureInfo);
+    /// <param name="currencyCode">The currency code of the currency to get.</param>
+    /// <param name="currency">The singleton currency object with the specified currency code.</param>
+    /// <returns><see langword="true"/> if the currency was found, otherwise <see langword="false"/>.</returns>
+    public static bool TryGetCurrency(TargetDependentStringKey currencyCode, [MaybeNullWhen(false)] out Currency currency)
+        => CurrencyRegistry.Default.TryGetCurrency(currencyCode, out currency);
 
-    #endregion
+    /// <summary>
+    /// Gets the local currency for the current culture using the <see cref="CurrencyRegistry.Default"/> currency registry. Culture must be region-specific for
+    /// this method to succeed.
+    /// </summary>
+    /// <param name="currency">When the method returns, contains the currency if it was found; otherwise <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if a local currency for the culture was found; otherwise <see langword="false"/>.</returns>
+    public static bool TryGetLocalCurrency([MaybeNullWhen(false)] out Currency currency) =>
+        CurrencyRegistry.Default.TryGetLocalCurrency(CultureInfo.CurrentCulture, out currency);
 
-    internal static CurrencyRegistry CreateSystemRegistry()
-    {
-        var lookup = new Dictionary<string, Currency>(StringComparer.OrdinalIgnoreCase);
+    /// <summary>
+    /// Gets the local currency for the specified culture using the <see cref="CurrencyRegistry.Default"/> currency registry. Culture must be region-specific
+    /// for this method to succeed.
+    /// </summary>
+    /// <param name="culture">The culture to get a local currency for.</param>
+    /// <param name="currency">When the method returns, contains the currency if it was found; otherwise <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if a local currency for the culture was found; otherwise <see langword="false"/>.</returns>
+    public static bool TryGetLocalCurrency(CultureInfo culture, [MaybeNullWhen(false)] out Currency currency) =>
+        CurrencyRegistry.Default.TryGetLocalCurrency(culture, out currency);
 
-        foreach (var culture in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
-        {
-            var region = new RegionInfo(culture.Name);
+    /// <summary>
+    /// Gets the local currency for the specified region using the <see cref="CurrencyRegistry.Default"/> currency registry.
+    /// </summary>
+    /// <param name="region">The region to get a local currency for.</param>
+    /// <param name="currency">When the method returns, contains the currency if it was found; otherwise <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if a local currency for the region was found; otherwise <see langword="false"/>.</returns>
+    public static bool TryGetLocalCurrency(RegionInfo region, [MaybeNullWhen(false)] out Currency currency)
+        => CurrencyRegistry.Default.TryGetLocalCurrency(region, out currency);
 
-            // Skip regions that don't have a valid ISO currency.
-            // New ICU data contains at least a few such regions, "World", "Europe", "Latin America", etc.
-            if (region.ISOCurrencySymbol.Length != 3)
-                continue;
-
-            if (!lookup.TryGetValue(region.ISOCurrencySymbol, out var currency))
-            {
-                string symbol = region.CurrencySymbol != Constants.ZeroWidthSpace ? region.CurrencySymbol : culture.NumberFormat.CurrencyDecimalSeparator;
-
-                currency = new Currency(region.CurrencyEnglishName, region.ISOCurrencySymbol, symbol, culture.NumberFormat.CurrencyDecimalDigits);
-                lookup[currency.CurrencyCode] = currency;
-            }
-
-            string localizedName = region.CurrencyNativeName;
-
-            if (localizedName != currency.Name)
-            {
-                // English cultures will already use the Name property as a default fallback English name, so if the name doesn't match then add the variant to
-                // the specific culture. Other cultures should all have the same name for their neutral culture so we can just add the name to the neutral
-                // culture to save memory.
-
-                string localizationCultureName = (culture.TwoLetterISOLanguageName == "en" ? culture : culture.GetNeutralCulture()!).Name;
-                var localizedNameLookup = currency._localizedNameLookup ??= new(StringComparer.OrdinalIgnoreCase);
-
-                if (localizedNameLookup.TryGetValue(localizationCultureName, out string existingLocalizedName) && existingLocalizedName != localizedName)
-                {
-                    // This shouldn't happen in .NET+, but if the data changes and it does then make this future-proof by adding the localized name to the
-                    // specific culture instead to override the different neutral culture name that was set.
-
-                    // This *does* happen on .NET Framework, so neutral culture name will be whatever specific culture name was first.
-#if !NETSTANDARD
-                    Debug.Fail("Neutral localization culture name was already set to a different name.");
-#endif
-                    localizedNameLookup.Add(culture.Name, localizedName);
-                }
-                else
-                {
-                    localizedNameLookup[localizationCultureName] = localizedName;
-                }
-            }
-        }
-
-        CultureInfo.InvariantCulture.ClearCachedData(); // Clears all cached data, not just the culture it is called on.
-
-        return new CurrencyRegistry("System", lookup.Values);
-    }
+    internal static string GetSystemSymbol(CultureInfo culture, RegionInfo region)
+        => region.CurrencySymbol != Constants.ZeroWidthSpace ? region.CurrencySymbol : culture.NumberFormat.CurrencyDecimalSeparator;
 }

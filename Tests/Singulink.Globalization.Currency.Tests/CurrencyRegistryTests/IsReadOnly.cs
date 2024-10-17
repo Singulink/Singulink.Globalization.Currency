@@ -1,4 +1,4 @@
-﻿namespace Singulink.Globalization.Tests.CurrencyRegistryTests;
+namespace Singulink.Globalization.Tests.CurrencyRegistryTests;
 
 [PrefixTestClass]
 public class IsReadOnly

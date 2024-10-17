@@ -7,17 +7,18 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\CompareTo.cs" Link="MoneyTests\CompareTo.cs" />
-    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\CreateDefaultable.cs" Link="MoneyTests\CreateDefaultable.cs" />
-    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\CurrencyProperty.cs" Link="MoneyTests\CurrencyProperty.cs" />
-    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\Operators.cs" Link="MoneyTests\Operators.cs" />
-    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\RoundToCurrencyDigits.cs" Link="MoneyTests\RoundToCurrencyDigits.cs" />
-    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyTests\ToString.cs" Link="MoneyTests\ToString.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\CompareTo.cs" Link="MonetaryValueTests\CompareTo.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\CreateDefaultable.cs" Link="MonetaryValueTests\CreateDefaultable.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\CurrencyProperty.cs" Link="MonetaryValueTests\CurrencyProperty.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Formatting.cs" Link="MonetaryValueTests\Formatting.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Operators.cs" Link="MonetaryValueTests\Operators.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Parsing.cs" Link="MonetaryValueTests\Parsing.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\RoundToCurrencyDigits.cs" Link="MonetaryValueTests\RoundToCurrencyDigits.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Singulink.Globalization.Currency\Singulink.Globalization.Currency.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="MoneyTests\" />
+    <Folder Include="MonetaryValueTests\" />
   </ItemGroup>
 </Project>

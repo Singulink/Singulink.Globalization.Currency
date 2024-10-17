@@ -1,25 +1,33 @@
-﻿namespace Singulink.Globalization.Utilities;
+using System.Runtime.CompilerServices;
+
+namespace Singulink.Globalization.Utilities;
 
 internal static class CultureInfoExtensions
 {
-    /// <summary>
-    /// Gets the neutral culture associated with this culture. If the given culture is already neutral it is simply returned. If there
-    /// is no neutral culture in the parent chain then null is returned.
-    /// </summary>
-    public static CultureInfo? GetNeutralCulture(this CultureInfo culture)
+#pragma warning disable IDE0028 // Simplify collection initialization (not supported on NS2)
+    private static readonly ConditionalWeakTable<CultureInfo, RegionInfo?> _regionInfoLookup = new();
+#pragma warning restore IDE0028
+
+    public static RegionInfo? GetRegionInfo(this CultureInfo culture)
     {
-        if (culture is null)
-            throw new ArgumentNullException(nameof(culture));
+        RegionInfo region = null;
 
-        while (true)
+        if ((culture.CultureTypes & CultureTypes.SpecificCultures) is not 0 && !_regionInfoLookup.TryGetValue(culture, out region))
         {
-            if (culture.IsNeutralCulture)
-                return culture;
+            try
+            {
+                region = new RegionInfo(culture.Name);
+#if NETSTANDARD
+                _regionInfoLookup.Add(culture, region);
+#endif
+            }
+            catch { }
 
-            culture = culture.Parent;
-
-            if (culture is null)
-                return null;
+#if NET
+            _regionInfoLookup.AddOrUpdate(culture, region);
+#endif
         }
+
+        return region;
     }
 }

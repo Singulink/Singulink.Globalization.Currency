@@ -1,0 +1,56 @@
+namespace Singulink.Globalization.Tests.BagTests.ImmutableMoneyBagTests;
+
+[PrefixTestClass]
+public class Create
+{
+    private static readonly MonetaryValue Usd100 = new(100m, "USD");
+    private static readonly ImmutableArray<MonetaryValue> Values = [Usd100, new(50m, "CAD"), new(25m, "EUR")];
+
+    [TestMethod]
+    public void SingleValue()
+    {
+        var bag = ImmutableMoneyBag.Create(Usd100);
+        bag.Count.ShouldBe(1);
+        bag.ShouldBe([Usd100]);
+    }
+
+    [TestMethod]
+    public void SingleDefaultValue()
+    {
+        var bag = ImmutableMoneyBag.Create(MonetaryValue.Default);
+        bag.Count.ShouldBe(0);
+        bag.ShouldBe([]);
+    }
+
+    [TestMethod]
+    public void EmptyArray()
+    {
+        var bag = ImmutableMoneyBag.Create(Array.Empty<MonetaryValue>());
+        bag.Count.ShouldBe(0);
+        bag.ShouldBe([]);
+    }
+
+    [TestMethod]
+    public void SomeDefaultValues_IgnoresDefaultValues()
+    {
+        var bag = ImmutableMoneyBag.Create([default, ..Values, default]);
+        bag.Count.ShouldBe(3);
+        bag.ShouldBe(Values, ignoreOrder: true);
+    }
+
+    [TestMethod]
+    public void ZeroValues_SkipsIfPresent()
+    {
+        var bag = ImmutableMoneyBag.Create([..Values, new(0m, "USD")]);
+        bag.Count.ShouldBe(3);
+        bag.ShouldBe(Values, ignoreOrder: true);
+    }
+
+    [TestMethod]
+    public void MultipleSameCurrencyValues_AddsSameCurrencyValuesTogether()
+    {
+        var bag = ImmutableMoneyBag.Create([..Values, ..Values, ..Values]);
+        bag.Count.ShouldBe(3);
+        bag.ShouldBe([new(300m, "USD"), new(150m, "CAD"), new(75m, "EUR")], ignoreOrder: true);
+    }
+}

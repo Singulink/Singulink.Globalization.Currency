@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{DBA8BA65-D53C-41A8-9534-EAB6AE159CCB}"
-	ProjectSection(SolutionItems) = preProject
-		Source\Directory.Build.props = Source\Directory.Build.props
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2CD9744C-7FC1-485B-BB89-406676D56D25}"
 EndProject
@@ -26,6 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source Items", "Source Item
 	ProjectSection(SolutionItems) = preProject
 		Source\Directory.Build.props = Source\Directory.Build.props
 		Source\Directory.Build.targets = Source\Directory.Build.targets
+		Source\key.snk = Source\key.snk
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test Items", "Test Items", "{4028E49D-6194-47FA-AEA9-5B046F8013D2}"
@@ -37,11 +35,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test Items", "Test Items", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{764AD931-C1A1-4A90-9397-20039FABF3A4}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\build-and-test.yml = .github\workflows\build-and-test.yml
 		.github\dependabot.yml = .github\dependabot.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Singulink.Globalization.Currency.NetStandardTests", "Tests\Singulink.Globalization.Currency.NetStandardTests\Singulink.Globalization.Currency.NetStandardTests.csproj", "{A95689C0-68A0-4457-9B2C-0357468920AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Singulink.Globalization.Currency.NetStandardTests", "Tests\Singulink.Globalization.Currency.NetStandardTests\Singulink.Globalization.Currency.NetStandardTests.csproj", "{A95689C0-68A0-4457-9B2C-0357468920AE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{282E036F-AC4E-44C4-A30C-411A9127D51E}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build-and-test.yml = .github\workflows\build-and-test.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6E7D927D-2CD3-44E1-834F-8B7958FEC416}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\docfx.json = Docs\docfx.json
+		Docs\index.md = Docs\index.md
+		Docs\toc.yml = Docs\toc.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{40118D61-260D-4E91-8AC0-39C1C0394ACD}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\api\index.md = Docs\api\index.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +85,8 @@ Global
 		{97D96E55-E2D9-4076-8D71-BA319A703C06} = {DBA8BA65-D53C-41A8-9534-EAB6AE159CCB}
 		{4028E49D-6194-47FA-AEA9-5B046F8013D2} = {2CD9744C-7FC1-485B-BB89-406676D56D25}
 		{A95689C0-68A0-4457-9B2C-0357468920AE} = {2CD9744C-7FC1-485B-BB89-406676D56D25}
+		{282E036F-AC4E-44C4-A30C-411A9127D51E} = {764AD931-C1A1-4A90-9397-20039FABF3A4}
+		{40118D61-260D-4E91-8AC0-39C1C0394ACD} = {6E7D927D-2CD3-44E1-834F-8B7958FEC416}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {06D2E21A-73BC-4E56-B817-7147C8D79C05}

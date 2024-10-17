@@ -1,24 +1,32 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
     <RootNamespace>Singulink.Globalization</RootNamespace>
+    <TargetFrameworks>netstandard2.0;net8.0;net8.0-windows10.0.19041;net9.0;net9.0-windows10.0.19041</TargetFrameworks>
+    <NoWarn>CA1034</NoWarn>
 
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
     <Version>1.0.0</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageTags>currency; money; wallet; formatting; ISO 4217; ISO4217</PackageTags>
-    <Description>High performance and flexible currency support for .NET, done right.</Description>
+    <PackageTags>currency; money; wallet; NodaMoney; JodaMoney; ISO 4217; ISO4217;</PackageTags>
+    <Description>High-performance and flexible currency support for .NET, done right 🎉</Description>
     <PackageProjectUrl>https://github.com/Singulink/Singulink.Globalization.Currency</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Link="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('net7.0', '$(TargetFramework)'))">
     <PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Singulink.Collections" Version="3.2.0" />
+    <PackageReference Include="Singulink.Enums" Version="2.1.1" />
     <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
   </ItemGroup>
 </Project>

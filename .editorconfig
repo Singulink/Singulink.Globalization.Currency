@@ -1,42 +1,77 @@
 # Root editor config for all projects in the repo
 root = true
 
-
-########### All files ###########
+########### Common File Settings ###########
 [*]
 
 #### Guidelines ####
-
 guidelines = 160
 
-########### Project XML files ###########
-[*.csproj]
-
-indent_size = 2
+#### Core EditorConfig Options ####
+charset = utf-8
 indent_style = space
-tab_width = 2
 
-[*.props]
+########### XML File Settings ###########
 
+[*.{csproj,props,targets,proj,projitems,shproj}]
+end_of_line = crlf
 indent_size = 2
-indent_style = space
-tab_width = 2
 
-[*.targets]
-
+[*.xml]
+end_of_line = lf
 indent_size = 2
-indent_style = space
-tab_width = 2
 
-########### C# files ###########
+[*.xaml]
+charset = utf-8-bom
+end_of_line = crlf
+indent_size = 2
+
+[web.config]
+end_of_line = lf
+indent_size = 2
+
+[*.plist]
+end_of_line = lf
+indent_size = 2
+indent_style = tab
+
+########### YML File Settings ###########
+
+[*.{yml,yaml}]
+end_of_line = lf
+indent_size = 2
+
+########### JSON File Settings ###########
+
+[*.{json,slnf}]
+end_of_line = lf
+indent_size = 2
+
+[.vsconfig]
+end_of_line = lf
+indent_size = 2
+
+########### Web File Settings ###########
+
+[*.css]
+end_of_line = lf
+indent_size = 2
+
+[*.js]
+end_of_line = lf
+indent_size = 4
+
+[*.html]
+end_of_line = lf
+indent_size = 2
+
+########### C# File Settings ###########
 [*.cs]
 
 #### Core EditorConfig Options ####
 
 # Indentation and spacing
 indent_size = 4
-indent_style = space
-tab_width = 4
 
 # New line preferences
 end_of_line = crlf
@@ -387,7 +422,7 @@ dotnet_diagnostic.SA1518.severity = none
 dotnet_diagnostic.SA1402.severity = none
 
 # IDE0028: Simplify collection initialization
-dotnet_diagnostic.IDE0028.severity = warning
+dotnet_diagnostic.IDE0028.severity = suggestion
 
 # IDE0057: Use range operator
 dotnet_diagnostic.IDE0057.severity = warning

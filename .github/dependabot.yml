@@ -7,6 +7,6 @@ updates:
     interval: weekly
 - package-ecosystem: "github-actions"
   directory: "/"
-  schedule: 
+  schedule:
     interval: weekly
   target-branch: main
