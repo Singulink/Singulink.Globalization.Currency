@@ -14,18 +14,19 @@ This package is part of our **Singulink Libraries** collection. Visit https://gi
 
 ### Key Features
 
+✔️ Immutable monetary values with currency-safe arithmetic, comparison and generic math support  
+✔️ Rounding and cash rounding policies for every currency, plus allocation that never loses a cent  
 ✔️ Wide range of string formatting options for every scenario (including `ISpanFormattable` support)  
+✔️ Culture-aware parsing of currency codes and symbols  
 ✔️ Four types of money bag collections for working with multiple currencies at once  
 ✔️ Collection expression/literal syntax support  
 ✔️ Builds currency data from built-in system globalization data, or from embedded Unicode CLDR data with the optional CLDR package  
-✔️ Standard and cash rounding rules for every currency (cash rounding requires the CLDR package)  
-✔️ Support for custom currency registries, i.e. for cryptocurrency support  
-✔️ Generic math support (.NET)  
+✔️ Support for custom currencies, registries and data providers, i.e. for cryptocurrency support  
 ✔️ Extensive `ReadOnlySpan<char>` lookup support (.NET 9+)  
 ✔️ Full AOT and WinRT support  
 ✔️ Extensive test coverage  
 
-## Installation
+### Installation
 
 The packages are available on NuGet - simply install the `Singulink.Globalization.Currency` package, and optionally the `Singulink.Globalization.Currency.Cldr` package for CLDR-based currency data.
 
@@ -40,6 +41,9 @@ End-of-life runtime versions that are no longer officially supported are not tes
 
 Here are some additional links to get you started:
 
+- [Getting Started](articles/guides/getting-started.md) - Visit here first for a quick walkthrough of the core types.
+- [Guides](articles/guides/toc.yml) - In-depth articles on currencies, values, rounding, formatting, parsing, money bags and data providers.
+- [Concepts](articles/concepts/toc.yml) - How currency identity and localization work under the hood.
 - [API Documentation](api/Singulink.Globalization.Currency.yml) - Browse the fully documented API here.
 - [Chat on Discord](https://discord.gg/EkQhJFsBu6) - Have questions or want to discuss the library? This is the place for all Singulink project discussions.
 - [GitHub Repo](https://github.com/Singulink/Singulink.Globalization.Currency) - File issues, contribute pull requests or check out the code for yourself!

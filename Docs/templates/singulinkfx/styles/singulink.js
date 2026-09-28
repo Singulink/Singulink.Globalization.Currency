@@ -1,4 +1,25 @@
-// Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// Theme toggle functionality.
+//
+// The initial data-theme attribute and highlight.js stylesheet state are set synchronously by an inline script in <head> (see head.tmpl.partial), which also
+// exposes window.SingulinkTheme with resolve()/apply() helpers used here. The toggle button's icon/label are driven purely by CSS from [data-theme].
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', next);
+    SingulinkTheme.apply(next);
+}
+
+// Follow the OS/browser preference until the user explicitly picks a theme.
+if (window.matchMedia) {
+    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => {
+        if (localStorage.getItem('theme')) return;
+        SingulinkTheme.apply(SingulinkTheme.resolve(null));
+    };
+    if (mql.addEventListener) mql.addEventListener('change', onChange);
+    else if (mql.addListener) mql.addListener(onChange);
+}
 
 function toggleMenu() {
                
@@ -50,6 +71,12 @@ function toggleMenu() {
 }(jQuery));
 
 $(function() {
+    // Setup theme toggle button
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', toggleTheme);
+    }
+
     $('table').each(function(a, tbl) {
         var currentTableRows = $(tbl).find('tbody tr').length;
         $(tbl).find('th').each(function(i) {
@@ -73,9 +100,9 @@ $(function() {
             activeTocItem.scrollIntoView({ block: "center" });
         }
         else{
-            setTimeout(scrollToc, 500);
+            setTimeout(scrollToc, 200);
         }
     }
 
-    setTimeout(scrollToc, 500);
+    setTimeout(scrollToc, 200);
 });

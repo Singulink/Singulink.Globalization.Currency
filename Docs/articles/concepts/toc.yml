@@ -1,0 +1,5 @@
+- name: Currency Identity
+  href: currency-identity.md
+
+- name: Localization
+  href: localization.md

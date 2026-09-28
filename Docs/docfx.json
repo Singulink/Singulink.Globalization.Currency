@@ -44,9 +44,14 @@
       {
         "files": [
           "toc.yml",
-          "*.md",
-          "articles/toc.yml",
-          "articles/**.md"
+          "*.md"
+        ]
+      },
+      {
+        "files": [
+          "articles/**.md",
+          "articles/**/toc.yml",
+          "articles/toc.yml"
         ]
       }
     ],
