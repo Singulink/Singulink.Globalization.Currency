@@ -33,7 +33,7 @@ public sealed class MyCurrencyDataProvider : ICurrencyDataProvider
     }
 }
 
-CurrencyRegistry.SetDefault(new MyCurrencyDataProvider());
+CurrencyRegistry.SetDefaultProvider(new MyCurrencyDataProvider());
 ```
 
 Localized values are resolved by walking up the locale chain (`fr-CA`, then `fr`, then the invariant values on the currency entry), so entries only need to be provided for locales that differ from their parent.

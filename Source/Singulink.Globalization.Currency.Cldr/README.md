@@ -17,7 +17,7 @@ This package contains only data and does not depend on the main library, so it c
 Register the CLDR data as the default registry once at application startup, before any currencies or monetary values are used:
 
 ```c#
-CurrencyRegistry.SetDefault(CldrCurrencyData.Provider);
+CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider);
 
 var price = new MonetaryValue(10.03m, "CAD");
 price.RoundToCash(); // CAD 10.05
@@ -26,7 +26,7 @@ price.RoundToCash(); // CAD 10.05
 By default the registry contains currencies that are currently legal tender. Other currency types can be included as well:
 
 ```c#
-CurrencyRegistry.SetDefault(CldrCurrencyData.Provider, CurrencyTypes.CurrentTender | CurrencyTypes.CurrentNonTender);
+CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider, CurrencyTypes.CurrentTender | CurrencyTypes.CurrentNonTender);
 ```
 
 The data can also be used directly without changing the default registry:

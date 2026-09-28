@@ -8,7 +8,7 @@ public class RegisterAsDefault
     [AssemblyInitialize]
     public static void AssemblyInit(TestContext context)
     {
-        CurrencyRegistry.SetDefault(CldrCurrencyData.Provider);
+        CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider);
     }
 
     [TestMethod]
@@ -28,14 +28,14 @@ public class RegisterAsDefault
     public void RegisteringAfterDefaultIsCreatedThrows()
     {
         _ = CurrencyRegistry.Default;
-        Should.Throw<InvalidOperationException>(() => CurrencyRegistry.SetDefault(CldrCurrencyData.Provider));
+        Should.Throw<InvalidOperationException>(() => CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider));
         Should.Throw<InvalidOperationException>(() => CurrencyRegistry.SetDefault(CurrencyData.Load(CldrCurrencyData.Provider).Registry));
     }
 
     [TestMethod]
     public void SetDefaultRejectsEmptyTypes()
     {
-        Should.Throw<ArgumentException>(() => CurrencyRegistry.SetDefault(CldrCurrencyData.Provider, default));
+        Should.Throw<ArgumentException>(() => CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider, default));
     }
 
     [TestMethod]

@@ -85,7 +85,7 @@ ImmutableSortedMoneyBag snapshot = [new(1m, "CAD"), new(2m, "USD")];
 Every currency has a `RoundingPolicy` describing its decimal digits and any rounding increment. Currencies can also have a `CashRoundingPolicy` for physical cash transactions, which differs from the standard policy for currencies whose smallest coins have been withdrawn:
 
 ```c#
-CurrencyRegistry.SetDefault(CldrCurrencyData.Provider); // At application startup, see below
+CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider); // At application startup, see below
 
 var amount = new MonetaryValue(10.03m, "CAD");
 amount.Round();                                       // CAD 10.03
@@ -101,13 +101,13 @@ Cash rounding rules are not part of the globalization data that ships with .NET,
 The `Singulink.Globalization.Currency.Cldr` package embeds currency data from the Unicode Common Locale Data Repository (CLDR) and exposes it as a data provider. Register it as the default registry once at application startup, before any currencies or monetary values are used:
 
 ```c#
-CurrencyRegistry.SetDefault(CldrCurrencyData.Provider);
+CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider);
 ```
 
 The default registry then contains currencies that are currently legal tender. Non-tender codes like `XAU` (gold) and historical currencies can be included as well, or used through separate registries:
 
 ```c#
-CurrencyRegistry.SetDefault(CldrCurrencyData.Provider, CurrencyTypes.CurrentTender | CurrencyTypes.CurrentNonTender);
+CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider, CurrencyTypes.CurrentTender | CurrencyTypes.CurrentNonTender);
 
 var cldr = CurrencyData.Load(CldrCurrencyData.Provider);
 var everything = cldr.CreateRegistry(CurrencyTypes.All);

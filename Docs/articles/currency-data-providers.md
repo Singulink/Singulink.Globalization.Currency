@@ -6,7 +6,7 @@ Currency data packages such as `Singulink.Globalization.Currency.Cldr` supply th
 
 ### Registering a provider
 
-Pass a provider to <xref:Singulink.Globalization.CurrencyRegistry.SetDefault(Singulink.Globalization.ICurrencyDataProvider,Singulink.Globalization.CurrencyTypes)> at application startup to make <xref:Singulink.Globalization.CurrencyRegistry.Default> use its data, or to <xref:Singulink.Globalization.CurrencyData.Load*> to work with the data directly. Data is loaded once per provider instance and cached, so the entries are only enumerated once.
+Pass a provider to <xref:Singulink.Globalization.CurrencyRegistry.SetDefaultProvider(Singulink.Globalization.ICurrencyDataProvider,Singulink.Globalization.CurrencyTypes)> at application startup to make <xref:Singulink.Globalization.CurrencyRegistry.Default> use its data, or to <xref:Singulink.Globalization.CurrencyData.Load*> to work with the data directly. Data is loaded once per provider instance and cached, so the entries are only enumerated once.
 
 ## The Interface
 

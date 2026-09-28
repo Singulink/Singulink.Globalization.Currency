@@ -61,7 +61,7 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
     /// system globalization data. Cash rounding rules are not available from system data, so <see cref="Currency.CashRoundingPolicy"/> is <see
     /// langword="null"/> for all currencies in the system registry. The <c>Singulink.Globalization.Currency.Cldr</c> package provides a data provider sourced
     /// from the Unicode Common Locale Data Repository (CLDR) that includes cash rounding rules and does not depend on runtime globalization data. Register it
-    /// with <see cref="SetDefault(ICurrencyDataProvider, CurrencyTypes)"/>.
+    /// with <see cref="SetDefaultProvider(ICurrencyDataProvider, CurrencyTypes)"/>.
     /// </para>
     /// </remarks>
     public static CurrencyRegistry Default
@@ -117,7 +117,7 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
     /// accessed.</param>
     /// <param name="types">The types of currencies to include in the default registry.</param>
     /// <exception cref="InvalidOperationException">The default registry has already been created.</exception>
-    public static void SetDefault(ICurrencyDataProvider provider, CurrencyTypes types = CurrencyTypes.CurrentTender)
+    public static void SetDefaultProvider(ICurrencyDataProvider provider, CurrencyTypes types = CurrencyTypes.CurrentTender)
     {
         if ((types & CurrencyTypes.All) is 0)
             throw new ArgumentException("At least one currency type must be specified.", nameof(types));

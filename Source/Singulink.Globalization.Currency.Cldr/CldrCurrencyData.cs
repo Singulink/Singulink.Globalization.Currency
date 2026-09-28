@@ -5,7 +5,7 @@ namespace Singulink.Globalization;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Pass <see cref="Provider"/> to <c>CurrencyRegistry.SetDefault(ICurrencyDataProvider, CurrencyTypes)</c> at application startup to make the default
+/// Pass <see cref="Provider"/> to <c>CurrencyRegistry.SetDefaultProvider(ICurrencyDataProvider, CurrencyTypes)</c> at application startup to make the default
 /// currency registry use CLDR data, or to <c>CurrencyData.Load(ICurrencyDataProvider)</c> to work with the data directly. Both are provided by the
 /// <c>Singulink.Globalization.Currency</c> package.
 /// </para>

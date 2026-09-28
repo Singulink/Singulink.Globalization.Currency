@@ -19,7 +19,7 @@ namespace Singulink.Globalization;
 /// </para>
 /// <para>
 /// Data is loaded once per data provider instance and cached, so the same <see cref="Currency"/> instances are returned every time a data provider is loaded.
-/// Call <see cref="CurrencyRegistry.SetDefault(ICurrencyDataProvider, CurrencyTypes)"/> at application startup to make <see cref="CurrencyRegistry.Default"/>
+/// Call <see cref="CurrencyRegistry.SetDefaultProvider(ICurrencyDataProvider, CurrencyTypes)"/> at application startup to make <see cref="CurrencyRegistry.Default"/>
 /// return a registry built from a data provider.
 /// </para>
 /// </remarks>

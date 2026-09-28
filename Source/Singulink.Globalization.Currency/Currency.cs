@@ -74,7 +74,7 @@ public partial class Currency : IFormattable
     /// <para>
     /// Cash rounding information is not available from the system globalization data that the <see cref="CurrencyRegistry.Default"/> registry is built
     /// from by default. Install the <c>Singulink.Globalization.Currency.Cldr</c> package and register its data provider as the default registry with <see
-    /// cref="CurrencyRegistry.SetDefault(ICurrencyDataProvider, CurrencyTypes)"/> to get cash rounding rules sourced from the Unicode Common Locale Data
+    /// cref="CurrencyRegistry.SetDefaultProvider(ICurrencyDataProvider, CurrencyTypes)"/> to get cash rounding rules sourced from the Unicode Common Locale Data
     /// Repository (CLDR), or initialize this property when creating custom currencies.
     /// </para>
     /// </remarks>
