@@ -8,7 +8,11 @@ public class Formatting
     private const char Sp = '\u00A0'; // The space char that ToString uses (non-breaking space)
 
     private static readonly CultureInfo EnUS = WithNegativeCurrencyPattern(CultureInfo.GetCultureInfo("en-US"), 0);
-    private static readonly CultureInfo FrFR = WithNegativeCurrencyPattern(CultureInfo.GetCultureInfo("fe-FR"), 0);
+    private static readonly CultureInfo FrFR = WithNegativeCurrencyPattern(CultureInfo.GetCultureInfo("fr-FR"), 0);
+
+    // French group and decimal separators (the group separator differs between ICU versions and NLS so it is taken from the culture)
+    private static readonly string FrGs = FrFR.NumberFormat.CurrencyGroupSeparator;
+    private static readonly string FrDs = FrFR.NumberFormat.CurrencyDecimalSeparator;
     private static readonly CultureInfo KeaCV = CultureInfo.GetCultureInfo("kea-CV"); // $ as decimal separator, no actual currency symbol
 
     private static CultureInfo WithNegativeCurrencyPattern(CultureInfo culture, int pattern)
@@ -27,8 +31,8 @@ public class Formatting
         MonetaryValue.Create(-1000.1234m, "USD").ToString().ShouldBe($"USD{Sp}(1,000.1234)");
         MonetaryValue.Create(1000m, "JPY").ToString(null, EnUS).ShouldBe($"JPY{Sp}1,000");
 
-        MonetaryValue.Create(1000m, "USD").ToString(null, FrFR).ShouldBe($"1,000.00{Sp}USD");
-        MonetaryValue.Create(-1000.1234m, "USD").ToString(null, FrFR).ShouldBe($"(1,000.1234){Sp}USD");
+        MonetaryValue.Create(1000m, "USD").ToString(null, FrFR).ShouldBe($"1{FrGs}000{FrDs}00{Sp}USD");
+        MonetaryValue.Create(-1000.1234m, "USD").ToString(null, FrFR).ShouldBe($"(1{FrGs}000{FrDs}1234){Sp}USD");
 
         CultureInfo.CurrentCulture = KeaCV;
 
@@ -60,16 +64,16 @@ public class Formatting
     {
         CultureInfo.CurrentCulture = FrFR;
 
-        MonetaryValue.Create(100m, "EUR").ToString().ShouldBe($"100.00{Sp}EUR");
-        MonetaryValue.Create(100m, "USD").ToString().ShouldBe($"100.00{Sp}USD");
+        MonetaryValue.Create(100m, "EUR").ToString().ShouldBe($"100{FrDs}00{Sp}EUR");
+        MonetaryValue.Create(100m, "USD").ToString().ShouldBe($"100{FrDs}00{Sp}USD");
 
-        MonetaryValue.Create(100m, "EUR").ToString("R").ShouldBe($"100.00{Sp}EUR");
-        MonetaryValue.Create(100m, "USD").ToString("R").ShouldBe($"100.00{Sp}USD");
+        MonetaryValue.Create(100m, "EUR").ToString("R").ShouldBe($"100{FrDs}00{Sp}EUR");
+        MonetaryValue.Create(100m, "USD").ToString("R").ShouldBe($"100{FrDs}00{Sp}USD");
 
-        MonetaryValue.Create(100m, "EUR").ToString("G").ShouldBe($"100.00{Sp}EUR");
-        MonetaryValue.Create(100m, "USD").ToString("G").ShouldBe($"100.00{Sp}USD");
+        MonetaryValue.Create(100m, "EUR").ToString("G").ShouldBe($"100{FrDs}00{Sp}EUR");
+        MonetaryValue.Create(100m, "USD").ToString("G").ShouldBe($"100{FrDs}00{Sp}USD");
 
-        MonetaryValue.Create(100m, "CAD").ToString("L").ShouldBe($"100.00{Sp}CAD");
+        MonetaryValue.Create(100m, "CAD").ToString("L").ShouldBe($"100{FrDs}00{Sp}CAD");
     }
 
     [TestMethod]
@@ -80,8 +84,8 @@ public class Formatting
         MonetaryValue.Create(100m, "USD").ToString("C").ShouldBe("$100.00");
         MonetaryValue.Create(100m, "USD").ToString("L").ShouldBe("$100.00");
 
-        MonetaryValue.Create(100m, "EUR").ToString("C", FrFR).ShouldBe("€100.00");
-        MonetaryValue.Create(100m, "EUR").ToString("L", FrFR).ShouldBe("€100.00");
+        MonetaryValue.Create(100m, "EUR").ToString("C", FrFR).ShouldBe($"100{FrDs}00{Sp}€");
+        MonetaryValue.Create(100m, "EUR").ToString("L", FrFR).ShouldBe($"100{FrDs}00{Sp}€");
     }
 
     [TestMethod]
@@ -124,8 +128,8 @@ public class Formatting
     {
         CultureInfo.CurrentCulture = FrFR;
 
-        MonetaryValue.Create(1000m, "CAD").ToString().ShouldBe($"1,000.00{Sp}CAD");
-        MonetaryValue.Create(1000m, "CAD").ToString("N").ShouldBe($"1,000.00{Sp}CAD");
+        MonetaryValue.Create(1000m, "CAD").ToString().ShouldBe($"1{FrGs}000{FrDs}00{Sp}CAD");
+        MonetaryValue.Create(1000m, "CAD").ToString("N").ShouldBe($"1{FrGs}000{FrDs}00{Sp}CAD");
     }
 
     [TestMethod]
@@ -133,8 +137,8 @@ public class Formatting
     {
         CultureInfo.CurrentCulture = FrFR;
 
-        MonetaryValue.Create(1000m, "CAD").ToString("D").ShouldBe($"1000.00{Sp}CAD");
-        MonetaryValue.Create(1000m, "CAD").ToString("D").ShouldBe($"1000.00{Sp}CAD");
+        MonetaryValue.Create(1000m, "CAD").ToString("D").ShouldBe($"1000{FrDs}00{Sp}CAD");
+        MonetaryValue.Create(1000m, "CAD").ToString("D").ShouldBe($"1000{FrDs}00{Sp}CAD");
     }
 
     [TestMethod]
@@ -174,11 +178,11 @@ public class Formatting
     {
         CultureInfo.CurrentCulture = FrFR;
 
-        // The invariant symbol for CAD depends on the runtime's globalization data (ICU vs NLS and the ICU version), so use the runtime's symbol.
+        // The French symbol for CAD depends on the runtime's globalization data (ICU vs NLS and the ICU version), so use the runtime's symbol.
         string cadSymbol = Currency.GetCurrency("CAD").GetLocalizedSymbol(FrFR);
-        MonetaryValue.Create(123.456m, "CAD").ToString("CDB1").ShouldBe($"{cadSymbol}123.5");
-        MonetaryValue.Create(1234m, "USD").ToString("RA").ShouldBe($"1,234.00{Sp}USD");
-        MonetaryValue.Create(1234m, "EUR").ToString("I*").ShouldBe($"EUR{Sp}1,234");
+        MonetaryValue.Create(123.456m, "CAD").ToString("CDB1").ShouldBe($"123{FrDs}5{Sp}{cadSymbol}");
+        MonetaryValue.Create(1234m, "USD").ToString("RA").ShouldBe($"1{FrGs}234{FrDs}00{Sp}USD");
+        MonetaryValue.Create(1234m, "EUR").ToString("I*").ShouldBe($"EUR{Sp}1{FrGs}234");
     }
 
     [TestMethod]
