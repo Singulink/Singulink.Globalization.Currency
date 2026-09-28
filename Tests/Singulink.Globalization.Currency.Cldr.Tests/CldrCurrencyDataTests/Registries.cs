@@ -89,7 +89,7 @@ public class Registries
         var value = new MonetaryValue(1234.56m, registry["CAD"]);
 
         string s = value.ToString("C", CultureInfo.GetCultureInfo("en-CA"));
-        registry.TryParseMoney(s, MonetaryStyles.CurrencyCodeOrLocalSymbol, CultureInfo.GetCultureInfo("en-CA"), out var parsed).ShouldBeTrue();
+        registry.TryParseMonetaryValue(s, MonetaryStyles.CurrencyCodeOrLocalSymbol, CultureInfo.GetCultureInfo("en-CA"), out var parsed).ShouldBeTrue();
         parsed.ShouldBe(value);
     }
 }

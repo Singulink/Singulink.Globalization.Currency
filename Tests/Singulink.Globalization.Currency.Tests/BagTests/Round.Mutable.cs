@@ -1,6 +1,6 @@
 namespace Singulink.Globalization.Tests.BagTests;
 
-public static partial class RoundAll
+public static partial class Round
 {
     [PrefixTestClass]
     public class TMoneyBag : Mutable<MoneyBag>;
@@ -27,11 +27,11 @@ public static partial class RoundAll
         [TestMethod]
         public void DefaultToEven()
         {
-            _roundDownResults.RoundAll();
-            _roundDownValues.RoundAll();
-            _midpointValues.RoundAll();
-            _roundUpValues.RoundAll();
-            _roundUpResults.RoundAll();
+            _roundDownResults.Round();
+            _roundDownValues.Round();
+            _midpointValues.Round();
+            _roundUpValues.Round();
+            _roundUpResults.Round();
 
             _roundDownResults.ShouldBe(RoundDownResults, ignoreOrder: true);
             _roundDownValues.ShouldBe(RoundDownResults, ignoreOrder: true);
@@ -45,11 +45,11 @@ public static partial class RoundAll
         {
             const MidpointRounding mode = MidpointRounding.AwayFromZero;
 
-            _roundDownResults.RoundAll(mode);
-            _roundDownValues.RoundAll(mode);
-            _midpointValues.RoundAll(mode);
-            _roundUpValues.RoundAll(mode);
-            _roundUpResults.RoundAll(mode);
+            _roundDownResults.Round(mode);
+            _roundDownValues.Round(mode);
+            _midpointValues.Round(mode);
+            _roundUpValues.Round(mode);
+            _roundUpResults.Round(mode);
 
             _roundDownResults.ShouldBe(RoundDownResults, ignoreOrder: true);
             _roundDownValues.ShouldBe(RoundDownResults, ignoreOrder: true);

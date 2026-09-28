@@ -45,13 +45,13 @@ public readonly partial struct MonetaryValue : IComparable<MonetaryValue>, IEqua
     /// Allows creating default monetary values by passing <c>0</c> for the amount and <see langword="null"/> for the currency code. Currency code must be provided
     /// if the amount is non-zero.
     /// </summary>
-    public static MonetaryValue CreateDefaultable(decimal amount, string? currencyCode) => CreateDefaultable(amount, currencyCode is null ? null : Currency.GetCurrency(currencyCode));
+    public static MonetaryValue CreateOrDefault(decimal amount, string? currencyCode) => CreateOrDefault(amount, currencyCode is null ? null : Currency.GetCurrency(currencyCode));
 
     /// <summary>
     /// Creates a new <see cref="MonetaryValue"/> value with the specified amount and currency. Allows creating default monetary values by passing <c>0</c> for
     /// the amount and <see langword="null"/> for the currency. Currency must be provided if the amount is non-zero.
     /// </summary>
-    public static MonetaryValue CreateDefaultable(decimal amount, Currency? currency)
+    public static MonetaryValue CreateOrDefault(decimal amount, Currency? currency)
     {
         if (currency is null)
         {
@@ -138,6 +138,31 @@ public readonly partial struct MonetaryValue : IComparable<MonetaryValue>, IEqua
     /// Returns <see cref="Default"/> if this value's <see cref="Amount"/> is <c>0</c>, otherwise returns this value.
     /// </summary>
     public MonetaryValue ToDefaultIfZero() => _amount is 0 ? default : this;
+
+    /// <summary>
+    /// Returns a value with the absolute value of this value's amount in the same currency.
+    /// </summary>
+    public MonetaryValue Abs() => _amount < 0 ? new MonetaryValue(-_amount, _currency!) : this;
+
+    /// <summary>
+    /// Returns the smaller of two monetary values.
+    /// </summary>
+    /// <exception cref="ArgumentException">The values have different currencies.</exception>
+    public static MonetaryValue Min(MonetaryValue x, MonetaryValue y)
+    {
+        EnsureSameCurrencyForCompare(x._currency, y._currency);
+        return x._amount <= y._amount ? x : y;
+    }
+
+    /// <summary>
+    /// Returns the larger of two monetary values.
+    /// </summary>
+    /// <exception cref="ArgumentException">The values have different currencies.</exception>
+    public static MonetaryValue Max(MonetaryValue x, MonetaryValue y)
+    {
+        EnsureSameCurrencyForCompare(x._currency, y._currency);
+        return x._amount >= y._amount ? x : y;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void EnsureSameCurrencyForCompare(Currency? x, Currency? y)

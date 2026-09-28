@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\CompareTo.cs" Link="MonetaryValueTests\CompareTo.cs" />
-    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\CreateDefaultable.cs" Link="MonetaryValueTests\CreateDefaultable.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\CreateOrDefault.cs" Link="MonetaryValueTests\CreateOrDefault.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\CurrencyProperty.cs" Link="MonetaryValueTests\CurrencyProperty.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Formatting.cs" Link="MonetaryValueTests\Formatting.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Operators.cs" Link="MonetaryValueTests\Operators.cs" />

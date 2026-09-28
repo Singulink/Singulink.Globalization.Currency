@@ -25,12 +25,7 @@ partial struct MonetaryValue
     /// <param name="style">A combination of <see cref="MonetaryStyles"/> values that indicate the styles that can be parsed.</param>
     /// <param name="provider">A format provider that supplies culture-specific parsing information.</param>
     public static MonetaryValue Parse(ReadOnlySpan<char> s, MonetaryStyles style = MonetaryStyles.CurrencyCode, IFormatProvider? provider = null)
-    {
-        if (!CurrencyRegistry.Default.TryParseMoney(s, style, provider, out var result, out string message))
-            throw new FormatException(message);
-
-        return result;
-    }
+        => CurrencyRegistry.Default.ParseMonetaryValue(s, style, provider);
 
     /// <inheritdoc cref="TryParse(ReadOnlySpan{char}, MonetaryStyles, IFormatProvider?, out MonetaryValue)"/>
     public static bool TryParse([NotNullWhen(true)] string? s, out MonetaryValue result) => TryParse(s.AsSpan(), out result);
@@ -58,6 +53,6 @@ partial struct MonetaryValue
     /// <returns><see langword="true"/> if parsing was successful; otherwise <see langword="false"/>.</returns>
     public static bool TryParse(ReadOnlySpan<char> s, MonetaryStyles style, IFormatProvider? provider, out MonetaryValue result)
     {
-        return CurrencyRegistry.Default.TryParseMoney(s, style, provider, out result);
+        return CurrencyRegistry.Default.TryParseMonetaryValue(s, style, provider, out result);
     }
 }

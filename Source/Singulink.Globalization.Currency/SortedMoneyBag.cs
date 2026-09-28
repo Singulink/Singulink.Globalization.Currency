@@ -264,8 +264,8 @@ public sealed partial class SortedMoneyBag : IMoneyBag
         return 0;
     }
 
-    /// <inheritdoc cref="IMoneyBag.RoundAll(MidpointRounding)"/>
-    public void RoundAll(MidpointRounding mode = MidpointRounding.ToEven)
+    /// <inheritdoc cref="IMoneyBag.Round(MidpointRounding)"/>
+    public void Round(MidpointRounding mode = MidpointRounding.ToEven)
     {
         if (Count is 0)
             return;
@@ -290,8 +290,8 @@ public sealed partial class SortedMoneyBag : IMoneyBag
             _amountLookup[entry.Key] = entry.Value;
     }
 
-    /// <inheritdoc cref="IMoneyBag.RoundAllToCash(MidpointRounding)"/>
-    public void RoundAllToCash(MidpointRounding mode = MidpointRounding.ToEven)
+    /// <inheritdoc cref="IMoneyBag.RoundToCash(MidpointRounding)"/>
+    public void RoundToCash(MidpointRounding mode = MidpointRounding.ToEven)
     {
         if (Count is 0)
             return;

@@ -304,8 +304,8 @@ public sealed partial class ImmutableSortedMoneyBag : IImmutableMoneyBag
         return builder is not null ? new ImmutableSortedMoneyBag(_registry, builder.ToImmutable()) : this;
     }
 
-    /// <inheritdoc cref="IImmutableMoneyBag.RoundAll(MidpointRounding)"/>
-    public ImmutableSortedMoneyBag RoundAll(MidpointRounding mode = MidpointRounding.ToEven)
+    /// <inheritdoc cref="IImmutableMoneyBag.Round(MidpointRounding)"/>
+    public ImmutableSortedMoneyBag Round(MidpointRounding mode = MidpointRounding.ToEven)
     {
         if (Count is 0)
             return this;
@@ -326,8 +326,8 @@ public sealed partial class ImmutableSortedMoneyBag : IImmutableMoneyBag
         return builder is not null ? new ImmutableSortedMoneyBag(_registry, builder.ToImmutable()) : this;
     }
 
-    /// <inheritdoc cref="IImmutableMoneyBag.RoundAllToCash(MidpointRounding)"/>
-    public ImmutableSortedMoneyBag RoundAllToCash(MidpointRounding mode = MidpointRounding.ToEven)
+    /// <inheritdoc cref="IImmutableMoneyBag.RoundToCash(MidpointRounding)"/>
+    public ImmutableSortedMoneyBag RoundToCash(MidpointRounding mode = MidpointRounding.ToEven)
     {
         if (Count is 0)
             return this;
@@ -713,10 +713,10 @@ public sealed partial class ImmutableSortedMoneyBag : IImmutableMoneyBag
     IImmutableMoneyBag IImmutableMoneyBag.RemoveAll(Func<MonetaryValue, bool> predicate) => RemoveAll(predicate);
 
     /// <inheritdoc/>
-    IImmutableMoneyBag IImmutableMoneyBag.RoundAll(MidpointRounding mode) => RoundAll(mode);
+    IImmutableMoneyBag IImmutableMoneyBag.Round(MidpointRounding mode) => Round(mode);
 
     /// <inheritdoc/>
-    IImmutableMoneyBag IImmutableMoneyBag.RoundAllToCash(MidpointRounding mode) => RoundAllToCash(mode);
+    IImmutableMoneyBag IImmutableMoneyBag.RoundToCash(MidpointRounding mode) => RoundToCash(mode);
 
     /// <inheritdoc/>
     IImmutableMoneyBag IImmutableMoneyBag.SetValue(MonetaryValue value) => SetValue(value);

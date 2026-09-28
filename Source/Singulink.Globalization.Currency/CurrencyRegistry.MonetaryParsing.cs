@@ -8,9 +8,9 @@ namespace Singulink.Globalization;
 /// </content>
 partial class CurrencyRegistry
 {
-    /// <inheritdoc cref="TryParseMoney(ReadOnlySpan{char}, MonetaryStyles, IFormatProvider?, out MonetaryValue, out string)"/>
-    public bool TryParseMoney(ReadOnlySpan<char> s, MonetaryStyles style, IFormatProvider? provider, out MonetaryValue result)
-        => TryParseMoney(s, style, provider, out result, false, out _);
+    /// <inheritdoc cref="TryParseMonetaryValue(ReadOnlySpan{char}, MonetaryStyles, IFormatProvider?, out MonetaryValue, out string)"/>
+    public bool TryParseMonetaryValue(ReadOnlySpan<char> s, MonetaryStyles style, IFormatProvider? provider, out MonetaryValue result)
+        => TryParseMonetaryValue(s, style, provider, out result, false, out _);
 
     /// <summary>
     /// Converts the string representation of a monetary value to its <see cref="MonetaryValue"/> equivalent using this currency registry.
@@ -21,10 +21,40 @@ partial class CurrencyRegistry
     /// <param name="result">The parsed monetary value if parsing was successful; otherwise a default monetary value.</param>
     /// <param name="error">An error message if parsing failed; otherwise an empty string.</param>
     /// <returns><see langword="true"/> if parsing was successful; otherwise <see langword="false"/>.</returns>
-    public bool TryParseMoney(ReadOnlySpan<char> s, MonetaryStyles style, IFormatProvider? provider, out MonetaryValue result, out string error)
-        => TryParseMoney(s, style, provider, out result, true, out error);
+    public bool TryParseMonetaryValue(ReadOnlySpan<char> s, MonetaryStyles style, IFormatProvider? provider, out MonetaryValue result, out string error)
+        => TryParseMonetaryValue(s, style, provider, out result, true, out error);
 
-    private bool TryParseMoney(ReadOnlySpan<char> s, MonetaryStyles style, IFormatProvider? provider, out MonetaryValue result, bool buildError, out string error)
+    /// <inheritdoc cref="TryParseMonetaryValue(ReadOnlySpan{char}, MonetaryStyles, IFormatProvider?, out MonetaryValue, out string)"/>
+    public bool TryParseMonetaryValue([NotNullWhen(true)] string? s, MonetaryStyles style, IFormatProvider? provider, out MonetaryValue result)
+        => TryParseMonetaryValue(s.AsSpan(), style, provider, out result, false, out _);
+
+    /// <inheritdoc cref="TryParseMonetaryValue(ReadOnlySpan{char}, MonetaryStyles, IFormatProvider?, out MonetaryValue, out string)"/>
+    public bool TryParseMonetaryValue([NotNullWhen(true)] string? s, MonetaryStyles style, IFormatProvider? provider, out MonetaryValue result, out string error)
+        => TryParseMonetaryValue(s.AsSpan(), style, provider, out result, true, out error);
+
+    /// <summary>
+    /// Converts the string representation of a monetary value to its <see cref="MonetaryValue"/> equivalent using this currency registry.
+    /// </summary>
+    /// <param name="s">The string representation of the monetary value to convert.</param>
+    /// <param name="style">A combination of <see cref="MonetaryStyles"/> values that indicate the styles that can be parsed. Defaults to
+    /// <see cref="MonetaryStyles.CurrencyCode"/>.</param>
+    /// <param name="provider">A format provider that supplies culture-specific parsing information, or <see langword="null"/> to use the current
+    /// culture.</param>
+    /// <returns>The parsed monetary value.</returns>
+    /// <exception cref="FormatException">The string is not in a valid format.</exception>
+    public MonetaryValue ParseMonetaryValue(ReadOnlySpan<char> s, MonetaryStyles style = MonetaryStyles.CurrencyCode, IFormatProvider? provider = null)
+    {
+        if (!TryParseMonetaryValue(s, style, provider, out var result, true, out string error))
+            throw new FormatException(error);
+
+        return result;
+    }
+
+    /// <inheritdoc cref="ParseMonetaryValue(ReadOnlySpan{char}, MonetaryStyles, IFormatProvider?)"/>
+    public MonetaryValue ParseMonetaryValue(string s, MonetaryStyles style = MonetaryStyles.CurrencyCode, IFormatProvider? provider = null)
+        => ParseMonetaryValue(s.AsSpan(), style, provider);
+
+    private bool TryParseMonetaryValue(ReadOnlySpan<char> s, MonetaryStyles style, IFormatProvider? provider, out MonetaryValue result, bool buildError, out string error)
     {
         const StringComparison Ordinal = StringComparison.Ordinal;
 

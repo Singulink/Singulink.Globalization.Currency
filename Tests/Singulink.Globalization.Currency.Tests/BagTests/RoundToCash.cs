@@ -1,6 +1,6 @@
 namespace Singulink.Globalization.Tests.BagTests;
 
-public static class RoundAllToCash
+public static class RoundToCash
 {
     private static readonly Currency CashCurrency = new("CSH", "Cash Currency") { CashRoundingPolicy = new RoundingPolicy(2, 5) };
     private static readonly Currency WholeCashCurrency = new("WHL", "Whole Cash Currency") { CashRoundingPolicy = new RoundingPolicy(0) };
@@ -32,7 +32,7 @@ public static class RoundAllToCash
         public void DefaultToEven()
         {
             var bag = TBag.Create(Registry, Values);
-            bag.RoundAllToCash();
+            bag.RoundToCash();
             bag.ShouldBe(ToEvenResults, ignoreOrder: true);
         }
 
@@ -40,7 +40,7 @@ public static class RoundAllToCash
         public void AwayFromZero()
         {
             var bag = TBag.Create(Registry, Values);
-            bag.RoundAllToCash(MidpointRounding.AwayFromZero);
+            bag.RoundToCash(MidpointRounding.AwayFromZero);
             bag.ShouldBe(AwayFromZeroResults, ignoreOrder: true);
         }
 
@@ -48,7 +48,7 @@ public static class RoundAllToCash
         public void AlreadyRounded()
         {
             var bag = TBag.Create(Registry, ToEvenResults);
-            bag.RoundAllToCash();
+            bag.RoundToCash();
             bag.ShouldBe(ToEvenResults, ignoreOrder: true);
         }
 
@@ -56,7 +56,7 @@ public static class RoundAllToCash
         public void ThrowsWithoutPolicy()
         {
             var bag = TBag.Create(Registry, [new(10.03m, CashCurrency), new(1.23m, NoCashCurrency)]);
-            Should.Throw<NotSupportedException>(() => bag.RoundAllToCash());
+            Should.Throw<NotSupportedException>(() => bag.RoundToCash());
         }
     }
 
@@ -66,28 +66,28 @@ public static class RoundAllToCash
         public void DefaultToEven()
         {
             var bag = TBag.Create(Registry, Values);
-            bag.RoundAllToCash().ShouldBe(ToEvenResults, ignoreOrder: true);
+            bag.RoundToCash().ShouldBe(ToEvenResults, ignoreOrder: true);
         }
 
         [TestMethod]
         public void AwayFromZero()
         {
             var bag = TBag.Create(Registry, Values);
-            bag.RoundAllToCash(MidpointRounding.AwayFromZero).ShouldBe(AwayFromZeroResults, ignoreOrder: true);
+            bag.RoundToCash(MidpointRounding.AwayFromZero).ShouldBe(AwayFromZeroResults, ignoreOrder: true);
         }
 
         [TestMethod]
         public void AlreadyRoundedReturnsSameInstance()
         {
             var bag = TBag.Create(Registry, ToEvenResults);
-            bag.RoundAllToCash().ShouldBeSameAs(bag);
+            bag.RoundToCash().ShouldBeSameAs(bag);
         }
 
         [TestMethod]
         public void ThrowsWithoutPolicy()
         {
             var bag = TBag.Create(Registry, [new(10.03m, CashCurrency), new(1.23m, NoCashCurrency)]);
-            Should.Throw<NotSupportedException>(() => bag.RoundAllToCash());
+            Should.Throw<NotSupportedException>(() => bag.RoundToCash());
         }
     }
 }

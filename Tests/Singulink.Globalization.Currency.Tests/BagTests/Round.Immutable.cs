@@ -1,6 +1,6 @@
 namespace Singulink.Globalization.Tests.BagTests;
 
-public static partial class RoundAll
+public static partial class Round
 {
     [PrefixTestClass]
     public class TImmutableMoneyBag : Immutable<ImmutableMoneyBag>;
@@ -21,11 +21,11 @@ public static partial class RoundAll
         [TestMethod]
         public void DefaultToEven()
         {
-            RoundDownResults.RoundAll().ShouldBeSameAs(RoundDownResults);
-            RoundDownValues.RoundAll().ShouldBe(RoundDownResults, ignoreOrder: true);
-            MidpointValues.RoundAll().ShouldBe(RoundDownResults, ignoreOrder: true);
-            RoundUpValues.RoundAll().ShouldBe(RoundUpResults, ignoreOrder: true);
-            RoundUpResults.RoundAll().ShouldBeSameAs(RoundUpResults);
+            RoundDownResults.Round().ShouldBeSameAs(RoundDownResults);
+            RoundDownValues.Round().ShouldBe(RoundDownResults, ignoreOrder: true);
+            MidpointValues.Round().ShouldBe(RoundDownResults, ignoreOrder: true);
+            RoundUpValues.Round().ShouldBe(RoundUpResults, ignoreOrder: true);
+            RoundUpResults.Round().ShouldBeSameAs(RoundUpResults);
         }
 
         [TestMethod]
@@ -33,11 +33,11 @@ public static partial class RoundAll
         {
             const MidpointRounding mode = MidpointRounding.AwayFromZero;
 
-            RoundDownResults.RoundAll(mode).ShouldBeSameAs(RoundDownResults);
-            RoundDownValues.RoundAll(mode).ShouldBe(RoundDownResults, ignoreOrder: true);
-            MidpointValues.RoundAll(mode).ShouldBe(RoundUpResults, ignoreOrder: true);
-            RoundUpValues.RoundAll(mode).ShouldBe(RoundUpResults, ignoreOrder: true);
-            RoundUpResults.RoundAll(mode).ShouldBeSameAs(RoundUpResults);
+            RoundDownResults.Round(mode).ShouldBeSameAs(RoundDownResults);
+            RoundDownValues.Round(mode).ShouldBe(RoundDownResults, ignoreOrder: true);
+            MidpointValues.Round(mode).ShouldBe(RoundUpResults, ignoreOrder: true);
+            RoundUpValues.Round(mode).ShouldBe(RoundUpResults, ignoreOrder: true);
+            RoundUpResults.Round(mode).ShouldBeSameAs(RoundUpResults);
         }
     }
 }

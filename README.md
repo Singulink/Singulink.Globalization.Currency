@@ -75,7 +75,7 @@ Money bags hold amounts in multiple currencies at once and come in mutable, immu
 ```c#
 var bag = new MoneyBag { new(100m, "USD"), new(50m, "EUR") };
 bag.Add(new MonetaryValue(25m, "USD"));               // USD 125, EUR 50
-bag.RoundAll();
+bag.Round();
 
 ImmutableSortedMoneyBag snapshot = [new(1m, "CAD"), new(2m, "USD")];
 ```

@@ -37,17 +37,17 @@ partial struct MonetaryValue
         return x._amount >= y._amount;
     }
 
-    public static MonetaryValue operator +(MonetaryValue x, MonetaryValue y) => CreateDefaultable(x._amount + y._amount, CombineCurrenciesForAddOrSubtract(x._currency, y._currency));
+    public static MonetaryValue operator +(MonetaryValue x, MonetaryValue y) => CreateOrDefault(x._amount + y._amount, CombineCurrenciesForAddOrSubtract(x._currency, y._currency));
 
-    public static MonetaryValue operator +(MonetaryValue x, decimal y) => CreateDefaultable(x._amount + y, x._currency);
+    public static MonetaryValue operator +(MonetaryValue x, decimal y) => CreateOrDefault(x._amount + y, x._currency);
 
-    public static MonetaryValue operator -(MonetaryValue x, MonetaryValue y) => CreateDefaultable(x._amount - y._amount, CombineCurrenciesForAddOrSubtract(x._currency, y._currency));
+    public static MonetaryValue operator -(MonetaryValue x, MonetaryValue y) => CreateOrDefault(x._amount - y._amount, CombineCurrenciesForAddOrSubtract(x._currency, y._currency));
 
-    public static MonetaryValue operator -(MonetaryValue x, decimal y) => CreateDefaultable(x._amount - y, x._currency);
+    public static MonetaryValue operator -(MonetaryValue x, decimal y) => CreateOrDefault(x._amount - y, x._currency);
 
-    public static MonetaryValue operator *(MonetaryValue x, decimal y) => CreateDefaultable(x._amount * y, x._currency);
+    public static MonetaryValue operator *(MonetaryValue x, decimal y) => CreateOrDefault(x._amount * y, x._currency);
 
-    public static MonetaryValue operator /(MonetaryValue x, decimal y) => CreateDefaultable(x._amount / y, x._currency);
+    public static MonetaryValue operator /(MonetaryValue x, decimal y) => CreateOrDefault(x._amount / y, x._currency);
 
     public static decimal operator /(MonetaryValue x, MonetaryValue y)
     {
@@ -60,9 +60,9 @@ partial struct MonetaryValue
         return x._amount / y._amount;
     }
 
-    public static MonetaryValue operator ++(MonetaryValue value) => CreateDefaultable(value.Amount + 1, value._currency);
+    public static MonetaryValue operator ++(MonetaryValue value) => CreateOrDefault(value.Amount + 1, value._currency);
 
-    public static MonetaryValue operator --(MonetaryValue value) => CreateDefaultable(value.Amount - 1, value._currency);
+    public static MonetaryValue operator --(MonetaryValue value) => CreateOrDefault(value.Amount - 1, value._currency);
 
     public static MonetaryValue operator +(MonetaryValue value) => value;
 
