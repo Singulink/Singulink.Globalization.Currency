@@ -14,6 +14,12 @@ namespace Singulink.Globalization;
 [Flags]
 public enum MonetaryStyles
 {
+    /// <summary>
+    /// Indicates that no style elements are permitted. Note that at least one of <see cref="AllowCurrencyCode"/>, <see cref="AllowLocalSymbol"/> or <see
+    /// cref="AllowUnambiguousSymbols"/> must be specified to parse a monetary value, so this value is not valid for parsing on its own.
+    /// </summary>
+    None = 0,
+
     /// <inheritdoc cref="NumberStyles.AllowLeadingWhite"/>
     AllowLeadingWhite = 1,
 

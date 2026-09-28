@@ -29,7 +29,7 @@ partial class CurrencyRegistry
         const StringComparison Ordinal = StringComparison.Ordinal;
 
         if (!style.IsValid())
-            throw new ArgumentException($"An undefined ${typeof(MonetaryStyles).Name} value is being used.", nameof(style));
+            throw new ArgumentException($"An undefined {nameof(MonetaryStyles)} value is being used.", nameof(style));
 
         bool allowLeadingWhite = style.HasAllFlags(MonetaryStyles.AllowLeadingWhite);
         bool allowLeadingSign = style.HasAllFlags(MonetaryStyles.AllowLeadingSign);

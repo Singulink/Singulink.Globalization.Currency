@@ -368,7 +368,13 @@ public sealed partial class MoneyBag : IMoneyBag
     /// </summary>
     public override string ToString() => ToString(null, null);
 
-    /// <inheritdoc cref="MoneyCollectionExtensions.ToString(IReadOnlyMoneyBag, string?, IFormatProvider?)"/>
+    /// <summary>
+    /// Returns a string representation of the monetary values this bag contains, formatted using the specified format and format provider.
+    /// </summary>
+    /// <param name="format">The format to use for each monetary value. See <see cref="MonetaryValue.ToString(string?, IFormatProvider?)"/> for valid
+    /// monetary formats. Prepend the monetary format with the <c>!</c> character to exclude values with zero amounts from the output.</param>
+    /// <param name="provider">The format provider that will be used to obtain number format information. This should be a <see cref="CultureInfo"/>
+    /// instance for formats that depend on the culture, otherwise the current culture is used.</param>
     public string ToString(string? format, IFormatProvider? provider = null) => MoneyCollectionExtensions.ToString(this, format, provider);
 
     /// <inheritdoc cref="IMoneyBag.TransformValues(Func{MonetaryValue, decimal})"/>
