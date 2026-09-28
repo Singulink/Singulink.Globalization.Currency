@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
@@ -15,6 +16,7 @@ namespace Singulink.Globalization;
 /// <summary>
 /// Represents a collection of currencies.
 /// </summary>
+[DebuggerDisplay("{Name,nq} (Count = {Count})")]
 public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Currency>
 {
     private static readonly object _defaultLock = new();

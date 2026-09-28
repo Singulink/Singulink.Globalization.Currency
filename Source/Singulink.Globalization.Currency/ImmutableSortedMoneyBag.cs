@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Collections;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
@@ -16,6 +17,7 @@ namespace Singulink.Globalization;
 /// are ignored when being added to or subtracted from a bag.</para>
 /// </remarks>
 [CollectionBuilder(typeof(ImmutableSortedMoneyBag), nameof(Create))]
+[DebuggerDisplay("Count = {Count}")]
 public sealed partial class ImmutableSortedMoneyBag : IImmutableMoneyBag
 {
     private static readonly ImmutableSortedDictionary<Currency, decimal> EmptyLookup = ImmutableSortedDictionary.Create<Currency, decimal>(CurrencyByCodeComparer.Default);

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Singulink.Globalization;
@@ -5,6 +6,7 @@ namespace Singulink.Globalization;
 /// <summary>
 /// Represents a monetary amount in a specific currency.
 /// </summary>
+[DebuggerDisplay("{ToString(),nq}")]
 public readonly partial struct MonetaryValue : IComparable<MonetaryValue>, IEquatable<MonetaryValue>
 {
     /// <summary>

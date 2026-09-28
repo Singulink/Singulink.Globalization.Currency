@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Collections;
 
 namespace Singulink.Globalization;
@@ -13,6 +14,7 @@ namespace Singulink.Globalization;
 /// Money bags never contain any default <see cref="MonetaryValue"/> values (i.e. zero amount values that are not associated with any currency). Default values
 /// are ignored when being added to or subtracted from a bag.</para>
 /// </remarks>
+[DebuggerDisplay("Count = {Count}")]
 public sealed partial class MoneyBag : IMoneyBag
 {
     private readonly CurrencyRegistry _registry;
@@ -383,8 +385,6 @@ public sealed partial class MoneyBag : IMoneyBag
         if (Count is 0)
             return;
 
-        // TODO: Optimize if no values change.
-
         foreach (var kvp in _amountLookup.ToList())
         {
             decimal newAmount = transform(new MonetaryValue(kvp.Value, kvp.Key));
@@ -399,8 +399,6 @@ public sealed partial class MoneyBag : IMoneyBag
     {
         if (Count is 0)
             return;
-
-        // TODO: Optimize if no values change.
 
         foreach (var kvp in _amountLookup.ToList())
         {
@@ -419,8 +417,6 @@ public sealed partial class MoneyBag : IMoneyBag
         if (Count is 0)
             return;
 
-        // TODO: Optimize if no values change.
-
         foreach (var kvp in _amountLookup.ToList())
         {
             decimal oldAmount = kvp.Value;
@@ -436,8 +432,6 @@ public sealed partial class MoneyBag : IMoneyBag
     {
         if (Count is 0)
             return;
-
-        // TODO: Optimize if no values change.
 
         foreach (var kvp in _amountLookup.ToList())
         {

@@ -26,6 +26,7 @@ namespace Singulink.Globalization;
 public sealed class CurrencyData
 {
     private static readonly ConditionalWeakTable<ICurrencyDataProvider, CurrencyData> _cache = new();
+    private static readonly object _cacheLock = new();
 
     private readonly CurrencyTypes[] _types;
     private readonly Dictionary<Currency, int> _currencyIndexes;
@@ -65,7 +66,7 @@ public sealed class CurrencyData
         if (_cache.TryGetValue(provider, out var data))
             return data;
 
-        lock (_cache)
+        lock (_cacheLock)
         {
             if (_cache.TryGetValue(provider, out data))
                 return data;

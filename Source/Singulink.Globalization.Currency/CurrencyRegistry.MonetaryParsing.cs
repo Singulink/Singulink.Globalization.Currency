@@ -454,8 +454,6 @@ partial class CurrencyRegistry
 
         bool TryParseLocalSymbol(ReadOnlySpan<char> currencyIndicator, [MaybeNullWhen(false)] out Currency currency, out LocalCurrencySymbolError error)
         {
-            // TODO: Possibly avoid building this lookup when only parsing local symbols? Don't really need the whole lookup.
-
             var (_, parseError) = GetOrBuildCurrenciesBySymbolLookup(culture);
 
             if (parseError is not null)

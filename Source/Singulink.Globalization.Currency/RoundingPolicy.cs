@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Singulink.Globalization;
@@ -13,6 +14,7 @@ namespace Singulink.Globalization;
 /// dollar and Swiss franc. A policy with <c>0</c> decimal digits rounds amounts to whole units.
 /// </para>
 /// </remarks>
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed class RoundingPolicy : IEquatable<RoundingPolicy>
 {
     private decimal? _smallestUnitAmount;
