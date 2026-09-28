@@ -115,17 +115,23 @@ public readonly partial struct MonetaryValue : IComparable<MonetaryValue>, IEqua
     }
 
     /// <summary>
-    /// Returns a value rounded to the currency's number of decimal digits using <see cref="MidpointRounding.ToEven"/> midpoint rounding ("banker's
-    /// rounding").
+    /// Returns a value rounded according to the currency's <see cref="Currency.RoundingPolicy"/> using the specified midpoint rounding mode (which
+    /// defaults to <see cref="MidpointRounding.ToEven"/> "banker's rounding").
     /// </summary>
-    public MonetaryValue RoundToCurrencyDigits() => RoundToCurrencyDigits(MidpointRounding.ToEven);
+    public MonetaryValue Round(MidpointRounding mode = MidpointRounding.ToEven)
+    {
+        return _currency is null ? this : new MonetaryValue(_currency.RoundingPolicy.RoundAmount(_amount, mode), _currency);
+    }
 
     /// <summary>
-    /// Returns a value rounded to the currency's number of decimal digits using the specified midpoint rounding mode.
+    /// Returns a value rounded according to the currency's <see cref="Currency.CashRoundingPolicy"/> using the specified midpoint rounding mode (which
+    /// defaults to <see cref="MidpointRounding.ToEven"/> "banker's rounding").
     /// </summary>
-    public MonetaryValue RoundToCurrencyDigits(MidpointRounding mode)
+    /// <exception cref="NotSupportedException">Cash rounding rules are not available for the currency. See <see cref="Currency.CashRoundingPolicy"/> for
+    /// more information.</exception>
+    public MonetaryValue RoundToCash(MidpointRounding mode = MidpointRounding.ToEven)
     {
-        return _currency is null ? this : new MonetaryValue(Math.Round(_amount, _currency.DecimalDigits, mode), Currency);
+        return _currency is null ? this : new MonetaryValue(_currency.GetRequiredCashRoundingPolicy().RoundAmount(_amount, mode), _currency);
     }
 
     /// <summary>

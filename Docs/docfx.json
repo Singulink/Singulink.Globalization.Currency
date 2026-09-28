@@ -7,7 +7,8 @@
       "src": [
         {
           "files": [
-            "Singulink.Globalization.Currency/Singulink.Globalization.Currency.csproj"
+            "Singulink.Globalization.Currency/Singulink.Globalization.Currency.csproj",
+            "Singulink.Globalization.Currency.Cldr/Singulink.Globalization.Currency.Cldr.csproj"
           ],
           "src": "../Source"
         }

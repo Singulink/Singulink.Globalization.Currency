@@ -1,6 +1,6 @@
 namespace Singulink.Globalization.Tests.BagTests;
 
-public static partial class RoundToCurrencyDigits
+public static partial class RoundAll
 {
     [PrefixTestClass]
     public class TImmutableMoneyBag : Immutable<ImmutableMoneyBag>;
@@ -21,11 +21,11 @@ public static partial class RoundToCurrencyDigits
         [TestMethod]
         public void DefaultToEven()
         {
-            RoundDownResults.RoundToCurrencyDigits().ShouldBeSameAs(RoundDownResults);
-            RoundDownValues.RoundToCurrencyDigits().ShouldBe(RoundDownResults, ignoreOrder: true);
-            MidpointValues.RoundToCurrencyDigits().ShouldBe(RoundDownResults, ignoreOrder: true);
-            RoundUpValues.RoundToCurrencyDigits().ShouldBe(RoundUpResults, ignoreOrder: true);
-            RoundUpResults.RoundToCurrencyDigits().ShouldBeSameAs(RoundUpResults);
+            RoundDownResults.RoundAll().ShouldBeSameAs(RoundDownResults);
+            RoundDownValues.RoundAll().ShouldBe(RoundDownResults, ignoreOrder: true);
+            MidpointValues.RoundAll().ShouldBe(RoundDownResults, ignoreOrder: true);
+            RoundUpValues.RoundAll().ShouldBe(RoundUpResults, ignoreOrder: true);
+            RoundUpResults.RoundAll().ShouldBeSameAs(RoundUpResults);
         }
 
         [TestMethod]
@@ -33,11 +33,12 @@ public static partial class RoundToCurrencyDigits
         {
             const MidpointRounding mode = MidpointRounding.AwayFromZero;
 
-            RoundDownResults.RoundToCurrencyDigits(mode).ShouldBeSameAs(RoundDownResults);
-            RoundDownValues.RoundToCurrencyDigits(mode).ShouldBe(RoundDownResults, ignoreOrder: true);
-            MidpointValues.RoundToCurrencyDigits(mode).ShouldBe(RoundUpResults, ignoreOrder: true);
-            RoundUpValues.RoundToCurrencyDigits(mode).ShouldBe(RoundUpResults, ignoreOrder: true);
-            RoundUpResults.RoundToCurrencyDigits(mode).ShouldBeSameAs(RoundUpResults);
+            RoundDownResults.RoundAll(mode).ShouldBeSameAs(RoundDownResults);
+            RoundDownValues.RoundAll(mode).ShouldBe(RoundDownResults, ignoreOrder: true);
+            MidpointValues.RoundAll(mode).ShouldBe(RoundUpResults, ignoreOrder: true);
+            RoundUpValues.RoundAll(mode).ShouldBe(RoundUpResults, ignoreOrder: true);
+            RoundUpResults.RoundAll(mode).ShouldBeSameAs(RoundUpResults);
         }
     }
 }
+

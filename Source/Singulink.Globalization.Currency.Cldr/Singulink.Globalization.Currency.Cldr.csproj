@@ -2,28 +2,25 @@
   <PropertyGroup>
     <RootNamespace>Singulink.Globalization</RootNamespace>
     <TargetFrameworks>netstandard2.0;net8.0;net8.0-windows10.0.19041;net9.0;net9.0-windows10.0.19041;net10.0;net10.0-windows10.0.19041</TargetFrameworks>
-    <NoWarn>CA1034</NoWarn>
 
     <Version>1.0.0</Version>
-    <PackageTags>currency; money; wallet; NodaMoney; JodaMoney; ISO 4217; ISO4217;</PackageTags>
-    <Description>High-performance and flexible currency support for .NET, done right 🎉</Description>
+    <PackageTags>currency; money; CLDR; unicode; ISO 4217; ISO4217; cash rounding;</PackageTags>
+    <Description>Unicode CLDR currency data for Singulink.Globalization.Currency: an up-to-date currency registry with localized names and symbols, cash rounding rules and consistent behavior across all runtimes.</Description>
     <PackageProjectUrl>https://github.com/Singulink/Singulink.Globalization.Currency</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md" Link="README.md" Pack="true" PackagePath="\" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="Data\CurrencyData.bin" />
+    <EmbeddedResource Include="Data\CurrencyData.bin" LogicalName="Singulink.Globalization.Currency.Cldr.CurrencyData.bin" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Memory" Version="4.6.3" />
-    <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
     <PackageReference Include="PolySharp" Version="1.16.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Singulink.Collections" Version="4.0.0" />
-    <PackageReference Include="Singulink.Enums" Version="2.4.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="10.0.12" />
+    <ProjectReference Include="..\Singulink.Globalization.Currency\Singulink.Globalization.Currency.csproj" />
   </ItemGroup>
 </Project>

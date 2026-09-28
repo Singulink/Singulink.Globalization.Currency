@@ -262,11 +262,8 @@ public sealed partial class MoneyBag : IMoneyBag
         return 0;
     }
 
-    /// <inheritdoc cref="IMoneyBag.RoundToCurrencyDigits()"/>
-    public void RoundToCurrencyDigits() => RoundToCurrencyDigits(MidpointRounding.ToEven);
-
-    /// <inheritdoc cref="IMoneyBag.RoundToCurrencyDigits(MidpointRounding)"/>
-    public void RoundToCurrencyDigits(MidpointRounding mode)
+    /// <inheritdoc cref="IMoneyBag.RoundAll(MidpointRounding)"/>
+    public void RoundAll(MidpointRounding mode = MidpointRounding.ToEven)
     {
         if (Count is 0)
             return;
@@ -275,7 +272,35 @@ public sealed partial class MoneyBag : IMoneyBag
 
         foreach (var entry in _amountLookup)
         {
-            decimal roundedValue = decimal.Round(entry.Value, entry.Key.DecimalDigits, mode);
+            decimal roundedValue = entry.Key.RoundingPolicy.RoundAmount(entry.Value, mode);
+
+            if (roundedValue != entry.Value)
+            {
+                updatedEntries ??= [];
+                updatedEntries.Add(new(entry.Key, roundedValue));
+            }
+        }
+
+        if (updatedEntries is null)
+            return;
+
+        foreach (var entry in updatedEntries)
+        {
+            _amountLookup[entry.Key] = entry.Value;
+        }
+    }
+
+    /// <inheritdoc cref="IMoneyBag.RoundAllToCash(MidpointRounding)"/>
+    public void RoundAllToCash(MidpointRounding mode = MidpointRounding.ToEven)
+    {
+        if (Count is 0)
+            return;
+
+        List<KeyValuePair<Currency, decimal>> updatedEntries = null;
+
+        foreach (var entry in _amountLookup)
+        {
+            decimal roundedValue = entry.Key.GetRequiredCashRoundingPolicy().RoundAmount(entry.Value, mode);
 
             if (roundedValue != entry.Value)
             {

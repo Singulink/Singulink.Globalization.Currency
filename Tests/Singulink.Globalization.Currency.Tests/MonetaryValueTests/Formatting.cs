@@ -173,11 +173,10 @@ public class Formatting
     public void CombinedFormats()
     {
         CultureInfo.CurrentCulture = FrFR;
-#if NET
-        MonetaryValue.Create(123.456m, "CAD").ToString("CDB1").ShouldBe("CA$123.5");
-#else
-        MonetaryValue.Create(123.456m, "CAD").ToString("CDB1").ShouldBe("$123.5");
-#endif
+
+        // The invariant symbol for CAD depends on the runtime's globalization data (ICU vs NLS and the ICU version), so use the runtime's symbol.
+        string cadSymbol = Currency.GetCurrency("CAD").GetLocalizedSymbol(FrFR);
+        MonetaryValue.Create(123.456m, "CAD").ToString("CDB1").ShouldBe($"{cadSymbol}123.5");
         MonetaryValue.Create(1234m, "USD").ToString("RA").ShouldBe($"1,234.00{Sp}USD");
         MonetaryValue.Create(1234m, "EUR").ToString("I*").ShouldBe($"EUR{Sp}1,234");
     }
@@ -190,7 +189,9 @@ public class Formatting
         var nfi = (NumberFormatInfo)EnUS.NumberFormat.Clone();
         nfi.CurrencyGroupSizes = [2];
 
-        var currency = new Currency("ABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDE", 28, "Long Currency", "ABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDE");
+        var currency = new Currency("ABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDE", "Long Currency", "ABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDE") {
+            RoundingPolicy = new RoundingPolicy(28),
+        };
         var value = MonetaryValue.Create(decimal.MinValue, currency);
 
         value.ToString("IN", nfi).ShouldBe($"ABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDE{Sp}(7,92,28,16,25,14,26,43,37,59,35,43,95,03,35.0000000000000000000000000000)");

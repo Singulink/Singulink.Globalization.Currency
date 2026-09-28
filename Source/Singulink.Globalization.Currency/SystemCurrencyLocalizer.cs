@@ -3,26 +3,29 @@ using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-#if NETSTANDARD
-using Singulink.Globalization.Polyfills;
-#endif
-
 namespace Singulink.Globalization;
 
-internal sealed partial class DefaultCurrencyLocalizer : ICurrencyLocalizer
+/// <summary>
+/// Localizes currency names and symbols using system globalization data, with a final fallback to the currency code itself.
+/// </summary>
+internal sealed partial class SystemCurrencyLocalizer : ICurrencyLocalizer
 {
     private static FrozenDictionary<(Currency Currency, string CultureName), string> _nameLookup =
         FrozenDictionary<(Currency Currency, string CultureName), string>.Empty;
     private static FrozenDictionary<(Currency Currency, string CultureName), string> _symbolLookup =
         FrozenDictionary<(Currency Currency, string CultureName), string>.Empty;
 
-    private static readonly ConditionalWeakTable<string, Cache> _cacheLookup = new();
-    private static volatile Cache? _lastCache;
+    private readonly ConditionalWeakTable<string, Cache> _cacheLookup = new();
+    private volatile Cache? _lastCache;
 
-    private DefaultCurrencyLocalizer() { }
+    private SystemCurrencyLocalizer() { }
 
-    public static DefaultCurrencyLocalizer Instance { get; } = new DefaultCurrencyLocalizer();
+    /// <summary>
+    /// Gets the singleton instance of the <see cref="SystemCurrencyLocalizer"/> class.
+    /// </summary>
+    public static SystemCurrencyLocalizer Instance { get; } = new SystemCurrencyLocalizer();
 
+    /// <inheritdoc cref="ICurrencyLocalizer.GetName(Currency, CultureInfo)"/>
     public string GetName(Currency currency, CultureInfo culture)
     {
 #if DEBUG
@@ -38,6 +41,7 @@ internal sealed partial class DefaultCurrencyLocalizer : ICurrencyLocalizer
         return info.Name;
     }
 
+    /// <inheritdoc cref="ICurrencyLocalizer.GetSymbol(Currency, CultureInfo)"/>
     public string GetSymbol(Currency currency, CultureInfo culture)
     {
 #if DEBUG
@@ -57,6 +61,7 @@ internal sealed partial class DefaultCurrencyLocalizer : ICurrencyLocalizer
         FrozenDictionary<(Currency Currency, string CultureName), string> symbolLookup)
     {
         Debug.Assert(_nameLookup.Count is 0, "Already initialized");
+
         _nameLookup = nameLookup;
         _symbolLookup = symbolLookup;
     }
@@ -80,15 +85,15 @@ internal sealed partial class DefaultCurrencyLocalizer : ICurrencyLocalizer
             if (lookup.TryGetValue(key, out string result))
                 return result;
 
+            if (culture == culture.Parent)
+                return currency.CurrencyCode; // Fallback to currency code if no localized name or symbol is found.
+
             culture = culture.Parent;
         }
     }
 
-    private static Cache GetCache(CultureInfo culture)
+    private Cache GetCache(CultureInfo culture)
     {
-        if (culture.Name == "en")
-            culture = CultureInfo.InvariantCulture;
-
         var cache = _lastCache;
 
         if (cache is null || cache.CultureName != culture.Name)
@@ -104,3 +109,4 @@ internal sealed partial class DefaultCurrencyLocalizer : ICurrencyLocalizer
         public string CultureName { get; } = culture;
     }
 }
+

@@ -4,9 +4,9 @@ namespace Singulink.Globalization.Tests;
 
 internal static class Common
 {
-    public static readonly Currency CurrencyX = new("XXXX", 2, "Long Currency", "XXXX");
-    public static readonly Currency CurrencyY = new("YYYY", 2, "Long Currency", "YYYY");
-    public static readonly Currency DisallowedCurrency = new("BBB", 2, "Blah blah blah", "$$");
+    public static readonly Currency CurrencyX = new("XXXX", "Long Currency", "XXXX");
+    public static readonly Currency CurrencyY = new("YYYY", "Long Currency", "YYYY");
+    public static readonly Currency DisallowedCurrency = new("BBB", "Blah blah blah", "$$");
 
     public static void ShouldBeReadOnlyCollection<T>(this ICollection<T> collection)
     {

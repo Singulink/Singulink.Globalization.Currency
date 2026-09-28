@@ -1,6 +1,6 @@
 namespace Singulink.Globalization.Tests.BagTests;
 
-public static partial class RoundToCurrencyDigits
+public static partial class RoundAll
 {
     [PrefixTestClass]
     public class TMoneyBag : Mutable<MoneyBag>;
@@ -27,11 +27,11 @@ public static partial class RoundToCurrencyDigits
         [TestMethod]
         public void DefaultToEven()
         {
-            _roundDownResults.RoundToCurrencyDigits();
-            _roundDownValues.RoundToCurrencyDigits();
-            _midpointValues.RoundToCurrencyDigits();
-            _roundUpValues.RoundToCurrencyDigits();
-            _roundUpResults.RoundToCurrencyDigits();
+            _roundDownResults.RoundAll();
+            _roundDownValues.RoundAll();
+            _midpointValues.RoundAll();
+            _roundUpValues.RoundAll();
+            _roundUpResults.RoundAll();
 
             _roundDownResults.ShouldBe(RoundDownResults, ignoreOrder: true);
             _roundDownValues.ShouldBe(RoundDownResults, ignoreOrder: true);
@@ -45,11 +45,11 @@ public static partial class RoundToCurrencyDigits
         {
             const MidpointRounding mode = MidpointRounding.AwayFromZero;
 
-            _roundDownResults.RoundToCurrencyDigits(mode);
-            _roundDownValues.RoundToCurrencyDigits(mode);
-            _midpointValues.RoundToCurrencyDigits(mode);
-            _roundUpValues.RoundToCurrencyDigits(mode);
-            _roundUpResults.RoundToCurrencyDigits(mode);
+            _roundDownResults.RoundAll(mode);
+            _roundDownValues.RoundAll(mode);
+            _midpointValues.RoundAll(mode);
+            _roundUpValues.RoundAll(mode);
+            _roundUpResults.RoundAll(mode);
 
             _roundDownResults.ShouldBe(RoundDownResults, ignoreOrder: true);
             _roundDownValues.ShouldBe(RoundDownResults, ignoreOrder: true);
@@ -59,3 +59,4 @@ public static partial class RoundToCurrencyDigits
         }
     }
 }
+

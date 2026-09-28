@@ -75,16 +75,18 @@ public interface IImmutableMoneyBag : ICollection<MonetaryValue>, IReadOnlyMoney
     public IImmutableMoneyBag RemoveAll(Func<MonetaryValue, bool> predicate);
 
     /// <summary>
-    /// Rounds each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using <see cref="MidpointRounding.ToEven"/> midpoint rounding
-    /// (i.e. "banker's rounding") and returns the resulting bag.
+    /// Rounds each value's amount according to its currency's <see cref="Currency.RoundingPolicy"/> using the specified midpoint rounding mode (which
+    /// defaults to <see cref="MidpointRounding.ToEven"/> "banker's rounding") and returns the resulting bag.
     /// </summary>
-    public IImmutableMoneyBag RoundToCurrencyDigits();
+    public IImmutableMoneyBag RoundAll(MidpointRounding mode = MidpointRounding.ToEven);
 
     /// <summary>
-    /// Rounds each value's amount to its currency's <see cref="Currency.DecimalDigits"/> using the specified midpoint rounding mode and returns the resulting
-    /// bag.
+    /// Rounds each value's amount according to its currency's <see cref="Currency.CashRoundingPolicy"/> using the specified midpoint rounding mode (which
+    /// defaults to <see cref="MidpointRounding.ToEven"/> "banker's rounding") and returns the resulting bag.
     /// </summary>
-    public IImmutableMoneyBag RoundToCurrencyDigits(MidpointRounding mode);
+    /// <exception cref="NotSupportedException">Cash rounding rules are not available for one of the currencies in the bag. See <see
+    /// cref="Currency.CashRoundingPolicy"/> for more information.</exception>
+    public IImmutableMoneyBag RoundAllToCash(MidpointRounding mode = MidpointRounding.ToEven);
 
     /// <summary>
     /// Sets the value this bag contains for the currency of the specified value and returns the resulting bag.

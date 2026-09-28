@@ -12,11 +12,18 @@
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\CurrencyProperty.cs" Link="MonetaryValueTests\CurrencyProperty.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Formatting.cs" Link="MonetaryValueTests\Formatting.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Operators.cs" Link="MonetaryValueTests\Operators.cs" />
-    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Parsing.cs" Link="MonetaryValueTests\Parsing.cs" />
-    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\RoundToCurrencyDigits.cs" Link="MonetaryValueTests\RoundToCurrencyDigits.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Parse.cs" Link="MonetaryValueTests\Parse.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Round.cs" Link="MonetaryValueTests\Round.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\RoundingPolicyTests\RoundAmount.cs" Link="RoundingPolicyTests\RoundAmount.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\CurrencyTests\RoundingPolicies.cs" Link="CurrencyTests\RoundingPolicies.cs" />
+    <!-- RegisterAsDefault tests are excluded since they replace the process-wide default registry that the other tests depend on. -->
+    <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\Registries.cs" Link="CldrCurrencyDataTests\Registries.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\RoundingPolicies.cs" Link="CldrCurrencyDataTests\RoundingPolicies.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\Localization.cs" Link="CldrCurrencyDataTests\Localization.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Singulink.Globalization.Currency\Singulink.Globalization.Currency.csproj" />
+    <ProjectReference Include="..\..\Source\Singulink.Globalization.Currency.Cldr\Singulink.Globalization.Currency.Cldr.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="MonetaryValueTests\" />

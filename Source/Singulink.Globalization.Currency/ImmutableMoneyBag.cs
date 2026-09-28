@@ -304,11 +304,8 @@ public sealed partial class ImmutableMoneyBag : IImmutableMoneyBag
         return builder is not null ? new ImmutableMoneyBag(_registry, builder.ToImmutable()) : this;
     }
 
-    /// <inheritdoc cref="IImmutableMoneyBag.RoundToCurrencyDigits()"/>
-    public ImmutableMoneyBag RoundToCurrencyDigits() => RoundToCurrencyDigits(MidpointRounding.ToEven);
-
-    /// <inheritdoc cref="IImmutableMoneyBag.RoundToCurrencyDigits(MidpointRounding)"/>
-    public ImmutableMoneyBag RoundToCurrencyDigits(MidpointRounding mode)
+    /// <inheritdoc cref="IImmutableMoneyBag.RoundAll(MidpointRounding)"/>
+    public ImmutableMoneyBag RoundAll(MidpointRounding mode = MidpointRounding.ToEven)
     {
         if (Count is 0)
             return this;
@@ -317,7 +314,29 @@ public sealed partial class ImmutableMoneyBag : IImmutableMoneyBag
 
         foreach (var entry in _amountLookup)
         {
-            decimal roundedValue = decimal.Round(entry.Value, entry.Key.DecimalDigits, mode);
+            decimal roundedValue = entry.Key.RoundingPolicy.RoundAmount(entry.Value, mode);
+
+            if (roundedValue != entry.Value)
+            {
+                builder ??= _amountLookup.ToBuilder();
+                builder[entry.Key] = roundedValue;
+            }
+        }
+
+        return builder is not null ? new ImmutableMoneyBag(_registry, builder.ToImmutable()) : this;
+    }
+
+    /// <inheritdoc cref="IImmutableMoneyBag.RoundAllToCash(MidpointRounding)"/>
+    public ImmutableMoneyBag RoundAllToCash(MidpointRounding mode = MidpointRounding.ToEven)
+    {
+        if (Count is 0)
+            return this;
+
+        ImmutableDictionary<Currency, decimal>.Builder builder = null;
+
+        foreach (var entry in _amountLookup)
+        {
+            decimal roundedValue = entry.Key.GetRequiredCashRoundingPolicy().RoundAmount(entry.Value, mode);
 
             if (roundedValue != entry.Value)
             {
@@ -688,10 +707,10 @@ public sealed partial class ImmutableMoneyBag : IImmutableMoneyBag
     IImmutableMoneyBag IImmutableMoneyBag.RemoveAll(Func<MonetaryValue, bool> predicate) => RemoveAll(predicate);
 
     /// <inheritdoc/>
-    IImmutableMoneyBag IImmutableMoneyBag.RoundToCurrencyDigits() => RoundToCurrencyDigits();
+    IImmutableMoneyBag IImmutableMoneyBag.RoundAll(MidpointRounding mode) => RoundAll(mode);
 
     /// <inheritdoc/>
-    IImmutableMoneyBag IImmutableMoneyBag.RoundToCurrencyDigits(MidpointRounding mode) => RoundToCurrencyDigits(mode);
+    IImmutableMoneyBag IImmutableMoneyBag.RoundAllToCash(MidpointRounding mode) => RoundAllToCash(mode);
 
     /// <inheritdoc/>
     IImmutableMoneyBag IImmutableMoneyBag.SetValue(MonetaryValue value) => SetValue(value);

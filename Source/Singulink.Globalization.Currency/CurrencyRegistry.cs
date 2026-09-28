@@ -17,6 +17,8 @@ namespace Singulink.Globalization;
 /// </summary>
 public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Currency>
 {
+    private static readonly object _defaultLock = new();
+    private static Func<CurrencyRegistry>? _defaultFactory;
     private static CurrencyRegistry? _default;
 
     private readonly string _name;
@@ -50,9 +52,60 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
     }
 
     /// <summary>
-    /// Gets the default registry built from system globalization data.
+    /// Gets the default currency registry. Unless a different registry has been set with <see cref="SetDefault(Func{CurrencyRegistry})"/>, this is a
+    /// registry built from system globalization data.
     /// </summary>
-    public static CurrencyRegistry Default => _default ??= BuildDefaultRegistry();
+    /// <remarks>
+    /// <para>
+    /// The system registry contains the currencies that are in use by the regions known to the runtime, with names, symbols and decimal digits sourced from
+    /// system globalization data. Cash rounding rules are not available from system data, so <see cref="Currency.CashRoundingPolicy"/> is <see
+    /// langword="null"/> for all currencies in the system registry. The <c>Singulink.Globalization.Currency.Cldr</c> package provides a registry sourced from
+    /// the Unicode Common Locale Data Repository (CLDR) that includes cash rounding rules and does not depend on runtime globalization data.
+    /// </para>
+    /// </remarks>
+    public static CurrencyRegistry Default
+    {
+        get {
+            return _default ?? GetOrCreateDefault();
+
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            static CurrencyRegistry GetOrCreateDefault()
+            {
+                lock (_defaultLock)
+                {
+                    if (_default is null)
+                    {
+                        var factory = _defaultFactory;
+                        _default = factory is not null ? factory() : BuildSystemRegistry();
+                        _defaultFactory = null;
+                    }
+
+                    return _default;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Sets the registry that <see cref="Default"/> returns. This method must be called at application startup before the default registry is first
+    /// accessed, i.e. before any currencies or monetary values are created that do not explicitly specify a registry.
+    /// </summary>
+    /// <param name="registryFactory">A function that creates the registry. It is invoked once, the first time <see cref="Default"/> is accessed.</param>
+    /// <exception cref="InvalidOperationException">The default registry has already been created.</exception>
+    public static void SetDefault(Func<CurrencyRegistry> registryFactory)
+    {
+        lock (_defaultLock)
+        {
+            if (_default is not null)
+                throw new InvalidOperationException("The default currency registry has already been created and can no longer be changed.");
+
+            _defaultFactory = registryFactory;
+        }
+    }
+
+    /// <inheritdoc cref="SetDefault(Func{CurrencyRegistry})"/>
+    /// <param name="registry">The registry to use as the default registry.</param>
+    public static void SetDefault(CurrencyRegistry registry) => SetDefault(() => registry);
 
     /// <summary>
     /// Gets a currency from this registry with the specified currency code.
@@ -203,7 +256,7 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
     /// </summary>
     public bool SetEquals(IEnumerable<Currency> other) => _currencies.SetEquals(other);
 
-    private static CurrencyRegistry BuildDefaultRegistry()
+    private static CurrencyRegistry BuildSystemRegistry()
     {
         var sourceCultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
 
@@ -230,7 +283,9 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
 
             if (!currencyLookup.TryGetValue(currencyCode, out var currency))
             {
-                currency = new Currency(currencyCode, sourceCulture.NumberFormat.CurrencyDecimalDigits, DefaultCurrencyLocalizer.Instance);
+                currency = new Currency(currencyCode, SystemCurrencyLocalizer.Instance) {
+                    RoundingPolicy = new RoundingPolicy(sourceCulture.NumberFormat.CurrencyDecimalDigits),
+                };
 
                 nameInfoLookup.TryAdd((currency, CultureInfo.InvariantCulture), (CultureInfo.InvariantCulture, englishName));
                 currencyLookup[currencyCode] = currency;
@@ -312,7 +367,7 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
         var nameLookup = nameInfoLookup.ToFrozenDictionary(kvp => (kvp.Key.Currency, CultureName: kvp.Key.Culture.Name), kvp => kvp.Value.Value);
         var symbolLookup = symbolInfoLookup.ToFrozenDictionary(kvp => (kvp.Key.Currency, CultureName: kvp.Key.Culture.Name), kvp => kvp.Value.Value);
 
-        DefaultCurrencyLocalizer.InitLookups(nameLookup, symbolLookup);
+        SystemCurrencyLocalizer.InitLookups(nameLookup, symbolLookup);
 
         // Clear cached data so we don't needlessly keep unneeded culture data in memory
 

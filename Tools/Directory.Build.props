@@ -1,0 +1,6 @@
+<Project>
+  <!-- Tools are standalone and intentionally do not inherit the repository's library build settings (analyzers, weavers, signing, etc). -->
+  <PropertyGroup>
+    <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

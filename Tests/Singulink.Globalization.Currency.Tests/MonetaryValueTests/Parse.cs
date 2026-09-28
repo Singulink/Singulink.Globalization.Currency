@@ -3,10 +3,10 @@ using System.Globalization;
 namespace Singulink.Globalization.Tests.MonetaryValueTests;
 
 [PrefixTestClass]
-public class Parsing
+public class Parse
 {
     [TestMethod]
-    public void Parse_LocalPositiveValues_RoundtripsProperly()
+    public void LocalPositiveValues_RoundtripsProperly()
     {
         foreach (var culture in GetSpecificCultures())
         {
@@ -21,7 +21,7 @@ public class Parsing
     }
 
     [TestMethod]
-    public void Parse_LocalNegativeValues_RoundtripsProperly()
+    public void LocalNegativeValues_RoundtripsProperly()
     {
         foreach (var culture in GetSpecificCultures())
         {
@@ -36,7 +36,7 @@ public class Parsing
     }
 
     [TestMethod]
-    public void Parse_GeneralPositiveValues_RoundtripsProperly()
+    public void GeneralPositiveValues_RoundtripsProperly()
     {
         foreach (var culture in GetSpecificCultures())
         {
@@ -50,7 +50,7 @@ public class Parsing
     }
 
     [TestMethod]
-    public void Parse_GeneralNegativeValues_RoundtripsProperly()
+    public void GeneralNegativeValues_RoundtripsProperly()
     {
         foreach (var culture in GetSpecificCultures())
         {
@@ -66,3 +66,5 @@ public class Parsing
     private static IEnumerable<CultureInfo> GetSpecificCultures()
         => CultureInfo.GetCultures(CultureTypes.SpecificCultures).Where(c => new RegionInfo(c.Name).ISOCurrencySymbol.Length is 3);
 }
+
+

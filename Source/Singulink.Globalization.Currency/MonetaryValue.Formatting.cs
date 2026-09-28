@@ -187,7 +187,7 @@ partial struct MonetaryValue
             bool useReverseFormat = symbolFormat switch {
                 'I' => false,
                 'R' => true,
-                _ => culture.TwoLetterISOLanguageName is not "en" or "ga" or "lv" or "mt",
+                _ => culture.TwoLetterISOLanguageName is not ("en" or "ga" or "lv" or "mt"),
             };
 
             if (useReverseFormat)
