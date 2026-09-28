@@ -96,6 +96,21 @@ new MonetaryValue(10.49m, "SEK").RoundToCash();       // SEK 10 (Sweden rounds c
 
 Cash rounding rules are not part of the globalization data that ships with .NET, so `RoundToCash()` throws `NotSupportedException` for currencies from the system registry. Install the `Singulink.Globalization.Currency.Cldr` package to get them, or initialize the `CashRoundingPolicy` property when creating custom currencies.
 
+### Allocation
+
+Splitting an amount into parts without losing or inventing cents is handled by `Allocate()`. The parts are rounded to the currency's smallest unit and any remainder is distributed so the parts always sum to the original value:
+
+```c#
+var total = new MonetaryValue(100m, "USD");
+
+total.Allocate(3);              // USD 33.34, USD 33.33, USD 33.33
+total.Allocate(50, 30, 20);     // USD 50.00, USD 30.00, USD 20.00 (proportional to the ratios)
+total.Allocate(3, new RoundingPolicy(0)); // USD 34, USD 33, USD 33 (whole dollars)
+
+// Cash allocations use the currency's cash rounding policy, so no part needs a coin that does not exist:
+new MonetaryValue(100m, "CAD").AllocateToCash(3); // CAD 33.35, CAD 33.35, CAD 33.30
+```
+
 ### CLDR currency data
 
 The `Singulink.Globalization.Currency.Cldr` package embeds currency data from the Unicode Common Locale Data Repository (CLDR) and exposes it as a data provider. Register it as the default registry once at application startup, before any currencies or monetary values are used:

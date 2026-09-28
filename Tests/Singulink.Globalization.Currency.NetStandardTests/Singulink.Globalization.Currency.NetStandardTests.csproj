@@ -14,6 +14,8 @@
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Operators.cs" Link="MonetaryValueTests\Operators.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Parse.cs" Link="MonetaryValueTests\Parse.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Round.cs" Link="MonetaryValueTests\Round.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Allocate.cs" Link="MonetaryValueTests\Allocate.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\AbsMinMax.cs" Link="MonetaryValueTests\AbsMinMax.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\RoundingPolicyTests\RoundAmount.cs" Link="RoundingPolicyTests\RoundAmount.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\CurrencyTests\RoundingPolicies.cs" Link="CurrencyTests\RoundingPolicies.cs" />
     <!-- RegisterAsDefault tests are excluded since they replace the process-wide default registry that the other tests depend on. -->
