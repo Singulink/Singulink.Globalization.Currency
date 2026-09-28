@@ -3,7 +3,9 @@ namespace Singulink.Globalization.Tests.CldrCurrencyDataTests;
 [PrefixTestClass]
 public class RoundingPolicies
 {
-    private static Currency Get(string code) => CldrCurrencyData.CreateRegistry(CldrCurrencyTypes.All)[code];
+    private static CurrencyData Cldr => CurrencyData.Load(CldrCurrencyData.Provider);
+
+    private static Currency Get(string code) => Cldr.CreateRegistry(CurrencyTypes.All)[code];
 
     [TestMethod]
     public void StandardDecimalDigits()
@@ -21,7 +23,7 @@ public class RoundingPolicies
     [TestMethod]
     public void EveryCurrencyHasCashRoundingPolicy()
     {
-        CldrCurrencyData.AllCurrencies.ShouldAllBe(c => c.CashRoundingPolicy != null);
+        Cldr.AllCurrencies.ShouldAllBe(c => c.CashRoundingPolicy != null);
     }
 
     [TestMethod]

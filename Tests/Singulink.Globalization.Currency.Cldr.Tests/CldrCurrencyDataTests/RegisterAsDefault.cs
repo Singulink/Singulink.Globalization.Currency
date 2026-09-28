@@ -8,14 +8,14 @@ public class RegisterAsDefault
     [AssemblyInitialize]
     public static void AssemblyInit(TestContext context)
     {
-        CldrCurrencyData.RegisterAsDefault();
+        CurrencyRegistry.SetDefault(CldrCurrencyData.Provider);
     }
 
     [TestMethod]
     public void DefaultRegistryIsCldrRegistry()
     {
-        CurrencyRegistry.Default.ShouldBeSameAs(CldrCurrencyData.Registry);
-        Currency.GetCurrency("CAD").ShouldBeSameAs(CldrCurrencyData.Registry["CAD"]);
+        CurrencyRegistry.Default.ShouldBeSameAs(CurrencyData.Load(CldrCurrencyData.Provider).Registry);
+        Currency.GetCurrency("CAD").ShouldBeSameAs(CurrencyData.Load(CldrCurrencyData.Provider).Registry["CAD"]);
     }
 
     [TestMethod]
@@ -28,8 +28,14 @@ public class RegisterAsDefault
     public void RegisteringAfterDefaultIsCreatedThrows()
     {
         _ = CurrencyRegistry.Default;
-        Should.Throw<InvalidOperationException>(() => CldrCurrencyData.RegisterAsDefault());
-        Should.Throw<InvalidOperationException>(() => CurrencyRegistry.SetDefault(CldrCurrencyData.Registry));
+        Should.Throw<InvalidOperationException>(() => CurrencyRegistry.SetDefault(CldrCurrencyData.Provider));
+        Should.Throw<InvalidOperationException>(() => CurrencyRegistry.SetDefault(CurrencyData.Load(CldrCurrencyData.Provider).Registry));
+    }
+
+    [TestMethod]
+    public void SetDefaultRejectsEmptyTypes()
+    {
+        Should.Throw<ArgumentException>(() => CurrencyRegistry.SetDefault(CldrCurrencyData.Provider, default));
     }
 
     [TestMethod]

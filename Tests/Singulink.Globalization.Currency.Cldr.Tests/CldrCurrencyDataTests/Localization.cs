@@ -11,7 +11,7 @@ public class Localization
     private static readonly CultureInfo De = CultureInfo.GetCultureInfo("de");
     private static readonly CultureInfo Ja = CultureInfo.GetCultureInfo("ja");
 
-    private static Currency Get(string code) => CldrCurrencyData.Registry[code];
+    private static Currency Get(string code) => CurrencyData.Load(CldrCurrencyData.Provider).Registry[code];
 
     [TestMethod]
     public void InvariantNamesAreEnglish()

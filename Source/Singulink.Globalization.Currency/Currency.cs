@@ -73,8 +73,9 @@ public partial class Currency : IFormattable
     /// <remarks>
     /// <para>
     /// Cash rounding information is not available from the system globalization data that the <see cref="CurrencyRegistry.Default"/> registry is built
-    /// from. Install the <c>Singulink.Globalization.Currency.Cldr</c> package and register its data as the default registry to get cash rounding rules
-    /// sourced from the Unicode Common Locale Data Repository (CLDR), or initialize this property when creating custom currencies.
+    /// from by default. Install the <c>Singulink.Globalization.Currency.Cldr</c> package and register its data provider as the default registry with <see
+    /// cref="CurrencyRegistry.SetDefault(ICurrencyDataProvider, CurrencyTypes)"/> to get cash rounding rules sourced from the Unicode Common Locale Data
+    /// Repository (CLDR), or initialize this property when creating custom currencies.
     /// </para>
     /// </remarks>
     public RoundingPolicy? CashRoundingPolicy
@@ -241,8 +242,8 @@ public partial class Currency : IFormattable
         {
             throw new NotSupportedException(
                 $"Cash rounding rules are not available for currency '{CurrencyCode}'. Cash rounding information is not included in system globalization " +
-                "data. Install the Singulink.Globalization.Currency.Cldr package and register its data as the default currency registry, or initialize the " +
-                $"{nameof(CashRoundingPolicy)} property when creating custom currencies.");
+                "data. Install the Singulink.Globalization.Currency.Cldr package and register its data provider as the default currency registry, or " +
+                $"initialize the {nameof(CashRoundingPolicy)} property when creating custom currencies.");
         }
     }
 }

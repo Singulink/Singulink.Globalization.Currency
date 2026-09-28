@@ -59,8 +59,9 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
     /// <para>
     /// The system registry contains the currencies that are in use by the regions known to the runtime, with names, symbols and decimal digits sourced from
     /// system globalization data. Cash rounding rules are not available from system data, so <see cref="Currency.CashRoundingPolicy"/> is <see
-    /// langword="null"/> for all currencies in the system registry. The <c>Singulink.Globalization.Currency.Cldr</c> package provides a registry sourced from
-    /// the Unicode Common Locale Data Repository (CLDR) that includes cash rounding rules and does not depend on runtime globalization data.
+    /// langword="null"/> for all currencies in the system registry. The <c>Singulink.Globalization.Currency.Cldr</c> package provides a data provider sourced
+    /// from the Unicode Common Locale Data Repository (CLDR) that includes cash rounding rules and does not depend on runtime globalization data. Register it
+    /// with <see cref="SetDefault(ICurrencyDataProvider, CurrencyTypes)"/>.
     /// </para>
     /// </remarks>
     public static CurrencyRegistry Default
@@ -106,6 +107,26 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
     /// <inheritdoc cref="SetDefault(Func{CurrencyRegistry})"/>
     /// <param name="registry">The registry to use as the default registry.</param>
     public static void SetDefault(CurrencyRegistry registry) => SetDefault(() => registry);
+
+    /// <summary>
+    /// Sets the registry that <see cref="Default"/> returns to a registry created from the specified currency data provider, i.e. the CLDR data provided by
+    /// the <c>Singulink.Globalization.Currency.Cldr</c> package. This method must be called at application startup before the default registry is first
+    /// accessed, i.e. before any currencies or monetary values are created that do not explicitly specify a registry.
+    /// </summary>
+    /// <param name="provider">The currency data provider to load the registry from. The data is loaded the first time <see cref="Default"/> is
+    /// accessed.</param>
+    /// <param name="types">The types of currencies to include in the default registry.</param>
+    /// <exception cref="InvalidOperationException">The default registry has already been created.</exception>
+    public static void SetDefault(ICurrencyDataProvider provider, CurrencyTypes types = CurrencyTypes.CurrentTender)
+    {
+        if ((types & CurrencyTypes.All) is 0)
+            throw new ArgumentException("At least one currency type must be specified.", nameof(types));
+
+        SetDefault(() => {
+            var data = CurrencyData.Load(provider);
+            return types is CurrencyTypes.CurrentTender ? data.Registry : data.CreateRegistry(types);
+        });
+    }
 
     /// <summary>
     /// Gets a currency from this registry with the specified currency code.

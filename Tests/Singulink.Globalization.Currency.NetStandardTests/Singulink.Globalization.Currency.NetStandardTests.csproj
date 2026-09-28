@@ -20,6 +20,7 @@
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\Registries.cs" Link="CldrCurrencyDataTests\Registries.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\RoundingPolicies.cs" Link="CldrCurrencyDataTests\RoundingPolicies.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\Localization.cs" Link="CldrCurrencyDataTests\Localization.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\DataProvider.cs" Link="CldrCurrencyDataTests\DataProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Singulink.Globalization.Currency\Singulink.Globalization.Currency.csproj" />

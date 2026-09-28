@@ -22,6 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Singulink.Globalization.Currency.DataProviders\Singulink.Globalization.Currency.DataProviders.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Singulink.Collections" Version="4.0.0" />
     <PackageReference Include="Singulink.Enums" Version="2.4.0" />
     <PackageReference Include="System.Collections.Immutable" Version="10.0.12" />

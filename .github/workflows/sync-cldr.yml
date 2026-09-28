@@ -1,0 +1,127 @@
+name: sync CLDR data
+
+# Checks the npm registry for a new CLDR release every week. When one is found, the currency data is regenerated, built and tested, committed to main,
+# and the Singulink.Globalization.Currency.Cldr package is published to NuGet. The data package depends only on the DataProviders package, so this never
+# publishes or changes the core library.
+#
+# Publishing uses NuGet trusted publishing (OIDC), which requires a one-time setup on nuget.org that links the Singulink.Globalization.Currency.Cldr package
+# to this repository and workflow. See https://learn.microsoft.com/nuget/nuget-org/trusted-publishing. The NUGET_USER repository variable must be set to the
+# nuget.org user name that owns the trusted publishing policy.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays at 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      version:
+        description: CLDR version to sync (defaults to the latest version on npm)
+        required: false
+      force:
+        description: Regenerate and publish even if the version has not changed (bumps the package revision)
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  sync:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
+
+    - name: Determine versions
+      id: versions
+      shell: pwsh
+      run: |
+        $latest = if ('${{ inputs.version }}') { '${{ inputs.version }}' } else { (Invoke-RestMethod 'https://registry.npmjs.org/cldr-core')['dist-tags'].latest }
+        $props = Get-Content 'Source/Singulink.Globalization.Currency.Cldr/Cldr.Version.props' -Raw
+        $current = [regex]::Match($props, '<CldrVersion>([^<]+)</CldrVersion>').Groups[1].Value
+        $revision = [int][regex]::Match($props, '<CldrPackageRevision>(\d+)</CldrPackageRevision>').Groups[1].Value
+
+        Write-Host "Current CLDR version: $current (revision $revision), latest: $latest"
+
+        $changed = $latest -ne $current
+        $force = '${{ inputs.force }}' -eq 'true'
+
+        if ($changed) { $newRevision = 0 } elseif ($force) { $newRevision = $revision + 1 } else { $newRevision = $revision }
+
+        "latest=$latest" >> $env:GITHUB_OUTPUT
+        "changed=$changed" >> $env:GITHUB_OUTPUT
+        "publish=$($changed -or $force)" >> $env:GITHUB_OUTPUT
+        "revision=$newRevision" >> $env:GITHUB_OUTPUT
+
+    - name: Regenerate data
+      if: steps.versions.outputs.publish == 'True'
+      shell: pwsh
+      run: |
+        dotnet run --project Tools/CldrDataGenerator -c Release -- ${{ steps.versions.outputs.latest }}
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        # The generator preserves the revision for an unchanged version; apply the bumped revision when forcing a republish.
+        $path = 'Source/Singulink.Globalization.Currency.Cldr/Cldr.Version.props'
+        $props = Get-Content $path -Raw
+        $props = $props -replace '<CldrPackageRevision>\d+</CldrPackageRevision>', '<CldrPackageRevision>${{ steps.versions.outputs.revision }}</CldrPackageRevision>'
+        Set-Content $path $props -NoNewline
+
+    - name: Build and test
+      if: steps.versions.outputs.publish == 'True'
+      run: |
+        dotnet build --configuration Release
+        dotnet test --configuration Release --no-build --verbosity normal
+
+    - name: Verify DataProviders package is published
+      if: steps.versions.outputs.publish == 'True'
+      shell: pwsh
+      run: |
+        # The data package depends on the DataProviders package version it was built against, which must already exist on nuget.org.
+        [xml]$proj = Get-Content 'Source/Singulink.Globalization.Currency.DataProviders/Singulink.Globalization.Currency.DataProviders.csproj'
+        $version = $proj.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+        $index = Invoke-RestMethod 'https://api.nuget.org/v3-flatcontainer/singulink.globalization.currency.dataproviders/index.json'
+
+        if ($index.versions -notcontains $version) {
+          Write-Error "Singulink.Globalization.Currency.DataProviders $version is not published on nuget.org. Publish it before syncing CLDR data."
+          exit 1
+        }
+
+    - name: Commit and push
+      if: steps.versions.outputs.publish == 'True'
+      shell: pwsh
+      run: |
+        git config user.name 'github-actions[bot]'
+        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+        git add Source/Singulink.Globalization.Currency.Cldr
+        git commit -m "Update CLDR currency data to ${{ steps.versions.outputs.latest }}"
+        git push
+
+    - name: Pack
+      if: steps.versions.outputs.publish == 'True'
+      run: |
+        dotnet clean --configuration Release
+        dotnet build Source/Singulink.Globalization.Currency.Cldr --configuration Release
+
+    - name: NuGet login
+      if: steps.versions.outputs.publish == 'True'
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: ${{ vars.NUGET_USER }}
+
+    - name: Publish
+      if: steps.versions.outputs.publish == 'True'
+      shell: pwsh
+      run: |
+        $package = Get-ChildItem 'Source/Singulink.Globalization.Currency.Cldr/bin/Release/*.symbols.nupkg' | Select-Object -First 1
+        dotnet nuget push $package.FullName --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

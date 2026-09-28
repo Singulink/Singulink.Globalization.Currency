@@ -8,6 +8,7 @@
         {
           "files": [
             "Singulink.Globalization.Currency/Singulink.Globalization.Currency.csproj",
+            "Singulink.Globalization.Currency.DataProviders/Singulink.Globalization.Currency.DataProviders.csproj",
             "Singulink.Globalization.Currency.Cldr/Singulink.Globalization.Currency.Cldr.csproj"
           ],
           "src": "../Source"
@@ -43,7 +44,9 @@
       {
         "files": [
           "toc.yml",
-          "*.md"
+          "*.md",
+          "articles/toc.yml",
+          "articles/**.md"
         ]
       }
     ],

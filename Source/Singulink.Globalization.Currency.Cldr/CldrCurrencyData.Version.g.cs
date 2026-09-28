@@ -10,4 +10,9 @@ partial class CldrCurrencyData
     /// Gets the version of the Unicode Common Locale Data Repository (CLDR) that the currency data in this package was generated from.
     /// </summary>
     public const string CldrVersion = "48.0.0";
+
+    /// <summary>
+    /// Gets the date that the CLDR version the currency data in this package was generated from was released.
+    /// </summary>
+    public static DateTime CldrReleaseDate { get; } = new DateTime(2025, 10, 29, 0, 0, 0, DateTimeKind.Utc);
 }

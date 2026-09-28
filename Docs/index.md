@@ -9,7 +9,8 @@ This package is part of our **Singulink Libraries** collection. Visit https://gi
 ### Packages
 
 - **Singulink.Globalization.Currency**: The core library. Its default currency registry is built from the globalization data that ships with the runtime.
-- **Singulink.Globalization.Currency.Cldr**: Optional package that provides an up-to-date currency registry built from Unicode CLDR data, including localized names and symbols for every locale, currencies that are not tied to a region, and cash rounding rules. Behaves identically on every runtime and operating system.
+- **Singulink.Globalization.Currency.Cldr**: Optional data package with up-to-date currency data from Unicode CLDR, including localized names and symbols for every locale, currencies that are not tied to a region, and cash rounding rules. Behaves identically on every runtime and operating system. It does not depend on the core library so it can always be updated to the latest CLDR release, and its version mirrors the CLDR version.
+- **Singulink.Globalization.Currency.DataProviders**: The `ICurrencyDataProvider` abstraction that data packages implement. Referenced by the other two packages, so it does not normally need to be referenced directly.
 
 ### Key Features
 

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Singulink.Globalization</RootNamespace>
+    <TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
+
+    <Version>1.0.0</Version>
+    <PackageTags>currency; money; ISO 4217; ISO4217; data provider;</PackageTags>
+    <Description>Data provider abstraction for Singulink.Globalization.Currency. Currency data packages such as Singulink.Globalization.Currency.Cldr implement ICurrencyDataProvider so that they can be updated independently of the main library.</Description>
+    <PackageProjectUrl>https://github.com/Singulink/Singulink.Globalization.Currency</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="PolySharp" Version="1.16.0" PrivateAssets="All" />
+  </ItemGroup>
+</Project>

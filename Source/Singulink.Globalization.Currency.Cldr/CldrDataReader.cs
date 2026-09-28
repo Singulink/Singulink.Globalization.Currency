@@ -4,14 +4,16 @@ using System.Text;
 namespace Singulink.Globalization;
 
 /// <summary>
-/// Reads the embedded binary currency data file. The layout must stay in sync with the writer in Tools/CldrDataGenerator/CldrDataFormat.cs.
+/// Reads the embedded binary currency data into data provider entries. The layout must stay in sync with the writer in
+/// Tools/CldrDataGenerator/CurrencyDataFormat.cs, which documents it. The format is private to this package.
 /// </summary>
 internal static class CldrDataReader
 {
-    private const string Magic = "SLCLDR1";
     private const string ResourceName = "Singulink.Globalization.Currency.Cldr.CurrencyData.bin";
+    private const string Magic = "SLCURDATA";
+    private const int FormatMajorVersion = 1;
 
-    public static CldrData Read()
+    public static (List<CurrencyDataEntry> Currencies, List<CurrencyLocalizationEntry> Localizations) Read()
     {
         using var resource = typeof(CldrDataReader).Assembly.GetManifestResourceStream(ResourceName) ??
             throw new InvalidOperationException($"Embedded resource '{ResourceName}' was not found.");
@@ -22,49 +24,93 @@ internal static class CldrDataReader
         if (reader.ReadString() != Magic)
             throw new InvalidDataException("Embedded CLDR currency data is not in the expected format.");
 
-        string version = reader.ReadString();
+        int formatMajorVersion = Read7BitEncodedInt(reader);
+        _ = Read7BitEncodedInt(reader); // minor version
 
-        if (version != CldrCurrencyData.CldrVersion)
-            throw new InvalidDataException($"Embedded CLDR currency data version '{version}' does not match the expected version '{CldrCurrencyData.CldrVersion}'.");
+        if (formatMajorVersion != FormatMajorVersion)
+            throw new InvalidDataException($"Embedded CLDR currency data uses unsupported format version {formatMajorVersion}.");
+
+        string dataVersion = reader.ReadString();
+
+        if (dataVersion != CldrCurrencyData.CldrVersion)
+            throw new InvalidDataException($"Embedded CLDR currency data version '{dataVersion}' does not match the expected version '{CldrCurrencyData.CldrVersion}'.");
 
         int currencyCount = Read7BitEncodedInt(reader);
-        var currencies = new CldrCurrencyInfo[currencyCount];
+        var codes = new string[currencyCount];
+        var names = new string[currencyCount];
+        var digits = new int[currencyCount];
+        var rounding = new int[currencyCount];
+        var cashDigits = new int[currencyCount];
+        var cashRounding = new int[currencyCount];
+        var types = new CurrencyTypes[currencyCount];
+        var symbols = new string?[currencyCount];
 
         for (int i = 0; i < currencyCount; i++)
         {
-            string code = reader.ReadString();
-            string englishName = reader.ReadString();
-            int digits = reader.ReadByte();
-            int rounding = Read7BitEncodedInt(reader);
-            int cashDigits = reader.ReadByte();
-            int cashRounding = Read7BitEncodedInt(reader);
-            var status = (CldrCurrencyStatus)reader.ReadByte();
+            codes[i] = reader.ReadString();
+            names[i] = reader.ReadString();
+            digits[i] = reader.ReadByte();
+            rounding[i] = Read7BitEncodedInt(reader);
+            cashDigits[i] = reader.ReadByte();
+            cashRounding[i] = Read7BitEncodedInt(reader);
 
-            currencies[i] = new CldrCurrencyInfo(code, englishName, new RoundingPolicy(digits, rounding), new RoundingPolicy(cashDigits, cashRounding), status);
+            types[i] = reader.ReadByte() switch {
+                1 => CurrencyTypes.CurrentTender,
+                2 => CurrencyTypes.CurrentNonTender,
+                3 => CurrencyTypes.Historical,
+                var status => throw new InvalidDataException($"Embedded CLDR currency data has an invalid status '{status}' for currency '{codes[i]}'."),
+            };
         }
 
         int localeCount = Read7BitEncodedInt(reader);
-        var locales = new Dictionary<string, CldrLocaleEntry[]>(localeCount, StringComparer.OrdinalIgnoreCase);
+        var localizations = new List<CurrencyLocalizationEntry>();
 
         for (int i = 0; i < localeCount; i++)
         {
             string locale = reader.ReadString();
             int entryCount = Read7BitEncodedInt(reader);
-            var entries = new CldrLocaleEntry[entryCount];
+            bool isInvariant = locale.Length is 0;
 
             for (int j = 0; j < entryCount; j++)
             {
                 int currencyIndex = Read7BitEncodedInt(reader);
-                var kind = (CldrLocaleEntryKind)reader.ReadByte();
+                byte kind = reader.ReadByte();
                 string value = reader.ReadString();
 
-                entries[j] = new CldrLocaleEntry(currencyIndex, kind, value);
-            }
+                if (currencyIndex < 0 || currencyIndex >= currencyCount)
+                    throw new InvalidDataException($"Embedded CLDR currency data is corrupt (invalid currency index in locale '{locale}').");
 
-            locales.Add(locale, entries);
+                if (isInvariant)
+                {
+                    // Invariant names are already stored with the currency; invariant symbols become the currency entry's symbol.
+                    if (kind is 1)
+                        symbols[currencyIndex] = value;
+                }
+                else
+                {
+                    localizations.Add(new CurrencyLocalizationEntry(locale, codes[currencyIndex]) {
+                        Name = kind is 0 ? value : null,
+                        Symbol = kind is 1 ? value : null,
+                    });
+                }
+            }
         }
 
-        return new CldrData(currencies, locales);
+        var currencies = new List<CurrencyDataEntry>(currencyCount);
+
+        for (int i = 0; i < currencyCount; i++)
+        {
+            currencies.Add(new CurrencyDataEntry(codes[i], names[i]) {
+                Symbol = symbols[i],
+                DecimalDigits = digits[i],
+                DecimalUnits = rounding[i],
+                CashDecimalDigits = cashDigits[i],
+                CashDecimalUnits = cashRounding[i],
+                Type = types[i],
+            });
+        }
+
+        return (currencies, localizations);
     }
 
     private static int Read7BitEncodedInt(BinaryReader reader)
@@ -88,25 +134,4 @@ internal static class CldrDataReader
                 throw new InvalidDataException("Invalid 7-bit encoded integer.");
         }
     }
-}
-
-internal sealed record CldrData(CldrCurrencyInfo[] Currencies, Dictionary<string, CldrLocaleEntry[]> Locales);
-
-internal sealed record CldrCurrencyInfo(string Code, string EnglishName, RoundingPolicy RoundingPolicy, RoundingPolicy CashRoundingPolicy, CldrCurrencyStatus Status);
-
-internal readonly record struct CldrLocaleEntry(int CurrencyIndex, CldrLocaleEntryKind Kind, string Value);
-
-// Values are shared with the generator tool and must stay in sync.
-
-internal enum CldrCurrencyStatus : byte
-{
-    CurrentTender = 1,
-    CurrentNonTender = 2,
-    Historical = 3,
-}
-
-internal enum CldrLocaleEntryKind : byte
-{
-    Name = 0,
-    Symbol = 1,
 }

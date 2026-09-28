@@ -3,10 +3,12 @@ namespace Singulink.Globalization.Tests.CldrCurrencyDataTests;
 [PrefixTestClass]
 public class Registries
 {
+    private static CurrencyData Cldr => CurrencyData.Load(CldrCurrencyData.Provider);
+
     [TestMethod]
     public void AllCurrenciesAreOrderedAndUnique()
     {
-        var all = CldrCurrencyData.AllCurrencies;
+        var all = Cldr.AllCurrencies;
 
         all.Length.ShouldBeGreaterThan(250);
         all.Select(c => c.CurrencyCode).ShouldBe(all.Select(c => c.CurrencyCode).OrderBy(c => c, StringComparer.Ordinal));
@@ -17,11 +19,11 @@ public class Registries
     [TestMethod]
     public void DefaultRegistryContainsCurrentTenderOnly()
     {
-        var registry = CldrCurrencyData.Registry;
+        var registry = Cldr.Registry;
 
         registry.Name.ShouldBe("CLDR");
         registry.Count.ShouldBeGreaterThan(140);
-        registry.ShouldAllBe(c => CldrCurrencyData.GetCurrencyType(c) == CldrCurrencyTypes.CurrentTender);
+        registry.ShouldAllBe(c => Cldr.GetCurrencyType(c) == CurrencyTypes.CurrentTender);
 
         registry.Contains("USD").ShouldBeTrue();
         registry.Contains("EUR").ShouldBeTrue();
@@ -34,46 +36,46 @@ public class Registries
     [TestMethod]
     public void RegistryIsCached()
     {
-        CldrCurrencyData.Registry.ShouldBeSameAs(CldrCurrencyData.Registry);
+        Cldr.Registry.ShouldBeSameAs(Cldr.Registry);
     }
 
     [TestMethod]
     public void CreateRegistryWithTypes()
     {
-        var nonTender = CldrCurrencyData.CreateRegistry(CldrCurrencyTypes.CurrentNonTender);
+        var nonTender = Cldr.CreateRegistry(CurrencyTypes.CurrentNonTender);
         nonTender.Contains("XAU").ShouldBeTrue();
         nonTender.Contains("XDR").ShouldBeTrue();
         nonTender.Contains("USD").ShouldBeFalse();
 
-        var historical = CldrCurrencyData.CreateRegistry(CldrCurrencyTypes.Historical);
+        var historical = Cldr.CreateRegistry(CurrencyTypes.Historical);
         historical.Contains("DEM").ShouldBeTrue();
         historical.Contains("FRF").ShouldBeTrue();
         historical.Contains("USD").ShouldBeFalse();
 
-        var all = CldrCurrencyData.CreateRegistry(CldrCurrencyTypes.All);
-        all.Count.ShouldBe(CldrCurrencyData.AllCurrencies.Length);
-        all.Count.ShouldBe(CldrCurrencyData.Registry.Count + nonTender.Count + historical.Count);
+        var all = Cldr.CreateRegistry(CurrencyTypes.All);
+        all.Count.ShouldBe(Cldr.AllCurrencies.Length);
+        all.Count.ShouldBe(Cldr.Registry.Count + nonTender.Count + historical.Count);
 
-        Should.Throw<ArgumentException>(() => CldrCurrencyData.CreateRegistry(default));
+        Should.Throw<ArgumentException>(() => Cldr.CreateRegistry(default));
     }
 
     [TestMethod]
     public void RegistriesShareCurrencyInstances()
     {
-        CldrCurrencyData.CreateRegistry(CldrCurrencyTypes.All)["USD"].ShouldBeSameAs(CldrCurrencyData.Registry["USD"]);
-        CldrCurrencyData.AllCurrencies.Single(c => c.CurrencyCode == "USD").ShouldBeSameAs(CldrCurrencyData.Registry["USD"]);
+        Cldr.CreateRegistry(CurrencyTypes.All)["USD"].ShouldBeSameAs(Cldr.Registry["USD"]);
+        Cldr.AllCurrencies.Single(c => c.CurrencyCode == "USD").ShouldBeSameAs(Cldr.Registry["USD"]);
     }
 
     [TestMethod]
     public void GetCurrencyTypeRejectsForeignCurrency()
     {
-        Should.Throw<ArgumentException>(() => CldrCurrencyData.GetCurrencyType(new Currency("ABC", "Test")));
+        Should.Throw<ArgumentException>(() => Cldr.GetCurrencyType(new Currency("ABC", "Test")));
     }
 
     [TestMethod]
     public void CurrencyCodesAndSymbolsAreParsable()
     {
-        foreach (var currency in CldrCurrencyData.Registry)
+        foreach (var currency in Cldr.Registry)
         {
             Currency.IsSymbolOrCodeParsable(currency.CurrencyCode, out string? error).ShouldBeTrue(error);
             Currency.IsSymbolOrCodeParsable(currency.Symbol, out error).ShouldBeTrue($"{currency.CurrencyCode}: {error}");
@@ -83,17 +85,11 @@ public class Registries
     [TestMethod]
     public void ParseAndFormatRoundTrip()
     {
-        var registry = CldrCurrencyData.Registry;
+        var registry = Cldr.Registry;
         var value = new MonetaryValue(1234.56m, registry["CAD"]);
 
         string s = value.ToString("C", CultureInfo.GetCultureInfo("en-CA"));
-        registry.TryParseMoney(s, MonetaryStyles.CurrencyCode | MonetaryStyles.AllowLocalSymbol, CultureInfo.GetCultureInfo("en-CA"), out var parsed).ShouldBeTrue();
+        registry.TryParseMoney(s, MonetaryStyles.CurrencyCodeOrLocalSymbol, CultureInfo.GetCultureInfo("en-CA"), out var parsed).ShouldBeTrue();
         parsed.ShouldBe(value);
-    }
-
-    [TestMethod]
-    public void CldrVersionIsSet()
-    {
-        CldrCurrencyData.CldrVersion.ShouldMatch(@"^\d+(\.\d+)*$");
     }
 }

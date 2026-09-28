@@ -4,22 +4,21 @@ using System.Runtime.CompilerServices;
 namespace Singulink.Globalization;
 
 /// <summary>
-/// Localizes currency names and symbols using CLDR data, walking up the locale fallback chain (i.e. <c>fr-CA</c>, then <c>fr</c>, then English) and
-/// falling back to the currency code for symbols that CLDR does not define.
+/// Localizes currency names and symbols using data from a currency data provider, walking up the locale fallback chain (i.e. <c>fr-CA</c>, then <c>fr</c>,
+/// then the invariant locale, which contains English data) and falling back to the currency code for symbols that the data does not define.
 /// </summary>
-internal sealed partial class CldrCurrencyLocalizer : ICurrencyLocalizer
+internal sealed partial class DataCurrencyLocalizer : ICurrencyLocalizer
 {
     private const string InvariantLocale = "";
 
     // Locale name => currency => (name, symbol). Values are null when the locale does not override the parent locale's value.
     private readonly Dictionary<string, Dictionary<Currency, (string? Name, string? Symbol)>> _localeLookup;
 
-    // Culture name => resolved cache. A ConditionalWeakTable keyed on interned culture name strings is not appropriate here since names are not always
-    // interned, so a regular concurrent dictionary keyed by culture name is used instead. Cultures are a small finite set so this does not grow unbounded.
+    // Culture name => resolved cache. Cultures are a small finite set so this does not grow unbounded.
     private readonly ConcurrentDictionary<string, Cache> _cacheLookup = new(StringComparer.OrdinalIgnoreCase);
     private volatile Cache? _lastCache;
 
-    public CldrCurrencyLocalizer(Dictionary<string, Dictionary<Currency, (string? Name, string? Symbol)>> localeLookup)
+    public DataCurrencyLocalizer(Dictionary<string, Dictionary<Currency, (string? Name, string? Symbol)>> localeLookup)
     {
         _localeLookup = localeLookup;
     }

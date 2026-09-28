@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\Singulink.Globalization.Currency\Singulink.Globalization.Currency.csproj" />
     <ProjectReference Include="..\..\Source\Singulink.Globalization.Currency.Cldr\Singulink.Globalization.Currency.Cldr.csproj" />
   </ItemGroup>
 </Project>

@@ -7,10 +7,13 @@
 | --- | --- |
 | **Singulink.Globalization.Currency** | [![View nuget packages](https://img.shields.io/nuget/v/Singulink.Globalization.Currency.svg)](https://www.nuget.org/packages/Singulink.Globalization.Currency/) |
 | **Singulink.Globalization.Currency.Cldr** | [![View nuget packages](https://img.shields.io/nuget/v/Singulink.Globalization.Currency.Cldr.svg)](https://www.nuget.org/packages/Singulink.Globalization.Currency.Cldr/) |
+| **Singulink.Globalization.Currency.DataProviders** | [![View nuget packages](https://img.shields.io/nuget/v/Singulink.Globalization.Currency.DataProviders.svg)](https://www.nuget.org/packages/Singulink.Globalization.Currency.DataProviders/) |
 
 **Singulink.Globalization.Currency** is a .NET library that provides types like `Currency`, `MonetaryValue` and a range of collections and interfaces that make it easy to work with money and currencies in your applications while following best practices. The library is well-documented and follows the same design principles as built-in .NET types and collections. It has been painstakingly tested and optimized to ensure that it is both fast and reliable.
 
-**Singulink.Globalization.Currency.Cldr** is an optional companion package that provides an up-to-date currency registry built from Unicode CLDR data instead of the globalization data that ships with the runtime. It includes localized names and symbols for every locale, currencies that are not tied to a region (such as `XAU` or `XDR`), historical currencies, and cash rounding rules, and it behaves identically on every runtime and operating system.
+**Singulink.Globalization.Currency.Cldr** is an optional data package that provides up-to-date currency data from Unicode CLDR instead of the globalization data that ships with the runtime. It includes localized names and symbols for every locale, currencies that are not tied to a region (such as `XAU` or `XDR`), historical currencies, and cash rounding rules, and it behaves identically on every runtime and operating system. The data package does not depend on the core library, so it can always be updated to the latest CLDR release without changing the core library version, and its version mirrors the CLDR version.
+
+**Singulink.Globalization.Currency.DataProviders** contains the `ICurrencyDataProvider` abstraction that data packages implement. It is referenced by the other two packages and does not normally need to be referenced directly.
 
 ### Key Features
 
@@ -82,7 +85,7 @@ ImmutableSortedMoneyBag snapshot = [new(1m, "CAD"), new(2m, "USD")];
 Every currency has a `RoundingPolicy` describing its decimal digits and any rounding increment. Currencies can also have a `CashRoundingPolicy` for physical cash transactions, which differs from the standard policy for currencies whose smallest coins have been withdrawn:
 
 ```c#
-CldrCurrencyData.RegisterAsDefault(); // At application startup, see below
+CurrencyRegistry.SetDefault(CldrCurrencyData.Provider); // At application startup, see below
 
 var amount = new MonetaryValue(10.03m, "CAD");
 amount.Round();                                       // CAD 10.03
@@ -95,20 +98,23 @@ Cash rounding rules are not part of the globalization data that ships with .NET,
 
 ### CLDR currency data
 
-The `Singulink.Globalization.Currency.Cldr` package embeds currency data from the Unicode Common Locale Data Repository (CLDR). Register it as the default registry once at application startup, before any currencies or monetary values are used:
+The `Singulink.Globalization.Currency.Cldr` package embeds currency data from the Unicode Common Locale Data Repository (CLDR) and exposes it as a data provider. Register it as the default registry once at application startup, before any currencies or monetary values are used:
 
 ```c#
-CldrCurrencyData.RegisterAsDefault();
+CurrencyRegistry.SetDefault(CldrCurrencyData.Provider);
 ```
 
-The default CLDR registry contains currencies that are currently legal tender. Non-tender codes like `XAU` (gold) and historical currencies can be included as well, or used through separate registries:
+The default registry then contains currencies that are currently legal tender. Non-tender codes like `XAU` (gold) and historical currencies can be included as well, or used through separate registries:
 
 ```c#
-CldrCurrencyData.RegisterAsDefault(CldrCurrencyTypes.CurrentTender | CldrCurrencyTypes.CurrentNonTender);
+CurrencyRegistry.SetDefault(CldrCurrencyData.Provider, CurrencyTypes.CurrentTender | CurrencyTypes.CurrentNonTender);
 
-var everything = CldrCurrencyData.CreateRegistry(CldrCurrencyTypes.All);
+var cldr = CurrencyData.Load(CldrCurrencyData.Provider);
+var everything = cldr.CreateRegistry(CurrencyTypes.All);
 var gold = everything["XAU"];
 ```
+
+Any `ICurrencyDataProvider` implementation can be used in place of the CLDR package, for example to load data that the application downloads at runtime. See the [currency data providers](Docs/articles/currency-data-providers.md) article for details.
 
 ### Custom currencies and registries
 
