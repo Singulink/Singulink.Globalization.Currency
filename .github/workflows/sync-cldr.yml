@@ -123,8 +123,9 @@ jobs:
         dotnet clean --configuration Release
         dotnet build Source/Singulink.Globalization.Currency.Cldr --configuration Release
 
+    # Always log in, even when there is nothing to publish, so that a broken trusted publishing setup fails every run instead of only the rare run that
+    # has a new CLDR release to publish. The login only obtains a short-lived API key.
     - name: NuGet login
-      if: steps.versions.outputs.publish == 'True'
       uses: NuGet/login@v1
       id: login
       with:
