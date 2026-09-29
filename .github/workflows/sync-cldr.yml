@@ -47,7 +47,14 @@ jobs:
       id: versions
       shell: pwsh
       run: |
-        $latest = if ('${{ inputs.version }}') { '${{ inputs.version }}' } else { (Invoke-RestMethod 'https://registry.npmjs.org/cldr-core')['dist-tags'].latest }
+        # Note: PSCustomObject properties must be accessed with dot syntax; bracket indexing silently returns nothing.
+        $latest = if ('${{ inputs.version }}') { '${{ inputs.version }}' } else { (Invoke-RestMethod 'https://registry.npmjs.org/cldr-core').'dist-tags'.latest }
+
+        if ($latest -notmatch '^\d+(\.\d+)+$') {
+          Write-Error "Could not determine the latest CLDR version (got '$latest')."
+          exit 1
+        }
+
         $props = Get-Content 'Source/Singulink.Globalization.Currency.Cldr/Cldr.Version.props' -Raw
         $current = [regex]::Match($props, '<CldrVersion>([^<]+)</CldrVersion>').Groups[1].Value
         $revision = [int][regex]::Match($props, '<CldrPackageRevision>(\d+)</CldrPackageRevision>').Groups[1].Value
