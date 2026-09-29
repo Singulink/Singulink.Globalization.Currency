@@ -1,8 +1,9 @@
 name: sync CLDR data
 
-# Checks the npm registry for a new CLDR release every week. When one is found, the currency data is regenerated, built and tested, committed to main,
-# and the Singulink.Globalization.Currency.Cldr package is published to NuGet. The data package depends only on the DataProviders package, so this never
-# publishes or changes the core library.
+# Checks the npm registry for a new CLDR release every week. When one is found, the currency data is regenerated, built and tested, and committed to main.
+# The Singulink.Globalization.Currency.Cldr package is then published to NuGet whenever the committed package version is not on nuget.org yet, so a failed
+# publish is retried simply by re-running the workflow. The data package depends only on the DataProviders package, so this never publishes or changes the
+# core library.
 #
 # Publishing uses NuGet trusted publishing (OIDC), which requires a one-time setup on nuget.org that links the Singulink.Globalization.Currency.Cldr package
 # to this repository and workflow. See https://learn.microsoft.com/nuget/nuget-org/trusted-publishing. The NUGET_USER repository variable must be set to the
@@ -55,16 +56,26 @@ jobs:
 
         $changed = $latest -ne $current
         $force = '${{ inputs.force }}' -eq 'true'
+        $regenerate = $changed -or $force
 
         if ($changed) { $newRevision = 0 } elseif ($force) { $newRevision = $revision + 1 } else { $newRevision = $revision }
 
+        $packageVersion = if ($newRevision -eq 0) { $latest } else { "$latest.$newRevision" }
+
+        # Publish whenever the package version that will be committed (or is already committed) is not on nuget.org, so that a previously failed publish
+        # is retried by re-running the workflow without regenerating anything or bumping the revision.
+        $published = (Invoke-RestMethod 'https://api.nuget.org/v3-flatcontainer/singulink.globalization.currency.cldr/index.json').versions
+        $publish = $regenerate -or ($published -notcontains $packageVersion)
+
+        Write-Host "Package version: $packageVersion (regenerate: $regenerate, publish: $publish)"
+
         "latest=$latest" >> $env:GITHUB_OUTPUT
-        "changed=$changed" >> $env:GITHUB_OUTPUT
-        "publish=$($changed -or $force)" >> $env:GITHUB_OUTPUT
+        "regenerate=$regenerate" >> $env:GITHUB_OUTPUT
+        "publish=$publish" >> $env:GITHUB_OUTPUT
         "revision=$newRevision" >> $env:GITHUB_OUTPUT
 
     - name: Regenerate data
-      if: steps.versions.outputs.publish == 'True'
+      if: steps.versions.outputs.regenerate == 'True'
       shell: pwsh
       run: |
         dotnet run --project Tools/CldrDataGenerator -c Release -- ${{ steps.versions.outputs.latest }}
@@ -97,7 +108,7 @@ jobs:
         }
 
     - name: Commit and push
-      if: steps.versions.outputs.publish == 'True'
+      if: steps.versions.outputs.regenerate == 'True'
       shell: pwsh
       run: |
         git config user.name 'github-actions[bot]'
