@@ -87,6 +87,10 @@ jobs:
         $props = $props -replace '<CldrPackageRevision>\d+</CldrPackageRevision>', '<CldrPackageRevision>${{ steps.versions.outputs.revision }}</CldrPackageRevision>'
         Set-Content $path $props -NoNewline
 
+        Write-Host 'Changed files:'
+        git status --short
+        git diff --stat
+
     - name: Build and test
       if: steps.versions.outputs.publish == 'True'
       run: |
@@ -114,8 +118,14 @@ jobs:
         git config user.name 'github-actions[bot]'
         git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
         git add Source/Singulink.Globalization.Currency.Cldr
+        git status --short
+
+        # Every command must be checked individually: a pwsh step only fails on the exit code of its last command.
         git commit -m "Update CLDR currency data to ${{ steps.versions.outputs.latest }}"
+        if ($LASTEXITCODE -ne 0) { Write-Error 'Nothing was committed. The regenerated data did not change any tracked files.'; exit 1 }
+
         git push
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     - name: Pack
       if: steps.versions.outputs.publish == 'True'
