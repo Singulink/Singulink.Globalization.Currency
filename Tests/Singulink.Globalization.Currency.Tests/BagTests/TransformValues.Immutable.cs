@@ -8,7 +8,7 @@ public static partial class TransformValues
     [PrefixTestClass]
     public class TImmutableSortedMoneyBag : Immutable<ImmutableSortedMoneyBag>;
 
-    public class Immutable<TBag> where TBag : IImmutableMoneyBag
+    public abstract class Immutable<TBag> where TBag : IImmutableMoneyBag
     {
         private static readonly MonetaryValue Usd100 = new(100m, "USD");
         private static readonly MonetaryValue Cad50 = new(50m, "CAD");

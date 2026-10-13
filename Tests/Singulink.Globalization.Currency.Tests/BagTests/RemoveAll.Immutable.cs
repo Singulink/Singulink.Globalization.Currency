@@ -8,7 +8,7 @@ public static partial class RemoveAll
     [PrefixTestClass]
     public class TImmutableSortedMoneyBag : Immutable<ImmutableSortedMoneyBag>;
 
-    public class Immutable<TBag> where TBag : IImmutableMoneyBag
+    public abstract class Immutable<TBag> where TBag : IImmutableMoneyBag
     {
         private static readonly Currency Usd = Currency.GetCurrency("USD");
         private static readonly Currency Cad = Currency.GetCurrency("CAD");

@@ -8,7 +8,7 @@ public static partial class Round
     [PrefixTestClass]
     public class TImmutableSortedMoneyBag : Immutable<ImmutableSortedMoneyBag>;
 
-    public class Immutable<TBag> where TBag : IImmutableMoneyBag
+    public abstract class Immutable<TBag> where TBag : IImmutableMoneyBag
     {
 #pragma warning disable SA1025 // Code should not contain multiple whitespace in a row
         private static readonly IImmutableMoneyBag RoundDownResults = TBag.Create(CurrencyRegistry.Default, [new(10.000m, "USD"), new(6.0m, "JPY")]);

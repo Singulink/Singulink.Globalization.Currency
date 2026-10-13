@@ -8,7 +8,7 @@ public static partial class Round
     [PrefixTestClass]
     public class TSortedMoneyBag : Mutable<SortedMoneyBag>;
 
-    public class Mutable<TBag> where TBag : IMoneyBag
+    public abstract class Mutable<TBag> where TBag : IMoneyBag
     {
 #pragma warning disable SA1025 // Code should not contain multiple whitespace in a row
         private static readonly ImmutableArray<MonetaryValue> RoundDownResults = [new(10.000m, "USD"), new(6.0m, "JPY")];

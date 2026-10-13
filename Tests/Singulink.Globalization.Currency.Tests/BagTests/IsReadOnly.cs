@@ -14,7 +14,7 @@ public static class IsReadOnly
     [PrefixTestClass]
     public class TImmutableSortedMoneyBag : Immutable<ImmutableSortedMoneyBag>;
 
-    public class Mutable<TBag> where TBag : IMoneyBag
+    public abstract class Mutable<TBag> where TBag : IMoneyBag
     {
         [TestMethod]
         public void IsMutableCollection()
@@ -24,7 +24,7 @@ public static class IsReadOnly
         }
     }
 
-    public class Immutable<TBag> where TBag : IImmutableMoneyBag
+    public abstract class Immutable<TBag> where TBag : IImmutableMoneyBag
     {
         [TestMethod]
         public void IsReadOnlyCollection()

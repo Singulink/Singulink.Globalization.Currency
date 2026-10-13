@@ -1,6 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="MSTest.Sdk/4.5.1">
   <PropertyGroup>
     <TargetFramework>net481</TargetFramework>
+    <RootNamespace>Singulink.Globalization.Tests</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
 
     <IsPackable>false</IsPackable>

@@ -14,7 +14,7 @@ public static class TryGetValue
     [PrefixTestClass]
     public class TImmutableSortedMoneyBag : Tests<ImmutableSortedMoneyBag>;
 
-    public class Tests<TBag> where TBag : IReadOnlyMoneyBag
+    public abstract class Tests<TBag> where TBag : IReadOnlyMoneyBag
     {
         private static readonly MonetaryValue Usd100 = new(100m, "USD");
         private static readonly MonetaryValue Cad50 = new(50m, "CAD");

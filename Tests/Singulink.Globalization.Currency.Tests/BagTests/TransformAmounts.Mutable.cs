@@ -8,7 +8,7 @@ public static partial class TransformAmounts
     [PrefixTestClass]
     public class TSortedMoneyBag : Mutable<SortedMoneyBag>;
 
-    public class Mutable<TBag> where TBag : IMoneyBag
+    public abstract class Mutable<TBag> where TBag : IMoneyBag
     {
         private static readonly MonetaryValue Usd100 = new(100m, "USD");
         private static readonly MonetaryValue Cad50 = new(50m, "CAD");

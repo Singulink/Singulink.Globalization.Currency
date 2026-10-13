@@ -16,7 +16,7 @@ public static class ToString
     [PrefixTestClass]
     public class TImmutableSortedMoneyBag : Tests<ImmutableSortedMoneyBag>;
 
-    public class Tests<TBag> where TBag : IReadOnlyMoneyBag
+    public abstract class Tests<TBag> where TBag : IReadOnlyMoneyBag
     {
         private const char Sp = '\u00A0'; // The space char that ToString uses (non-breaking space)
 
