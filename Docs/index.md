@@ -41,10 +41,9 @@ End-of-life runtime versions that are no longer officially supported are not tes
 
 Here are some additional links to get you started:
 
-- [Getting Started](articles/guides/getting-started.md) - Visit here first for a quick walkthrough of the core types.
-- [Guides](articles/guides/toc.yml) - In-depth articles on currencies, values, rounding, formatting, parsing, money bags and data providers.
-- [Concepts](articles/concepts/toc.yml) - How currency identity and localization work under the hood.
-- [API Documentation](api/Singulink.Globalization.Currency.yml) - Browse the fully documented API here.
+- [Getting Started](articles/guides/getting-started.md) - Visit here first for a quick walkthrough of the core types. It opens the guides: in-depth articles on currencies, values, rounding, formatting, parsing, money bags and data providers, listed in the sidebar.
+- [Concepts](articles/concepts/currency-identity.md) - How currency identity and localization work under the hood, starting with currency identity.
+- [API Documentation](api/Singulink.Globalization.yml) - Browse the fully documented API here.
 - [Chat on Discord](https://discord.gg/EkQhJFsBu6) - Have questions or want to discuss the library? This is the place for all Singulink project discussions.
 - [GitHub Repo](https://github.com/Singulink/Singulink.Globalization.Currency) - File issues, contribute pull requests or check out the code for yourself!
 
