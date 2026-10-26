@@ -27,11 +27,13 @@ internal static class CldrCurrencyDataBuilder
         var fractions = supplemental.GetProperty("fractions");
         var defaultFraction = ReadFraction(fractions.GetProperty("DEFAULT"), null);
 
-        // Currencies: every currency that has an English display name, ordered by code.
+        // Currencies: every currency that has an English display name or is used by a region in the supplemental data, ordered by code. Newly added
+        // currencies can be missing an English name (e.g. XAD in CLDR 49), in which case the currency code is used as the name, matching CLDR's fallback
+        // for missing display names.
 
         var currencies = new List<CldrCurrency>();
 
-        foreach (string code in english.Keys.Order(StringComparer.Ordinal))
+        foreach (string code in english.Keys.Union(statuses.Keys, StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
             if (code.Length is not 3 || !code.All(c => c is >= 'A' and <= 'Z'))
                 throw new InvalidOperationException($"Unexpected currency code '{code}' in CLDR data.");
@@ -41,7 +43,13 @@ internal static class CldrCurrencyDataBuilder
             if (!statuses.TryGetValue(code, out var status))
                 status = CldrCurrencyStatus.Historical;
 
-            currencies.Add(new CldrCurrency(code, english[code].Name!, fraction, status));
+            if (!english.TryGetValue(code, out var englishValues) || englishValues.Name is not { } name)
+            {
+                WriteWarning($"Currency '{code}' has no English name in CLDR data. The currency code is used as its name.");
+                name = code;
+            }
+
+            currencies.Add(new CldrCurrency(code, name, fraction, status));
         }
 
         var currencyIndexes = currencies.Select((c, i) => (c.Code, Index: i)).ToDictionary(x => x.Code, x => x.Index, StringComparer.Ordinal);
@@ -72,7 +80,7 @@ internal static class CldrCurrencyDataBuilder
             foreach (var (code, values) in resolved[locale])
             {
                 if (!currencyIndexes.TryGetValue(code, out int index))
-                    throw new InvalidOperationException($"Locale '{locale}' has currency '{code}' which is not in the English locale.");
+                    throw new InvalidOperationException($"Locale '{locale}' has currency '{code}' which is not in the English locale or supplemental data.");
 
                 if (values.Name is not null && values.Name != Resolve(parent, code, static v => v.Name))
                     entries.Add(new CldrLocaleEntry(index, CldrLocaleEntryKind.Name, values.Name));
@@ -103,6 +111,13 @@ internal static class CldrCurrencyDataBuilder
 
             return null;
         }
+    }
+
+    private static void WriteWarning(string message)
+    {
+        // Workflow commands surface the warning as an annotation on the run summary when running in GitHub Actions.
+        bool isGitHubActions = Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
+        Console.WriteLine(isGitHubActions ? $"::warning::{message}" : $"Warning: {message}");
     }
 
     private static string GetParentLocale(string locale)
