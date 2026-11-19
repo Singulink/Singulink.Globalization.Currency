@@ -95,6 +95,10 @@ bag.TransformValues(value => value.Amount > 0 ? value.Amount : null); // drop no
 
 A bag formats as a comma-separated list of its values. It takes the same format strings as <xref:Singulink.Globalization.MonetaryValue>, plus an optional `!` prefix that omits zero amounts. See [Formatting](formatting.md).
 
+## JSON
+
+All four bag types serialize with System.Text.Json as arrays of monetary values, with no setup; see [Money Bags in JSON](storing-values.md#money-bags-in-json).
+
 ## Next Steps
 
 Continue with these related articles:

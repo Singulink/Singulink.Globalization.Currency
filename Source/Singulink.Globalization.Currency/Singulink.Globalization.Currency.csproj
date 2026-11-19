@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0;net8.0;net8.0-windows10.0.19041;net9.0;net9.0-windows10.0.19041;net10.0;net10.0-windows10.0.19041</TargetFrameworks>
     <NoWarn>CA1034</NoWarn>
 
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <PackageTags>currency; money; wallet; NodaMoney; JodaMoney; ISO 4217; ISO4217;</PackageTags>
     <Description>High-performance and flexible currency support for .NET, done right 🎉</Description>
     <PackageProjectUrl>https://github.com/Singulink/Singulink.Globalization.Currency</PackageProjectUrl>

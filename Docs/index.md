@@ -19,7 +19,7 @@ This package is part of our **Singulink Libraries** collection. Visit https://gi
 ✔️ Wide range of string formatting options for every scenario (including `ISpanFormattable` support)  
 ✔️ Culture-aware parsing of currency codes and symbols  
 ✔️ Four types of money bag collections for working with multiple currencies at once  
-✔️ [JSON serialization](articles/guides/storing-values.md) of monetary values and currencies with System.Text.Json, with no setup and native AOT support  
+✔️ [JSON serialization](articles/guides/storing-values.md) of monetary values, currencies and money bags with System.Text.Json, with no setup and native AOT support  
 ✔️ Collection expression/literal syntax support  
 ✔️ Builds currency data from built-in system globalization data, or from embedded Unicode CLDR data with the optional CLDR package  
 ✔️ Support for custom currencies, registries and data providers, such as for cryptocurrencies  

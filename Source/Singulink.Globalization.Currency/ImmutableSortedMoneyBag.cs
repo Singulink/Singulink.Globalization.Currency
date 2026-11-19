@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace Singulink.Globalization;
 
@@ -18,6 +19,7 @@ namespace Singulink.Globalization;
 /// </remarks>
 [CollectionBuilder(typeof(ImmutableSortedMoneyBag), nameof(Create))]
 [DebuggerDisplay("Count = {Count}")]
+[JsonConverter(typeof(MoneyBagJsonConverterFactory))]
 public sealed partial class ImmutableSortedMoneyBag : IImmutableMoneyBag
 {
     private static readonly ImmutableSortedDictionary<Currency, decimal> EmptyLookup = ImmutableSortedDictionary.Create<Currency, decimal>(CurrencyByCodeComparer.Default);

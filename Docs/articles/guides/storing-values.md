@@ -2,7 +2,7 @@
 
 # Storing Monetary Values
 
-Store a monetary value as its amount and its currency code, never as formatted text. For JSON, the library's System.Text.Json converters do this with no setup. For a database, store two columns and rebuild the value when you read it back.
+Store a monetary value as its amount and its currency code, never as formatted text. For JSON, the library's System.Text.Json converters do this with no setup, for single values and for money bags. For a database, store two columns and rebuild the value when you read it back.
 
 ## JSON
 
@@ -86,6 +86,77 @@ JsonSerializer.Deserialize<Product>("""{"Name":"Old stock","Price":{"amount":10,
 ```
 
 `DEM` is in the CLDR data only when historical currencies are included; [CLDR Currency Data](cldr-data.md#registering-the-data) shows how to include them in the default registry. If the data may hold codes that no registry of yours has, catch <xref:System.Text.Json.JsonException> where you read it.
+
+## Money Bags in JSON
+
+All four [money bag](money-bags.md) types serialize as arrays of monetary values, with no options to set:
+
+```csharp
+public record Account(string Name, SortedMoneyBag Balance);
+
+var account = new Account("Travel", [new(120m, "USD"), new(80.50m, "EUR")]);
+
+string json = JsonSerializer.Serialize(account);
+// {"Name":"Travel","Balance":[{"amount":80.50,"currency":"EUR"},{"amount":120,"currency":"USD"}]}
+
+var restored = JsonSerializer.Deserialize<Account>(json);    // a bag bound to the default registry
+```
+
+Each bag type carries a <xref:System.Text.Json.Serialization.JsonConverterAttribute> for <xref:Singulink.Globalization.MoneyBagJsonConverterFactory>. Its entries look exactly like single monetary values and follow the same naming policy and case rules.
+
+#### Reading Bags Into Your Own Registry
+
+Register the bag factory with the same registry as the value converters:
+
+```csharp
+var options = new JsonSerializerOptions {
+    Converters = {
+        new MonetaryValueJsonConverter(registry),    // single monetary values
+        new CurrencyJsonConverter(registry),         // currencies, as values and as dictionary keys
+        new MoneyBagJsonConverterFactory(registry),  // money bags and the values in them
+    },
+};
+
+var restored = JsonSerializer.Deserialize<Account>(json, options);
+
+restored.Balance.Registry == registry;               // true
+restored.Balance["USD"].Currency == registry["USD"]; // true
+```
+
+Both are needed because a bag reads its values with its own registry, not with the value converter in the options. That keeps a bag and its values in one registry. In a mixed setup, bags follow the factory: with only a value converter registered, bags still read into the default registry.
+
+#### What a Bag Looks Like
+
+| Bag | JSON |
+| --- | --- |
+| A bag with two values | `[{"amount":80.50,"currency":"EUR"},{"amount":120,"currency":"USD"}]` |
+| An empty bag | `[]` |
+| A `null` bag | `null` |
+
+Values are written in the bag's own order, so sorted bags are written sorted by currency code. A value with a zero amount is written and read like any other, since a bag keeps a currency at zero until it is removed.
+
+When an array lists a currency more than once, the amounts are added, as they are when a bag is created from a list of values:
+
+```text
+[{"amount":10,"currency":"USD"},{"amount":5,"currency":"USD"},{"amount":2,"currency":"EUR"}]    reads as EUR 2.00, USD 15.00
+[{"amount":10,"currency":"USD"},null]                                                           JsonException: a null element
+{"amount":10,"currency":"USD"}                                                                  JsonException: not an array
+[{"amount":10,"currency":"XAU"}]                                                                JsonException: a code the registry does not have
+```
+
+An element that is not a valid monetary value throws the same <xref:System.Text.Json.JsonException> as a single value does.
+
+#### Bag Interfaces
+
+Declare bag properties with a concrete bag type. The bag interfaces have static abstract members, so no converter can be declared for them:
+
+| Property type | Writes | Reads |
+| --- | --- | --- |
+| <xref:Singulink.Globalization.MoneyBag>, <xref:Singulink.Globalization.SortedMoneyBag>, <xref:Singulink.Globalization.ImmutableMoneyBag>, <xref:Singulink.Globalization.ImmutableSortedMoneyBag> | Yes | Yes |
+| <xref:Singulink.Globalization.IReadOnlyMoneyBag>, <xref:Singulink.Globalization.IMoneyBag>, <xref:Singulink.Globalization.IImmutableMoneyBag> | Yes, as an array | No: <xref:System.NotSupportedException> |
+
+> [!CAUTION]
+> A source-generated <xref:System.Text.Json.Serialization.JsonSerializerContext> that includes a property of a bag interface type does not compile (error CS8920), because the generated code uses the interface as a type argument.
 
 ## Database Columns
 

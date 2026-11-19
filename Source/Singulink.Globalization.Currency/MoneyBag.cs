@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace Singulink.Globalization;
 
@@ -15,6 +16,7 @@ namespace Singulink.Globalization;
 /// are ignored when being added to or subtracted from a bag.</para>
 /// </remarks>
 [DebuggerDisplay("Count = {Count}")]
+[JsonConverter(typeof(MoneyBagJsonConverterFactory))]
 public sealed partial class MoneyBag : IMoneyBag
 {
     private readonly CurrencyRegistry _registry;

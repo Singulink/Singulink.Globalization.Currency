@@ -67,9 +67,12 @@ The library looked the code up in the default registry, or in the money bag's ow
 ```csharp
 JsonSerializer.Deserialize<MonetaryValue>("""{"amount":10,"currency":"XAU"}""");
 // JsonException: "Currency code 'XAU' was not found in the 'System' currency registry."
+
+JsonSerializer.Deserialize<SortedMoneyBag>("""[{"amount":10,"currency":"XAU"}]""");
+// the same, for a value in a money bag
 ```
 
-The JSON converters look codes up in their registry: <xref:Singulink.Globalization.CurrencyRegistry.Default> unless you added a <xref:Singulink.Globalization.MonetaryValueJsonConverter> or <xref:Singulink.Globalization.CurrencyJsonConverter> for another registry to the options. The exception's <xref:System.Text.Json.JsonException.Path> says which value it was. Read with the registry that has the code, include the currency in the default registry as in the table above, or catch the exception if the data may hold codes that you do not support. See [Codes the Registry Does Not Have](storing-values.md#codes-the-registry-does-not-have).
+The JSON converters look codes up in their registry: <xref:Singulink.Globalization.CurrencyRegistry.Default> unless you added a <xref:Singulink.Globalization.MonetaryValueJsonConverter>, <xref:Singulink.Globalization.CurrencyJsonConverter> or <xref:Singulink.Globalization.MoneyBagJsonConverterFactory> for another registry to the options. Money bags use the factory's registry, not the value converter's. The exception's <xref:System.Text.Json.JsonException.Path> says which value or bag it was. Read with the registry that has the code, include the currency in the default registry as in the table above, or catch the exception if the data may hold codes that you do not support. See [Codes the Registry Does Not Have](storing-values.md#codes-the-registry-does-not-have) and [Money Bags in JSON](storing-values.md#money-bags-in-json).
 
 ## Text That Does Not Parse
 
