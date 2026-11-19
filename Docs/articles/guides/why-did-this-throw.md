@@ -62,6 +62,15 @@ The library looked the code up in the default registry, or in the money bag's ow
 | The system data does not have the currency | Use the [CLDR package](cldr-data.md) or a [custom currency](currencies-and-registries.md#custom-currencies) |
 | A money bag is bound to a smaller registry | Add only currencies of that registry; see [Custom Registries](currencies-and-registries.md#custom-registries) |
 
+## Currency Code Not Found in JSON
+
+```csharp
+JsonSerializer.Deserialize<MonetaryValue>("""{"amount":10,"currency":"XAU"}""");
+// JsonException: "Currency code 'XAU' was not found in the 'System' currency registry."
+```
+
+The JSON converters look codes up in their registry: <xref:Singulink.Globalization.CurrencyRegistry.Default> unless you added a <xref:Singulink.Globalization.MonetaryValueJsonConverter> or <xref:Singulink.Globalization.CurrencyJsonConverter> for another registry to the options. The exception's <xref:System.Text.Json.JsonException.Path> says which value it was. Read with the registry that has the code, include the currency in the default registry as in the table above, or catch the exception if the data may hold codes that you do not support. See [Codes the Registry Does Not Have](storing-values.md#codes-the-registry-does-not-have).
+
 ## Text That Does Not Parse
 
 ```csharp

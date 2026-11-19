@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace Singulink.Globalization;
 
@@ -6,6 +7,7 @@ namespace Singulink.Globalization;
 /// Provides information about a currency, such as the currency code, localized names, symbol and rounding rules.
 /// </summary>
 [DebuggerDisplay("{CurrencyCode,nq}")]
+[JsonConverter(typeof(CurrencyJsonConverter))]
 public partial class Currency : IFormattable
 {
     private readonly ICurrencyLocalizer _localizer;

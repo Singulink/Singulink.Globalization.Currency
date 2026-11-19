@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace Singulink.Globalization;
 
@@ -7,6 +8,7 @@ namespace Singulink.Globalization;
 /// Represents a monetary amount in a specific currency.
 /// </summary>
 [DebuggerDisplay("{ToString(),nq}")]
+[JsonConverter(typeof(MonetaryValueJsonConverter))]
 public readonly partial struct MonetaryValue : IComparable<MonetaryValue>, IEquatable<MonetaryValue>
 {
     /// <summary>

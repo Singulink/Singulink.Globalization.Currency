@@ -19,11 +19,23 @@
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\AbsMinMax.cs" Link="MonetaryValueTests\AbsMinMax.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\RoundingPolicyTests\RoundAmount.cs" Link="RoundingPolicyTests\RoundAmount.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\CurrencyTests\RoundingPolicies.cs" Link="CurrencyTests\RoundingPolicies.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\Common.cs" Link="Common.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueJsonConverterTests\RoundTrip.cs" Link="MonetaryValueJsonConverterTests\RoundTrip.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueJsonConverterTests\Read.cs" Link="MonetaryValueJsonConverterTests\Read.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueJsonConverterTests\Registries.cs" Link="MonetaryValueJsonConverterTests\Registries.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueJsonConverterTests\PropertyNames.cs" Link="MonetaryValueJsonConverterTests\PropertyNames.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueJsonConverterTests\SourceGeneration.cs" Link="MonetaryValueJsonConverterTests\SourceGeneration.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\CurrencyJsonConverterTests\ReadWrite.cs" Link="CurrencyJsonConverterTests\ReadWrite.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\CurrencyJsonConverterTests\DictionaryKeys.cs" Link="CurrencyJsonConverterTests\DictionaryKeys.cs" />
     <!-- RegisterAsDefault tests are excluded since they replace the process-wide default registry that the other tests depend on. -->
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\Registries.cs" Link="CldrCurrencyDataTests\Registries.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\RoundingPolicies.cs" Link="CldrCurrencyDataTests\RoundingPolicies.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\Localization.cs" Link="CldrCurrencyDataTests\Localization.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\DataProvider.cs" Link="CldrCurrencyDataTests\DataProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Referenced directly so that its source generator runs for the JSON source generation tests. -->
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Singulink.Globalization.Currency\Singulink.Globalization.Currency.csproj" />

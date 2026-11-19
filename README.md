@@ -19,6 +19,7 @@
 
 ✔️ Wide range of string formatting options for every scenario (including `ISpanFormattable` support)  
 ✔️ Four types of money bag collections for working with multiple currencies at once  
+✔️ [JSON serialization](https://www.singulink.com/Docs/Singulink.Globalization.Currency/articles/guides/storing-values.html) of monetary values and currencies with System.Text.Json, with no setup and native AOT support  
 ✔️ Collection expression/literal syntax support  
 ✔️ Builds currency data from built-in system globalization data, or from embedded Unicode CLDR data with the optional CLDR package  
 ✔️ Standard and cash rounding rules for every currency (cash rounding requires the CLDR package)  
