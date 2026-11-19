@@ -120,14 +120,9 @@ partial class CurrencyRegistry
             {
                 Debug.Assert(currencyIndicator.Trim().Length == currencyIndicator.Length, "Currency indicator should not contain leading/trailing whitespace.");
 
-                var localSymbolError = LocalCurrencySymbolError.None;
                 var codeError = CurrencyCodeError.None;
+                var localSymbolError = LocalCurrencySymbolError.None;
                 var unambiguousSymbolError = UnambiguousCurrencySymbolError.None;
-
-                // Local
-
-                if (allowLocalSymbol && TryParseLocalSymbol(currencyIndicator, out currency, out localSymbolError))
-                    goto Success;
 
 #if NET9_0_OR_GREATER
                 var currencyIndicatorLookupValue = currencyIndicator;
@@ -135,9 +130,20 @@ partial class CurrencyRegistry
                 string currencyIndicatorLookupValue = currencyIndicator.ToString();
 #endif
 
-                // Currency Code
+                // A registry that cannot parse the culture's symbols throws whenever local symbols are allowed, even if the indicator is a currency code.
+
+                if (allowLocalSymbol)
+                    EnsureSymbolsParsable();
+
+                // Currency Code: tried first because codes are unique in the registry and do not depend on the culture, so text written with a code always
+                // reads back as the same currency.
 
                 if (allowCurrencyCode && TryParseCurrencyCode(currencyIndicatorLookupValue, out currency, out codeError))
+                    goto Success;
+
+                // Local
+
+                if (allowLocalSymbol && TryParseLocalSymbol(currencyIndicator, out currency, out localSymbolError))
                     goto Success;
 
                 // Unambiguous Symbols
@@ -156,11 +162,11 @@ partial class CurrencyRegistry
 
                 List<string> errors = [];
 
-                if (localSymbolError is not LocalCurrencySymbolError.None)
-                    errors.Add($"Local currency symbol: {localSymbolError}");
-
                 if (codeError is not CurrencyCodeError.None)
                     errors.Add($"Currency code: {codeError}");
+
+                if (localSymbolError is not LocalCurrencySymbolError.None)
+                    errors.Add($"Local currency symbol: {localSymbolError}");
 
                 if (unambiguousSymbolError is not UnambiguousCurrencySymbolError.None)
                     errors.Add($"Unambiguous currency symbol: {unambiguousSymbolError}");
@@ -452,7 +458,7 @@ partial class CurrencyRegistry
 #endif
         }
 
-        bool TryParseLocalSymbol(ReadOnlySpan<char> currencyIndicator, [MaybeNullWhen(false)] out Currency currency, out LocalCurrencySymbolError error)
+        void EnsureSymbolsParsable()
         {
             var (_, parseError) = GetOrBuildCurrenciesBySymbolLookup(culture);
 
@@ -463,6 +469,11 @@ partial class CurrencyRegistry
 
                 throw new InvalidOperationException(message);
             }
+        }
+
+        bool TryParseLocalSymbol(ReadOnlySpan<char> currencyIndicator, [MaybeNullWhen(false)] out Currency currency, out LocalCurrencySymbolError error)
+        {
+            // The caller has already checked that the culture's symbols can be parsed.
 
             if (currencyIndicatorIsSymbol is false)
             {

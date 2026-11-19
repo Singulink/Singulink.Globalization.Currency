@@ -55,7 +55,7 @@ MonetaryValue.Parse("$5", MonetaryStyles.UnambiguousSymbols, enUS);  // throws F
 
 Composite values bundle each currency flag with all the number flags: <xref:Singulink.Globalization.MonetaryStyles.CurrencyCode> (the default), <xref:Singulink.Globalization.MonetaryStyles.LocalSymbol>, <xref:Singulink.Globalization.MonetaryStyles.UnambiguousSymbols>, and combinations such as <xref:Singulink.Globalization.MonetaryStyles.CurrencyCodeOrLocalSymbol> and <xref:Singulink.Globalization.MonetaryStyles.Any>.
 
-When several currency flags are set, the text is matched as a code first, then as the local symbol, then as an unambiguous symbol. This order means `USD` always parses as US dollars even in a culture whose local symbol happens to look like a code.
+When several currency flags are set, the text is matched as a code first, then as the local symbol, then as an unambiguous symbol. A code is unique in the registry and does not depend on the culture, so `USD` always parses as US dollars, even in a culture whose local symbol is spelled like a code, and text written with the default format reads back as the same currency in every culture.
 
 > [!TIP]
 > For user input, <xref:Singulink.Globalization.MonetaryStyles.Any> with the user's culture gives the most forgiving behavior. For machine-generated data, stick to <xref:Singulink.Globalization.MonetaryStyles.CurrencyCode> and a fixed culture.
