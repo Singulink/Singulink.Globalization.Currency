@@ -459,7 +459,7 @@ partial class CurrencyRegistry
             if (parseError is not null)
             {
                 string message = $"This currency registry cannot parse currency symbols for culture '{culture.Name}' because one of the symbols violates the " +
-                    "following requirement: " + _parseCurrencyCodesError;
+                    "following requirement: " + parseError;
 
                 throw new InvalidOperationException(message);
             }
@@ -527,7 +527,7 @@ partial class CurrencyRegistry
             if (parseError is not null)
             {
                 string message = $"This currency registry cannot parse currency symbols for culture '{culture.Name}' because one of the symbols violates the " +
-                    "following requirement: " + _parseCurrencyCodesError;
+                    "following requirement: " + parseError;
 
                 throw new InvalidOperationException(message);
             }
