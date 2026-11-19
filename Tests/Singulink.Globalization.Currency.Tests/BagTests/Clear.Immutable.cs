@@ -8,7 +8,7 @@ public static partial class Clear
     [PrefixTestClass]
     public class TImmutableSortedMoneyBag : Immutable<ImmutableSortedMoneyBag>;
 
-    public abstract class Immutable<TBag> where TBag : IImmutableMoneyBag
+    public abstract class Immutable<TBag> where TBag : IImmutableMoneyBag, IMoneyBagFactory<TBag>
     {
         private static readonly IImmutableMoneyBag Bag = TBag.Create(CurrencyRegistry.Default, [new(100m, "USD"), new(50m, "CAD"), new(25m, "EUR")]);
 

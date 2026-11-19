@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using Singulink.Globalization.CompilerServices;
 
 namespace Singulink.Globalization;
@@ -7,18 +8,9 @@ namespace Singulink.Globalization;
 /// Represents a read-only bag of monetary values in one or more currencies.
 /// </summary>
 [CollectionBuilder(typeof(MoneyBagBuilder), nameof(MoneyBagBuilder.Create))]
+[JsonConverter(typeof(MoneyBagJsonConverterFactory))]
 public interface IReadOnlyMoneyBag : IReadOnlyCollection<MonetaryValue>, IFormattable
 {
-#if NET
-    /// <summary>
-    /// Creates a bag that uses the specified currency registry and adds all the specified values.
-    /// </summary>
-    /// <exception cref="ArgumentException">
-    /// Attempted to add a value with a currency that is not available in the currency registry.
-    /// </exception>
-    public static abstract IReadOnlyMoneyBag Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values);
-#endif
-
     /// <summary>
     /// Gets the value this bag contains with the specified currency code. Returns the default monetary value if it does not contain the currency.
     /// </summary>

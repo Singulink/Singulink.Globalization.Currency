@@ -29,6 +29,7 @@
     <Compile Include="..\Singulink.Globalization.Currency.Tests\CurrencyJsonConverterTests\DictionaryKeys.cs" Link="CurrencyJsonConverterTests\DictionaryKeys.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyBagJsonConverterFactoryTests\Bags.cs" Link="MoneyBagJsonConverterFactoryTests\Bags.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyBagJsonConverterFactoryTests\Factory.cs" Link="MoneyBagJsonConverterFactoryTests\Factory.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\BagTests\InterfaceTypeArguments.cs" Link="BagTests\InterfaceTypeArguments.cs" />
     <!-- RegisterAsDefault tests are excluded since they replace the process-wide default registry that the other tests depend on. -->
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\Registries.cs" Link="CldrCurrencyDataTests\Registries.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\RoundingPolicies.cs" Link="CldrCurrencyDataTests\RoundingPolicies.cs" />

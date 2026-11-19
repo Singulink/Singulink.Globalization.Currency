@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace Singulink.Globalization;
 
@@ -6,18 +7,9 @@ namespace Singulink.Globalization;
 /// Represents an immutable bag of monetary values in one or more currencies.
 /// </summary>
 [CollectionBuilder(typeof(ImmutableMoneyBag), nameof(ImmutableMoneyBag.Create))]
+[JsonConverter(typeof(MoneyBagJsonConverterFactory))]
 public interface IImmutableMoneyBag : ICollection<MonetaryValue>, IReadOnlyMoneyBag
 {
-#if NET
-    /// <summary>
-    /// Creates a bag that uses the specified currency registry and adds all the specified values.
-    /// </summary>
-    /// <exception cref="ArgumentException">
-    /// Attempted to add a value with a currency that is not available in the currency registry.
-    /// </exception>
-    public static abstract new IImmutableMoneyBag Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values);
-#endif
-
     /// <summary>
     /// Gets the number of values in this bag.
     /// </summary>

@@ -8,7 +8,7 @@ public static partial class Subtract
     [PrefixTestClass]
     public class TImmutableSortedMoneyBag : Immutable<ImmutableSortedMoneyBag>;
 
-    public abstract class Immutable<TBag> where TBag : IImmutableMoneyBag
+    public abstract class Immutable<TBag> where TBag : IImmutableMoneyBag, IMoneyBagFactory<TBag>
     {
         private static readonly MonetaryValue Usd100 = new(100m, "USD");
         private static readonly MonetaryValue Cad50 = new(50m, "CAD");

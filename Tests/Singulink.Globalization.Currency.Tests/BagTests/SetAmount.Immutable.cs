@@ -8,7 +8,7 @@ public static partial class SetAmount
     [PrefixTestClass]
     public class TImmutableSortedMoneyBag : Immutable<ImmutableSortedMoneyBag>;
 
-    public abstract class Immutable<TBag> where TBag : IImmutableMoneyBag
+    public abstract class Immutable<TBag> where TBag : IImmutableMoneyBag, IMoneyBagFactory<TBag>
     {
         private static readonly Currency Usd = Currency.GetCurrency("USD");
         private static readonly Currency Aud = Currency.GetCurrency("AUD");

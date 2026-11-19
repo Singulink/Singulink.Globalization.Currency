@@ -29,6 +29,32 @@ public static class Bags
             => ImmutableSortedMoneyBag.CreateRange(registry, values);
     }
 
+    // The interfaces are read as the bag types that a collection expression of the interface type creates.
+
+    [PrefixTestClass]
+    public class TIReadOnlyMoneyBag : Tests<IReadOnlyMoneyBag>
+    {
+        protected override Type ReadType => typeof(MoneyBag);
+
+        protected override IReadOnlyMoneyBag Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values) => new MoneyBag(registry, values);
+    }
+
+    [PrefixTestClass]
+    public class TIMoneyBag : Tests<IMoneyBag>
+    {
+        protected override Type ReadType => typeof(MoneyBag);
+
+        protected override IMoneyBag Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values) => new MoneyBag(registry, values);
+    }
+
+    [PrefixTestClass]
+    public class TIImmutableMoneyBag : Tests<IImmutableMoneyBag>
+    {
+        protected override Type ReadType => typeof(ImmutableMoneyBag);
+
+        protected override IImmutableMoneyBag Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values) => ImmutableMoneyBag.CreateRange(registry, values);
+    }
+
     public abstract class Tests<TBag> where TBag : class, IReadOnlyMoneyBag
     {
         private const string Json = """[{"amount":12.34,"currency":"USD"},{"amount":5,"currency":"EUR"}]""";
@@ -39,6 +65,8 @@ public static class Bags
         private static readonly CurrencyRegistry TestRegistry = new("Test", [TestUsd, TestEur]);
 
         private static readonly JsonSerializerOptions TestRegistryOptions = new() { Converters = { new MoneyBagJsonConverterFactory(TestRegistry) } };
+
+        protected virtual Type ReadType => typeof(TBag);
 
         protected abstract TBag Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values);
 
@@ -52,7 +80,7 @@ public static class Bags
             string json = JsonSerializer.Serialize(bag);
             var result = JsonSerializer.Deserialize<TBag>(json)!;
 
-            result.ShouldBeOfType<TBag>();
+            result.GetType().ShouldBe(ReadType);
             result.Registry.ShouldBeSameAs(CurrencyRegistry.Default);
             result.ShouldBe(bag, ignoreOrder: true);
             JsonSerializer.Serialize(result).ShouldBe(json);

@@ -34,6 +34,22 @@ Every bag is bound to a <xref:Singulink.Globalization.CurrencyRegistry>, which i
 
 The <xref:Singulink.Globalization.MoneyCollectionExtensions> methods such as <xref:Singulink.Globalization.MoneyCollectionExtensions.ToImmutableMoneyBag*> convert between bag types and from any sequence of values.
 
+### Creating bags in generic code
+
+All four bag types implement <xref:Singulink.Globalization.IMoneyBagFactory`1>, so generic code can create a bag of the type it was given:
+
+```csharp
+static TBag Collect<TBag>(IEnumerable<MonetaryValue> values)
+    where TBag : IReadOnlyMoneyBag, IMoneyBagFactory<TBag>
+{
+    return TBag.Create(CurrencyRegistry.Default, values);   // values in the same currency are added together
+}
+
+SortedMoneyBag sorted = Collect<SortedMoneyBag>(values);     // a SortedMoneyBag, not an interface
+```
+
+The factory interface uses a static abstract member, so it exists on .NET only, not on .NET Standard 2.0. The bag interfaces themselves have no static members, so they work as type arguments, as in `List<IMoneyBag>`.
+
 ## Adding and Subtracting
 
 Bags combine values by currency. Adding a value in a currency the bag already holds adds to the existing amount, and subtracting works the same way. When an amount reaches zero, its currency stays in the bag until you remove it or trim zero amounts:

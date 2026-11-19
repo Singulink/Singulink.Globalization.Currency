@@ -8,7 +8,7 @@ public static partial class SetAmount
     [PrefixTestClass]
     public class TSortedMoneyBag : Mutable<SortedMoneyBag>;
 
-    public abstract class Mutable<TBag> where TBag : IMoneyBag
+    public abstract class Mutable<TBag> where TBag : IMoneyBag, IMoneyBagFactory<TBag>
     {
         private static readonly Currency Usd = Currency.GetCurrency("USD");
         private static readonly Currency Aud = Currency.GetCurrency("AUD");

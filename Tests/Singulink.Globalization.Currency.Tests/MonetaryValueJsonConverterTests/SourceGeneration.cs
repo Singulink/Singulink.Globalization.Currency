@@ -45,6 +45,38 @@ public partial class SourceGeneration
     }
 
     [TestMethod]
+    public void GeneratedContext_InterfaceBagsRoundTrip()
+    {
+        var wallet = new InterfaceWallet {
+            Cash = new SortedMoneyBag(new MonetaryValue(1m, "USD"), new MonetaryValue(2m, "CAD")),
+            Spending = new MoneyBag(new MonetaryValue(3m, "EUR")),
+            Archive = null,
+        };
+
+        string json = JsonSerializer.Serialize(wallet, InvoiceContext.Default.InterfaceWallet);
+        json.ShouldBe("""{"Cash":[{"amount":2,"currency":"CAD"},{"amount":1,"currency":"USD"}],"Spending":[{"amount":3,"currency":"EUR"}],"Archive":null}""");
+
+        var result = JsonSerializer.Deserialize("""{"Cash":[{"amount":1,"currency":"USD"}],"Spending":[],"Archive":[{"amount":0,"currency":"JPY"}]}""", InvoiceContext.Default.InterfaceWallet)!;
+        result.Cash.ShouldBeOfType<MoneyBag>().Single().ShouldBe(new MonetaryValue(1m, "USD"));
+        result.Spending.ShouldBeOfType<MoneyBag>().Count.ShouldBe(0);
+        result.Archive.ShouldBeOfType<ImmutableMoneyBag>().Single().ShouldBe(new MonetaryValue(0m, "JPY"));
+    }
+
+    [TestMethod]
+    public void GeneratedContextWithOptionsFactory_ReadsInterfaceBagsIntoItsRegistry()
+    {
+        var options = new JsonSerializerOptions {
+            Converters = { new MoneyBagJsonConverterFactory(TestRegistry) },
+            TypeInfoResolver = InvoiceContext.Default,
+        };
+
+        var result = JsonSerializer.Deserialize<InterfaceWallet>("""{"Cash":[{"amount":1,"currency":"USD"}],"Archive":[]}""", options)!;
+        result.Cash!.Registry.ShouldBeSameAs(TestRegistry);
+        result.Cash["USD"].Currency.ShouldBeSameAs(TestUsd);
+        result.Archive!.Registry.ShouldBeSameAs(TestRegistry);
+    }
+
+    [TestMethod]
     public void GeneratedContext_RoundTrips()
     {
         var invoice = new Invoice {
@@ -98,7 +130,17 @@ public partial class SourceGeneration
         public ImmutableSortedMoneyBag? Ledger { get; set; }
     }
 
+    public class InterfaceWallet
+    {
+        public IReadOnlyMoneyBag? Cash { get; set; }
+
+        public IMoneyBag? Spending { get; set; }
+
+        public IImmutableMoneyBag? Archive { get; set; }
+    }
+
     [JsonSerializable(typeof(Invoice))]
     [JsonSerializable(typeof(Wallet))]
+    [JsonSerializable(typeof(InterfaceWallet))]
     internal partial class InvoiceContext : JsonSerializerContext;
 }

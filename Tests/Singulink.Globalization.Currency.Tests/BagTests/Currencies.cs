@@ -13,7 +13,7 @@ public static class Currencies
     [PrefixTestClass]
     public class TImmutableSortedMoneyBag : Tests<ImmutableSortedMoneyBag>;
 
-    public abstract class Tests<TBag> where TBag : IReadOnlyMoneyBag
+    public abstract class Tests<TBag> where TBag : IReadOnlyMoneyBag, IMoneyBagFactory<TBag>
     {
         private static readonly ImmutableArray<Currency> Currencies = [Currency.GetCurrency("USD"), Currency.GetCurrency("CAD"), Currency.GetCurrency("EUR")];
 

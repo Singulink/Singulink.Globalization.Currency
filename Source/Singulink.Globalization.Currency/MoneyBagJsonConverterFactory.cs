@@ -9,9 +9,9 @@ namespace Singulink.Globalization;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Converts <see cref="MoneyBag"/>, <see cref="SortedMoneyBag"/>, <see cref="ImmutableMoneyBag"/> and <see cref="ImmutableSortedMoneyBag"/>. Each of these
-/// types is annotated with this factory, so bags serialize with the <see cref="CurrencyRegistry.Default"/> registry without any setup. To read bags into a
-/// different registry, add an instance created with <see cref="MoneyBagJsonConverterFactory(CurrencyRegistry)"/> to <see
+/// Converts <see cref="MoneyBag"/>, <see cref="SortedMoneyBag"/>, <see cref="ImmutableMoneyBag"/> and <see cref="ImmutableSortedMoneyBag"/>, and the bag
+/// interfaces <see cref="IReadOnlyMoneyBag"/>, <see cref="IMoneyBag"/> and <see cref="IImmutableMoneyBag"/>. Each of these types is annotated with this
+/// factory, so bags serialize with the <see cref="CurrencyRegistry.Default"/> registry without any setup. To read bags into a different registry, add an instance created with <see cref="MoneyBagJsonConverterFactory(CurrencyRegistry)"/> to <see
 /// cref="JsonSerializerOptions.Converters"/>, which takes precedence over the factory on the types.</para>
 /// <para>
 /// Each value is written and read in the same form as <see cref="MonetaryValueJsonConverter"/> uses, including its property names. Values are read with
@@ -22,8 +22,9 @@ namespace Singulink.Globalization;
 /// are kept. A value that is not an array, a <c>null</c> element, an element that is not a valid monetary value, or a currency code that is not in the registry
 /// throws a <see cref="JsonException"/>.</para>
 /// <para>
-/// The bag interfaces (<see cref="IReadOnlyMoneyBag"/>, <see cref="IMoneyBag"/> and <see cref="IImmutableMoneyBag"/>) are not supported: they have static
-/// abstract members, so no converter can be declared for them. Declare properties with a concrete bag type to read them from JSON.</para>
+/// A bag interface is read as the bag type that a collection expression of that interface type creates: <see cref="IReadOnlyMoneyBag"/> and <see
+/// cref="IMoneyBag"/> as a <see cref="MoneyBag"/>, and <see cref="IImmutableMoneyBag"/> as an <see cref="ImmutableMoneyBag"/>. A bag interface is written as
+/// the bag it holds.</para>
 /// </remarks>
 public sealed class MoneyBagJsonConverterFactory : JsonConverterFactory
 {
@@ -51,12 +52,14 @@ public sealed class MoneyBagJsonConverterFactory : JsonConverterFactory
     /// <summary>
     /// Determines whether the specified type is a money bag type that this factory converts.
     /// </summary>
-    /// <returns><see langword="true"/> for <see cref="MoneyBag"/>, <see cref="SortedMoneyBag"/>, <see cref="ImmutableMoneyBag"/> and <see
-    /// cref="ImmutableSortedMoneyBag"/>; otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> for <see cref="MoneyBag"/>, <see cref="SortedMoneyBag"/>, <see cref="ImmutableMoneyBag"/>, <see
+    /// cref="ImmutableSortedMoneyBag"/>, <see cref="IReadOnlyMoneyBag"/>, <see cref="IMoneyBag"/> and <see cref="IImmutableMoneyBag"/>; otherwise <see
+    /// langword="false"/>.</returns>
     public override bool CanConvert(Type typeToConvert)
     {
         return typeToConvert == typeof(MoneyBag) || typeToConvert == typeof(SortedMoneyBag) ||
-               typeToConvert == typeof(ImmutableMoneyBag) || typeToConvert == typeof(ImmutableSortedMoneyBag);
+               typeToConvert == typeof(ImmutableMoneyBag) || typeToConvert == typeof(ImmutableSortedMoneyBag) ||
+               typeToConvert == typeof(IReadOnlyMoneyBag) || typeToConvert == typeof(IMoneyBag) || typeToConvert == typeof(IImmutableMoneyBag);
     }
 
     /// <summary>
@@ -76,6 +79,17 @@ public sealed class MoneyBagJsonConverterFactory : JsonConverterFactory
 
         if (typeToConvert == typeof(ImmutableSortedMoneyBag))
             return new BagConverter<ImmutableSortedMoneyBag>(_registry, static (registry, values) => ImmutableSortedMoneyBag.CreateRange(registry, values));
+
+        // The interfaces are read as the types that their collection builders create (see MoneyBagBuilder and the CollectionBuilder attributes).
+
+        if (typeToConvert == typeof(IReadOnlyMoneyBag))
+            return new BagConverter<IReadOnlyMoneyBag>(_registry, static (registry, values) => new MoneyBag(registry, values));
+
+        if (typeToConvert == typeof(IMoneyBag))
+            return new BagConverter<IMoneyBag>(_registry, static (registry, values) => new MoneyBag(registry, values));
+
+        if (typeToConvert == typeof(IImmutableMoneyBag))
+            return new BagConverter<IImmutableMoneyBag>(_registry, static (registry, values) => ImmutableMoneyBag.CreateRange(registry, values));
 
         throw new ArgumentException($"Type '{typeToConvert}' is not a money bag type that this factory converts.", nameof(typeToConvert));
     }

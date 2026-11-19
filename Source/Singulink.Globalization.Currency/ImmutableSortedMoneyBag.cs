@@ -20,7 +20,11 @@ namespace Singulink.Globalization;
 [CollectionBuilder(typeof(ImmutableSortedMoneyBag), nameof(Create))]
 [DebuggerDisplay("Count = {Count}")]
 [JsonConverter(typeof(MoneyBagJsonConverterFactory))]
+#if NET
+public sealed partial class ImmutableSortedMoneyBag : IImmutableMoneyBag, IMoneyBagFactory<ImmutableSortedMoneyBag>
+#else
 public sealed partial class ImmutableSortedMoneyBag : IImmutableMoneyBag
+#endif
 {
     private static readonly ImmutableSortedDictionary<Currency, decimal> EmptyLookup = ImmutableSortedDictionary.Create<Currency, decimal>(CurrencyByCodeComparer.Default);
 
@@ -671,10 +675,7 @@ public sealed partial class ImmutableSortedMoneyBag : IImmutableMoneyBag
 #if NET
 
     /// <inheritdoc/>
-    static IReadOnlyMoneyBag IReadOnlyMoneyBag.Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values) => CreateRange(registry, values);
-
-    /// <inheritdoc/>
-    static IImmutableMoneyBag IImmutableMoneyBag.Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values) => CreateRange(registry, values);
+    static ImmutableSortedMoneyBag IMoneyBagFactory<ImmutableSortedMoneyBag>.Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values) => CreateRange(registry, values);
 
 #endif
 

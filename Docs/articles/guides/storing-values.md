@@ -148,15 +148,23 @@ An element that is not a valid monetary value throws the same <xref:System.Text.
 
 #### Bag Interfaces
 
-Declare bag properties with a concrete bag type. The bag interfaces have static abstract members, so no converter can be declared for them:
+A property typed as a bag interface writes the bag it holds. It reads as the bag type that a collection expression of that interface type creates:
 
-| Property type | Writes | Reads |
-| --- | --- | --- |
-| <xref:Singulink.Globalization.MoneyBag>, <xref:Singulink.Globalization.SortedMoneyBag>, <xref:Singulink.Globalization.ImmutableMoneyBag>, <xref:Singulink.Globalization.ImmutableSortedMoneyBag> | Yes | Yes |
-| <xref:Singulink.Globalization.IReadOnlyMoneyBag>, <xref:Singulink.Globalization.IMoneyBag>, <xref:Singulink.Globalization.IImmutableMoneyBag> | Yes, as an array | No: <xref:System.NotSupportedException> |
+| Property type | Reads as |
+| --- | --- |
+| <xref:Singulink.Globalization.IReadOnlyMoneyBag> | <xref:Singulink.Globalization.MoneyBag> |
+| <xref:Singulink.Globalization.IMoneyBag> | <xref:Singulink.Globalization.MoneyBag> |
+| <xref:Singulink.Globalization.IImmutableMoneyBag> | <xref:Singulink.Globalization.ImmutableMoneyBag> |
 
-> [!CAUTION]
-> A source-generated <xref:System.Text.Json.Serialization.JsonSerializerContext> that includes a property of a bag interface type does not compile (error CS8920), because the generated code uses the interface as a type argument.
+```csharp
+public class Holder { public IReadOnlyMoneyBag Balance { get; set; } }
+
+var holder = new Holder { Balance = new SortedMoneyBag(values) };
+string json = JsonSerializer.Serialize(holder);           // written in the sorted bag's order
+var restored = JsonSerializer.Deserialize<Holder>(json);  // restored.Balance is a MoneyBag with the same values
+```
+
+Declare the property with a concrete bag type when the type that is read matters, such as a sorted bag.
 
 ## Database Columns
 

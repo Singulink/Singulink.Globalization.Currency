@@ -26,7 +26,7 @@ public class ToMoneyBag
     [PrefixTestClass]
     public class TImmutableSortedMoneyBag : Tests<ImmutableSortedMoneyBag>;
 
-    public abstract class Tests<TBag> where TBag : IReadOnlyMoneyBag
+    public abstract class Tests<TBag> where TBag : IReadOnlyMoneyBag, IMoneyBagFactory<TBag>
     {
         private static readonly IReadOnlyMoneyBag Bag = TBag.Create(NewRegistry, Values);
 

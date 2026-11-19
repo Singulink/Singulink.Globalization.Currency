@@ -17,7 +17,11 @@ namespace Singulink.Globalization;
 /// </remarks>
 [DebuggerDisplay("Count = {Count}")]
 [JsonConverter(typeof(MoneyBagJsonConverterFactory))]
+#if NET
+public sealed partial class SortedMoneyBag : IMoneyBag, IMoneyBagFactory<SortedMoneyBag>
+#else
 public sealed partial class SortedMoneyBag : IMoneyBag
+#endif
 {
     private readonly CurrencyRegistry _registry;
     private readonly SortedDictionary<Currency, decimal> _amountLookup = new(CurrencyByCodeComparer.Default);
@@ -610,10 +614,7 @@ public sealed partial class SortedMoneyBag : IMoneyBag
 #if NET
 
     /// <inheritdoc/>
-    static IReadOnlyMoneyBag IReadOnlyMoneyBag.Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values) => new SortedMoneyBag(registry, values);
-
-    /// <inheritdoc/>
-    static IMoneyBag IMoneyBag.Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values) => new SortedMoneyBag(registry, values);
+    static SortedMoneyBag IMoneyBagFactory<SortedMoneyBag>.Create(CurrencyRegistry registry, IEnumerable<MonetaryValue> values) => new SortedMoneyBag(registry, values);
 
 #endif
 
