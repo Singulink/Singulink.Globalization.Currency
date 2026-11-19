@@ -13,7 +13,7 @@ A money bag is a collection that holds one <xref:Singulink.Globalization.Monetar
 | <xref:Singulink.Globalization.ImmutableMoneyBag> | No | No |
 | <xref:Singulink.Globalization.ImmutableSortedMoneyBag> | No | Yes |
 
-All four implement <xref:Singulink.Globalization.IReadOnlyMoneyBag>, the mutable ones implement <xref:Singulink.Globalization.IMoneyBag>, and the immutable ones implement <xref:Singulink.Globalization.IImmutableMoneyBag>, whose mutating methods return a new bag. The unsorted bags are hash-based and slightly faster; the sorted bags enumerate in a stable order, which matters for display and for deterministic output. <xref:Singulink.Globalization.IReadOnlyMoneyBag.IsSorted> reports which kind a bag is when only the interface is known.
+All four implement <xref:Singulink.Globalization.IReadOnlyMoneyBag>. The mutable ones also implement <xref:Singulink.Globalization.IMoneyBag>, and the immutable ones implement <xref:Singulink.Globalization.IImmutableMoneyBag>, whose mutating methods return a new bag. The unsorted bags are hash-based and slightly faster; the sorted bags enumerate in a stable order, which matters for display and for deterministic output. <xref:Singulink.Globalization.IReadOnlyMoneyBag.IsSorted> reports which kind a bag is when only the interface is known.
 
 ## Creating Bags
 
@@ -22,7 +22,7 @@ Bags support collection expressions, collection initializers, constructors and f
 ```csharp
 MoneyBag bag = [new(100m, "USD"), new(50m, "EUR")];
 var bag2 = new MoneyBag { new(100m, "USD"), new(50m, "EUR") };
-var bag3 = new MoneyBag(values);
+var bag3 = new MoneyBag(values);   // values: any sequence of monetary values
 
 ImmutableSortedMoneyBag snapshot = [new(1m, "CAD"), new(2m, "USD")];
 var snapshot2 = ImmutableMoneyBag.CreateRange(values);
@@ -30,13 +30,13 @@ var snapshot2 = ImmutableMoneyBag.CreateRange(values);
 IReadOnlyMoneyBag readOnly = [new(1m, "CAD")];   // creates a MoneyBag
 ```
 
-Every bag is bound to a <xref:Singulink.Globalization.CurrencyRegistry>, available through <xref:Singulink.Globalization.IReadOnlyMoneyBag.Registry>, which defaults to <xref:Singulink.Globalization.CurrencyRegistry.Default>. Adding a value whose currency is not in the registry throws <xref:System.ArgumentException>. Pass a registry to the constructor or factory to restrict a bag to a specific set of currencies. See [Currencies and Registries](currencies-and-registries.md).
+Every bag is bound to a <xref:Singulink.Globalization.CurrencyRegistry>, which its <xref:Singulink.Globalization.IReadOnlyMoneyBag.Registry> property returns. Unless you pass a registry to the constructor or factory method, the bag uses <xref:Singulink.Globalization.CurrencyRegistry.Default>. Passing a registry restricts the bag to that set of currencies: adding a value whose currency is not in the registry throws <xref:System.ArgumentException>. See [Currencies and Registries](currencies-and-registries.md).
 
 The <xref:Singulink.Globalization.MoneyCollectionExtensions> methods such as <xref:Singulink.Globalization.MoneyCollectionExtensions.ToImmutableMoneyBag*> convert between bag types and from any sequence of values.
 
 ## Adding and Subtracting
 
-Bags combine values by currency. Adding a value in a currency the bag already holds adds to the existing amount, and subtracting works the same way. A currency stays in the bag when its amount reaches zero until it is explicitly removed or trimmed:
+Bags combine values by currency. Adding a value in a currency the bag already holds adds to the existing amount, and subtracting works the same way. When an amount reaches zero, its currency stays in the bag until you remove it or trim zero amounts:
 
 ```csharp
 var bag = new MoneyBag();
@@ -44,17 +44,17 @@ var bag = new MoneyBag();
 bag.Add(new MonetaryValue(100m, "USD"));
 bag.Add(25m, "USD");                    // USD 125
 bag.Subtract(125m, "USD");              // USD 0, still present
-bag.AddRange(otherBag);
-bag.SubtractRange(refunds);
+bag.AddRange(otherBag);                 // adds every value of another bag
+bag.SubtractRange(refunds);             // subtracts every value of a sequence
 
 bag.TrimZeroAmounts();                  // removes USD 0
 ```
 
-Default values are ignored when added or subtracted, which lets accumulators start from <xref:Singulink.Globalization.MonetaryValue.Default> without special cases.
+Adding or subtracting a default value does nothing, so an accumulator can start from <xref:Singulink.Globalization.MonetaryValue.Default> without special cases.
 
 <xref:Singulink.Globalization.IMoneyBag.SetValue*> and <xref:Singulink.Globalization.IMoneyBag.SetAmount*> replace a currency's amount instead of combining with it. <xref:Singulink.Globalization.IMoneyBag.Remove*> and <xref:Singulink.Globalization.IMoneyBag.RemoveAll*> drop currencies entirely.
 
-Immutable bags expose the same operations returning new instances:
+Immutable bags have the same operations, but each one returns a new bag:
 
 ```csharp
 var balance = ImmutableMoneyBag.Create(new MonetaryValue(100m, "USD"));
@@ -78,7 +78,7 @@ bag.ContainsCurrency("USD");
 bag.Contains(new MonetaryValue(125m, "USD"));
 ```
 
-Bags enumerate as <xref:Singulink.Globalization.MonetaryValue> sequences, so LINQ works directly. Because equality across currencies is safe and comparison is not, group or filter by currency before ordering by amount.
+Bags enumerate as <xref:Singulink.Globalization.MonetaryValue> sequences, so LINQ works directly. Equality across currencies is safe but comparison is not, so group or filter by currency before ordering by amount.
 
 ## Transforming Values
 
@@ -93,7 +93,7 @@ bag.TransformValues(value => value.Amount > 0 ? value.Amount : null); // drop no
 
 ## Formatting
 
-Bags format as a comma-separated list of their values using the same format strings as <xref:Singulink.Globalization.MonetaryValue>, with an optional `!` prefix that omits zero amounts. See [Formatting](formatting.md).
+A bag formats as a comma-separated list of its values. It takes the same format strings as <xref:Singulink.Globalization.MonetaryValue>, plus an optional `!` prefix that omits zero amounts. See [Formatting](formatting.md).
 
 ## Next Steps
 

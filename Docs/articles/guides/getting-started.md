@@ -12,7 +12,12 @@ Optionally install `Singulink.Globalization.Currency.Cldr` as well. It provides 
 
 ### How the pieces fit
 
-A <xref:Singulink.Globalization.Currency> describes a currency: its code, names, symbols and rounding rules. A <xref:Singulink.Globalization.CurrencyRegistry> is a set of currencies, and <xref:Singulink.Globalization.CurrencyRegistry.Default> is the registry that string-based lookups use. A <xref:Singulink.Globalization.MonetaryValue> is an immutable amount in a currency, and the money bag types hold one value per currency for working with several currencies at once.
+| Type | What it is | Guide |
+| --- | --- | --- |
+| <xref:Singulink.Globalization.Currency> | A currency: its code, names, symbols and rounding rules | [Currencies and Registries](currencies-and-registries.md) |
+| <xref:Singulink.Globalization.CurrencyRegistry> | A set of currencies. <xref:Singulink.Globalization.CurrencyRegistry.Default> is the registry that string-based lookups use. | [Currencies and Registries](currencies-and-registries.md) |
+| <xref:Singulink.Globalization.MonetaryValue> | An immutable amount in a currency | [Monetary Values](monetary-values.md) |
+| Money bags, such as <xref:Singulink.Globalization.MoneyBag> | One value per currency, for working with several currencies at once | [Money Bags](money-bags.md) |
 
 ## Registering Currency Data
 
@@ -38,8 +43,8 @@ usd.Name;           // "US Dollar"
 usd.Symbol;         // "$"
 usd.DecimalDigits;  // 2
 
-usd.GetLocalizedName(CultureInfo.GetCultureInfo("fr"));   // "dollar des États-Unis"
-usd.GetLocalizedSymbol(CultureInfo.GetCultureInfo("en-CA")); // "US$"
+usd.GetLocalizedName(CultureInfo.GetCultureInfo("fr"));   // "dollar des États-Unis" with CLDR data
+usd.GetLocalizedSymbol(CultureInfo.GetCultureInfo("en-CA")); // "US$" with CLDR data, "$" with system data
 ```
 
 <xref:Singulink.Globalization.Currency.GetCurrency*> throws for unknown codes and <xref:Singulink.Globalization.Currency.TryGetCurrency*> returns `false` instead. Currencies are singletons within their registry, so two lookups of the same code return the same instance. See [Currencies and Registries](currencies-and-registries.md) for custom currencies, custom registries and lookups by symbol or region.
@@ -71,12 +76,14 @@ var frFR = CultureInfo.GetCultureInfo("fr-FR");
 total.ToString();               // "USD 67.77" in an English culture
 total.ToString(null, frFR);     // "67,77 USD"
 total.ToString("C", enUS);      // "$67.77"
-total.ToString("C", CultureInfo.GetCultureInfo("en-CA")); // "US$67.77"
+total.ToString("C", CultureInfo.GetCultureInfo("en-CA")); // "US$67.77" with CLDR data
 ```
 
 Parsing accepts currency codes by default, and <xref:Singulink.Globalization.MonetaryStyles> controls whether symbols are accepted as well:
 
 ```csharp
+string input = "USD 67.77";   // text from the user
+
 var parsed = MonetaryValue.Parse("USD 67.77", provider: enUS);
 var local = MonetaryValue.Parse("$67.77", MonetaryStyles.LocalSymbol, enUS);
 
@@ -103,7 +110,7 @@ var missing = bag["JPY"];                  // default value, not an exception
 ImmutableSortedMoneyBag snapshot = [new(1m, "CAD"), new(2m, "USD")];
 ```
 
-Mutable, immutable, sorted and unsorted variants exist, all sharing the same read-only interface. See [Money Bags](money-bags.md).
+Money bags come in mutable, immutable, sorted and unsorted variants, and all of them share the same read-only interface. See [Money Bags](money-bags.md).
 
 ## Next Steps
 
@@ -113,7 +120,5 @@ Continue with these related articles:
 - [Monetary Values](monetary-values.md) - Operators, comparison, equality and the default value.
 - [Rounding and Allocation](rounding-and-allocation.md) - Rounding policies, cash rounding and splitting amounts.
 - [Formatting](formatting.md) and [Parsing](parsing.md) - Converting values to and from strings.
-- [Money Bags](money-bags.md) - Working with several currencies at once.
-- [Currency Identity](../concepts/currency-identity.md) - Why currencies from different registries are different currencies.
 
 </div>

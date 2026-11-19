@@ -4,7 +4,7 @@
 
 Monetary values format through the standard <xref:System.IFormattable> and <xref:System.ISpanFormattable> interfaces, so they work with string interpolation, `string.Format` and span-based APIs. This guide explains the format string grammar, how the culture influences the output, and how currencies and money bags format.
 
-### The default format
+### Default format
 
 With no format string, a value is written as its currency code and amount, using the culture's digits, group separator and decimal separator:
 
@@ -19,11 +19,11 @@ $"Total: {value}";
 The currency code goes before the amount in English, Irish, Latvian and Maltese cultures and after it everywhere else, which follows the conventions of those languages. The separator between code and amount is a non-breaking space, so the two never wrap onto different lines in text.
 
 > [!NOTE]
-> The default format is meant for display. It depends on the culture's number formatting, so it is not a stable round-trip format for storage. For persistence, store the amount and currency code separately.
+> The default format is meant for display. It depends on the culture's number formatting, so it is not a stable round-trip format for storage. For persistence, store the amount and currency code separately; see [Storing Monetary Values](storing-values.md).
 
 ## Format Strings
 
-A format string has up to three parts, in this order, any of which may be omitted: a currency specifier, a number specifier and a decimals specifier. `"C"`, `"D"`, `"B1"` and `"CDB1"` are all valid.
+A format string has up to three parts, in this order: a currency specifier, a number specifier and a decimals specifier. Any part may be left out, so `"C"`, `"D"`, `"B1"` and `"CDB1"` are all valid.
 
 #### Currency specifiers
 
@@ -33,9 +33,9 @@ A format string has up to three parts, in this order, any of which may be omitte
 | `I` | International: currency code before the amount. | `USD 1,234.50` |
 | `R` | Reverse international: currency code after the amount. | `1,234.50 USD` |
 | `C` | Currency symbol, positioned by the culture's currency pattern. | `$1,234.50` |
-| `L` | Local: `C` if the currency is the local currency of the culture's region, otherwise `G`. | `$1,234.50` for USD, `CA$1,234.50` for CAD |
+| `L` | Local: `C` if the currency is the local currency of the culture's region, otherwise `G`. | `$1,234.50` for USD, `CAD 1,234.50` for CAD |
 
-The symbol used by `C` is the localized symbol for the culture, so a Canadian dollar formats as `$` in `en-CA` and `CA$` in `en-US`. Placement follows the culture's <xref:System.Globalization.NumberFormatInfo.CurrencyPositivePattern> and <xref:System.Globalization.NumberFormatInfo.CurrencyNegativePattern>, so `fr-FR` produces `1 234,50 €` with the symbol after the amount. When the culture's currency symbol doubles as the decimal separator, as it does for the Cape Verdean escudo (`1 123$45`), the value is written that way.
+The symbol used by `C` is the localized symbol for the culture, so with CLDR data a Canadian dollar formats as `$` in `en-CA` and `CA$` in `en-US`. Placement follows the culture's <xref:System.Globalization.NumberFormatInfo.CurrencyPositivePattern> and <xref:System.Globalization.NumberFormatInfo.CurrencyNegativePattern>, so `fr-FR` produces `1 234,50 €` with the symbol after the amount. If the culture's currency symbol doubles as the decimal separator, the value is written that way. The Cape Verdean escudo is an example: `1 123$45`.
 
 `L` is the right choice for user interfaces that show a mix of local and foreign amounts: local amounts look familiar and foreign amounts are unambiguous. It needs a region-specific culture like `en-US` to know what "local" means; with a neutral culture it always behaves like `G`.
 
@@ -71,7 +71,18 @@ new MonetaryValue(1000m, "USD").ToString("*", enUS); // "USD 1,000"
 
 ## Negative Amounts
 
-Negative amounts follow the culture's <xref:System.Globalization.NumberFormatInfo.CurrencyNegativePattern>, translated to the chosen currency specifier. In `en-US` the pattern is parentheses, so `-1234.5` USD formats as `USD (1,234.50)` by default and `($1,234.50)` with `C`. Cultures that use a leading minus sign produce `-1.234,50 USD` and similar.
+Negative amounts follow the culture's <xref:System.Globalization.NumberFormatInfo.CurrencyNegativePattern>, translated to the chosen currency specifier:
+
+```csharp
+var refund = new MonetaryValue(-1234.5m, "USD");
+var deDE = CultureInfo.GetCultureInfo("de-DE");
+
+refund.ToString(null, enUS);   // "USD -1,234.50", en-US uses a leading minus sign on .NET with ICU data
+refund.ToString("C", enUS);    // "-$1,234.50"
+refund.ToString(null, deDE);   // "-1.234,50 USD"
+```
+
+A culture whose pattern uses parentheses produces `USD (1,234.50)` by default and `($1,234.50)` with `C`.
 
 ## Span Formatting
 
@@ -90,7 +101,7 @@ usd.ToString("S", CultureInfo.GetCultureInfo("fr")); // "dollar des États-Unis"
 
 ## Formatting Money Bags
 
-Bags format as their values separated by commas, each with the same format string, and accept a `!` prefix to leave out zero amounts:
+A bag formats as its values separated by commas, each formatted with the same format string. A `!` prefix leaves out zero amounts:
 
 ```csharp
 var bag = new MoneyBag { new(100m, "USD"), new(0m, "EUR"), new(50m, "CAD") };
@@ -104,7 +115,7 @@ bag.ToString("!C");      // "CA$50.00, $100.00" in en-US
 Continue with these related articles:
 
 - [Parsing](parsing.md) - Reading values back from strings.
-- [Localization](../concepts/localization.md) - Where the localized symbols come from.
+- [How Names and Symbols Are Localized](../concepts/localization.md) - Where the localized symbols come from.
 - [Money Bags](money-bags.md) - The bag types and their operations.
 
 </div>

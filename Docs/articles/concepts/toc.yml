@@ -1,5 +1,5 @@
-- name: Currency Identity
+- name: Why Two USD Currencies Are Not Equal
   href: currency-identity.md
 
-- name: Localization
+- name: How Names and Symbols Are Localized
   href: localization.md

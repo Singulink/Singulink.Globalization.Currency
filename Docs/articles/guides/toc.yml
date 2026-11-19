@@ -1,26 +1,38 @@
 - name: Getting Started
   href: getting-started.md
 
-- name: Currencies and Registries
-  href: currencies-and-registries.md
+- name: Why Did This Throw?
+  href: why-did-this-throw.md
 
-- name: Monetary Values
-  href: monetary-values.md
+- name: Calculating with Money
+  items:
+  - name: Monetary Values
+    href: monetary-values.md
 
-- name: Rounding and Allocation
-  href: rounding-and-allocation.md
+  - name: Rounding and Allocation
+    href: rounding-and-allocation.md
 
-- name: Formatting
-  href: formatting.md
+  - name: Money Bags
+    href: money-bags.md
 
-- name: Parsing
-  href: parsing.md
+  - name: Storing Monetary Values
+    href: storing-values.md
 
-- name: Money Bags
-  href: money-bags.md
+- name: Showing and Reading Money
+  items:
+  - name: Formatting
+    href: formatting.md
 
-- name: CLDR Currency Data
-  href: cldr-data.md
+  - name: Parsing
+    href: parsing.md
 
-- name: Implementing a Data Provider
-  href: data-providers.md
+- name: Choosing Your Currency Data
+  items:
+  - name: Currencies and Registries
+    href: currencies-and-registries.md
+
+  - name: CLDR Currency Data
+    href: cldr-data.md
+
+  - name: Implementing a Data Provider
+    href: data-providers.md

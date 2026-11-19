@@ -11,7 +11,7 @@
 
 **Singulink.Globalization.Currency** is a .NET library that provides types like `Currency`, `MonetaryValue` and a range of collections and interfaces that make it easy to work with money and currencies in your applications while following best practices. The library is well-documented and follows the same design principles as built-in .NET types and collections. It has been painstakingly tested and optimized to ensure that it is both fast and reliable.
 
-**Singulink.Globalization.Currency.Cldr** is an optional data package that provides up-to-date currency data from Unicode CLDR instead of the globalization data that ships with the runtime. It includes localized names and symbols for every locale, currencies that are not tied to a region (such as `XAU` or `XDR`), historical currencies, and cash rounding rules, and it behaves identically on every runtime and operating system. The data package does not depend on the core library, so it can always be updated to the latest CLDR release without changing the core library version, and its version mirrors the CLDR version.
+**Singulink.Globalization.Currency.Cldr** is an optional data package that provides up-to-date currency data from Unicode CLDR instead of the globalization data that ships with the runtime, and behaves identically on every runtime and operating system. It includes localized names and symbols for every locale, currencies that are not tied to a region (such as `XAU` or `XDR`), historical currencies, and cash rounding rules. The data package does not depend on the core library, so it can always be updated to the latest CLDR release without changing the core library version. Its version mirrors the CLDR version.
 
 **Singulink.Globalization.Currency.DataProviders** contains the `ICurrencyDataProvider` abstraction that data packages implement. It is referenced by the other two packages and does not normally need to be referenced directly.
 
@@ -22,7 +22,7 @@
 ✔️ Collection expression/literal syntax support  
 ✔️ Builds currency data from built-in system globalization data, or from embedded Unicode CLDR data with the optional CLDR package  
 ✔️ Standard and cash rounding rules for every currency (cash rounding requires the CLDR package)  
-✔️ Support for custom currency registries, i.e. for cryptocurrency support  
+✔️ Support for custom currency registries, such as for cryptocurrencies  
 ✔️ Generic math support (.NET)  
 ✔️ Extensive `ReadOnlySpan<char>` lookup support (.NET 9+)  
 ✔️ Full AOT and WinRT support  
@@ -98,7 +98,7 @@ Cash rounding rules are not part of the globalization data that ships with .NET,
 
 ### Allocation
 
-Splitting an amount into parts without losing or inventing cents is handled by `Allocate()`. The parts are rounded to the currency's smallest unit and any remainder is distributed so the parts always sum to the original value:
+`Allocate()` splits an amount into parts without losing or inventing cents. It rounds the parts to the currency's smallest unit and distributes any remainder, so the parts always sum to the original value:
 
 ```c#
 var total = new MonetaryValue(100m, "USD");
@@ -144,4 +144,9 @@ var value = new MonetaryValue(0.5m, bitcoin);
 
 ## Further Reading
 
-The [project documentation site](https://www.singulink.com/Docs/Singulink.Globalization.Currency/) has guides covering currencies and registries, monetary values, rounding and allocation, formatting, parsing, money bags and data providers, concept articles on currency identity and localization, and the fully documented API.
+The [project documentation site](https://www.singulink.com/Docs/Singulink.Globalization.Currency/) has:
+
+- guides on calculating with money (monetary values, rounding and allocation, money bags and storing values), showing and reading money (formatting and parsing) and choosing your currency data (registries, CLDR data and custom data providers);
+- a page that explains each exception the library throws;
+- concept articles on why two USD currencies are not equal and how names and symbols are localized;
+- the fully documented API.

@@ -6,11 +6,24 @@ The `Singulink.Globalization.Currency.Cldr` package embeds currency data from th
 
 ### Why use it
 
+Currency data comes from one of three places. How they compare:
+
+| | System data | CLDR package | Your own provider |
+| --- | --- | --- | --- |
+| Package to add | None | `Singulink.Globalization.Currency.Cldr` | None; you implement a [data provider](data-providers.md) |
+| Same results on every platform | No | Yes | Yes |
+| Currencies that are not a region's currency, such as `XAU` | No | Yes, when included | The ones you supply |
+| Historical currencies, such as `DEM` | No | Yes, when included | The ones you supply |
+| Cash rounding rules | No | Yes | Yes, equal to standard rounding unless you set them |
+| Localized names and symbols | From the runtime | Every CLDR locale | The ones you supply |
+
 The core library's system registry is built from the globalization data that ships with the runtime, which has three limitations:
 
-- **It varies by platform.** ICU and NLS disagree on some symbols and names, and ICU versions change over time, so the same code can format differently on different machines.
-- **It only knows regional currencies.** Codes that are not the primary currency of a region, such as gold (`XAU`), special drawing rights (`XDR`) and historical currencies, are missing.
-- **It has no cash rounding rules**, so <xref:Singulink.Globalization.MonetaryValue.RoundToCash*> and <xref:Singulink.Globalization.MonetaryValue.AllocateToCash*> throw for every currency.
+| Limit | What it means |
+| --- | --- |
+| **It varies by platform.** | .NET uses ICU on Linux, macOS and modern Windows, and NLS on older Windows and .NET Framework. The two disagree on some symbols and names. ICU versions also change symbol data over time, so the same code can format differently on different machines. |
+| **It only knows regional currencies.** | Codes that are not the primary currency of a region, such as gold (`XAU`), special drawing rights (`XDR`) and historical currencies, are missing. |
+| **It has no cash rounding rules.** | <xref:Singulink.Globalization.MonetaryValue.RoundToCash*> and <xref:Singulink.Globalization.MonetaryValue.AllocateToCash*> throw <xref:System.NotSupportedException> for every currency. |
 
 The CLDR package fixes all three. Its data is embedded in the package, so behavior is identical everywhere, every currency CLDR knows about is available, and every currency has a cash rounding policy.
 
@@ -22,7 +35,9 @@ Register the provider once at application startup:
 CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider);
 ```
 
-From then on <xref:Singulink.Globalization.CurrencyRegistry.Default> is a registry named `CLDR` containing the currencies that are currently legal tender somewhere. To include other kinds of currency in the default registry, pass <xref:Singulink.Globalization.CurrencyTypes> flags:
+From then on <xref:Singulink.Globalization.CurrencyRegistry.Default> is a registry named `CLDR` containing the currencies that are currently legal tender somewhere. The call must come before anything uses the default registry; see [Currencies and Registries](currencies-and-registries.md#set-once-before-first-use).
+
+To include other kinds of currency in the default registry, pass <xref:Singulink.Globalization.CurrencyTypes> flags:
 
 ```csharp
 CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider, CurrencyTypes.CurrentTender | CurrencyTypes.CurrentNonTender);
@@ -30,11 +45,13 @@ CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider, CurrencyTypes.Cur
 
 The types are:
 
-- <xref:Singulink.Globalization.CurrencyTypes.CurrentTender> - legal tender in at least one region, i.e. `USD`, `EUR`, `JPY`.
-- <xref:Singulink.Globalization.CurrencyTypes.CurrentNonTender> - in current use but not legal tender: precious metals, special drawing rights, funds codes such as `CHE`, and the testing and "no currency" codes `XTS` and `XXX`.
-- <xref:Singulink.Globalization.CurrencyTypes.Historical> - currencies no longer used anywhere, such as `DEM` and `FRF`.
+| Type | What it holds | Examples | In the default registry |
+| --- | --- | --- | --- |
+| <xref:Singulink.Globalization.CurrencyTypes.CurrentTender> | Legal tender in at least one region | `USD`, `EUR`, `JPY` | Yes |
+| <xref:Singulink.Globalization.CurrencyTypes.CurrentNonTender> | In current use but not legal tender: precious metals, special drawing rights, funds codes, and the testing and "no currency" codes | `XAU`, `XDR`, `CHE`, `XTS`, `XXX` | Only when passed |
+| <xref:Singulink.Globalization.CurrencyTypes.Historical> | No longer used anywhere | `DEM`, `FRF` | Only when passed |
 
-Historical currencies are worth including only when processing old records, since many of them share symbols with current currencies and make symbol parsing more ambiguous.
+Include historical currencies only when you process old records. Many of them share symbols with current currencies, which makes symbol parsing more ambiguous.
 
 ## Using the Data Directly
 
@@ -51,7 +68,7 @@ cldr.GetCurrencyType(gold);                                     // CurrentNonTen
 cldr.AllCurrencies.Length;                                      // every currency in the data
 ```
 
-Data is loaded once per provider instance and cached, so all registries created from the same provider share the same <xref:Singulink.Globalization.Currency> instances. That means a value created from `cldr.Registry["USD"]` is compatible with a bag bound to a registry created by `cldr.CreateRegistry(...)`. See [Currency Identity](../concepts/currency-identity.md).
+Data is loaded once per provider instance and cached, so all registries created from the same provider share the same <xref:Singulink.Globalization.Currency> instances. That means a value created from `cldr.Registry["USD"]` is compatible with a bag bound to a registry created by `cldr.CreateRegistry(...)`. See [Why Two USD Currencies Are Not Equal](../concepts/currency-identity.md).
 
 ## Versioning
 
@@ -63,7 +80,7 @@ New versions are published automatically when Unicode releases new CLDR data, so
 
 ## Localization Coverage
 
-The data includes localized names and symbols for every locale in CLDR, over six hundred of them, stored compactly by only recording values that differ from the parent locale. Lookups walk up the culture name, so `fr-CA` falls back to `fr` and then to English, and .NET culture names that CLDR does not have data for inherit from their language. See [Localization](../concepts/localization.md).
+The data includes localized names and symbols for every locale in CLDR, over six hundred of them. It stays compact by recording only the values that differ from the parent locale. Lookups walk up the culture name: `fr-CA` falls back to `fr` and then to English, and a .NET culture name that CLDR has no data for inherits from its language. See [How Names and Symbols Are Localized](../concepts/localization.md#provider-data).
 
 ## Next Steps
 

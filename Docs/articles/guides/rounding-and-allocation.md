@@ -23,7 +23,7 @@ Every <xref:Singulink.Globalization.Currency> carries two policies. <xref:Singul
 
 ## Rounding Values
 
-<xref:Singulink.Globalization.MonetaryValue.Round*> rounds to the currency's standard policy and <xref:Singulink.Globalization.MonetaryValue.RoundToCash*> to its cash policy. Both default to banker's rounding (<xref:System.MidpointRounding.ToEven>), which avoids systematic bias when many midpoint values are rounded, and both accept a <xref:System.MidpointRounding> mode:
+<xref:Singulink.Globalization.MonetaryValue.Round*> rounds to the currency's standard policy, and <xref:Singulink.Globalization.MonetaryValue.RoundToCash*> rounds to its cash policy. Both use banker's rounding (<xref:System.MidpointRounding.ToEven>) by default, which avoids systematic bias when many midpoint values are rounded. Both also accept a <xref:System.MidpointRounding> mode:
 
 ```csharp
 var subtotal = new MonetaryValue(59.97m, "USD");
@@ -47,10 +47,10 @@ amount.Round();        // CAD 10.03
 amount.RoundToCash();  // CAD 10.05
 ```
 
-Cash rounding rules are not part of the globalization data that ships with .NET, so currencies in the system registry have a `null` <xref:Singulink.Globalization.Currency.CashRoundingPolicy>, and <xref:Singulink.Globalization.MonetaryValue.RoundToCash*> throws <xref:System.NotSupportedException> for them. The [CLDR Currency Data](cldr-data.md) package provides cash rules for every currency, and custom currencies can set the policy directly.
+Cash rounding rules are not part of the globalization data that ships with .NET, so currencies in the system registry have a `null` <xref:Singulink.Globalization.Currency.CashRoundingPolicy>. <xref:Singulink.Globalization.MonetaryValue.RoundToCash*> throws <xref:System.NotSupportedException> for them. The [CLDR Currency Data](cldr-data.md) package provides cash rules for every currency, and custom currencies can set the policy directly.
 
 > [!NOTE]
-> Only a small number of currencies have cash rules that differ from their standard rules. For all the others, cash rounding is identical to standard rounding, and a data provider that knows the rules reports it that way rather than as unknown.
+> Only a small number of currencies have cash rules that differ from their standard rules. For all the others, cash rounding is identical to standard rounding. A data provider that knows the rules reports the same policy for cash, rather than reporting the cash rules as unknown.
 
 ## Allocation
 
@@ -68,13 +68,13 @@ The single-integer overload allocates equal parts. The ratio overload takes any 
 
 #### How the remainder is distributed
 
-Leftover units go one at a time to the parts that lost the largest fraction when they were rounded down, which is the largest remainder method. When several parts tie, earlier parts win. For equal splits this means the first parts get the extra units, as in the 33.34, 33.33, 33.33 example. For ratio splits it means the distribution is as close to the exact proportions as the smallest unit allows, and the same input always produces the same output.
+Leftover units go one at a time to the parts that lost the largest fraction when they were rounded down. This is the largest remainder method. When several parts tie, earlier parts win. For equal splits this means the first parts get the extra units, as in the 33.34, 33.33, 33.33 example. For ratio splits it means the distribution is as close to the exact proportions as the smallest unit allows, and the same input always produces the same output.
 
 Negative values are allocated the same way as their absolute value with the parts negated, so a refund splits exactly like the original charge.
 
 #### Amounts that are not representable
 
-An amount with more precision than the policy allows, such as 100.005 USD, cannot be summed to by any set of cents. The parts can only sum to a multiple of the smallest unit, and the multiple closest to the original amount is the amount rounded to the policy, so that is what gets allocated: the total is rounded with banker's rounding first, then split. Round before allocating if a different midpoint rule is needed.
+An amount with more precision than the policy allows, such as 100.005 USD, is not a sum of whole cents. The parts can only add up to a multiple of the smallest unit, and the multiple closest to the original amount is the amount rounded to the policy. So the library rounds the total first, with banker's rounding, and then splits it. Round before allocating if you need a different midpoint rule.
 
 ### Cash allocation and custom units
 
