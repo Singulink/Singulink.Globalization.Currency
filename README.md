@@ -130,7 +130,7 @@ var everything = cldr.CreateRegistry(CurrencyTypes.All);
 var gold = everything["XAU"];
 ```
 
-Any `ICurrencyDataProvider` implementation can be used in place of the CLDR package, for example to load data that the application downloads at runtime. See the [data provider guide](https://www.singulink.com/Docs/Singulink.Globalization.Currency/articles/guides/data-providers.md) for details.
+Any `ICurrencyDataProvider` implementation can be used in place of the CLDR package, for example to load data that the application downloads at runtime. See the [data provider guide](https://www.singulink.com/Docs/Singulink.Globalization.Currency/articles/guides/data-providers.html) for details.
 
 ### Custom currencies and registries
 
