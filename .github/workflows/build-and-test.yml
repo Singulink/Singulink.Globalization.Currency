@@ -16,10 +16,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: |
-          8.0.x
-          9.0.x
-          10.0.x
+        dotnet-version: 10.0.x
     - name: Clean
       run: dotnet clean --configuration Debug && dotnet nuget locals all --clear
     - name: Install dependencies
@@ -38,10 +35,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: |
-          8.0.x
-          9.0.x
-          10.0.x
+        dotnet-version: 10.0.x
     - name: Clean
       run: dotnet clean --configuration Release && dotnet nuget locals all --clear
     - name: Install dependencies
@@ -50,3 +44,20 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --configuration Release --no-build --verbosity normal
+
+  # The system's culture data differs between Windows and Linux, so the tests for .NET also run on Linux. The solution is not built here: it has a
+  # .NET Framework test project, and the library's Windows target needs EnableWindowsTargeting to restore on Linux.
+  debug-linux:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
+    - name: Test
+      run: dotnet test --project Tests/Singulink.Globalization.Currency.Tests --configuration Debug --verbosity normal -p:EnableWindowsTargeting=true
+    - name: Test CLDR
+      run: dotnet test --project Tests/Singulink.Globalization.Currency.Cldr.Tests --configuration Debug --verbosity normal -p:EnableWindowsTargeting=true
