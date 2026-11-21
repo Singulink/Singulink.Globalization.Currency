@@ -23,6 +23,9 @@ public static class ToString
         private static readonly CultureInfo EnUS = CultureInfo.GetCultureInfo("en-US");
         private static readonly CultureInfo FrFR = CultureInfo.GetCultureInfo("fe-FR");
 
+        // The yen's symbol comes from the system's culture data, which has the fullwidth sign in some versions and the plain one in others.
+        private static readonly string Yen = Currency.GetCurrency("JPY").GetLocalizedSymbol(EnUS);
+
         private readonly IReadOnlyMoneyBag _bag = TBag.Create(CurrencyRegistry.Default, [MonetaryValue.Create(1.23m, "USD"), MonetaryValue.Create(0m, "CAD"), MonetaryValue.Create(500m, "JPY")]);
 
         [TestMethod]
@@ -46,13 +49,13 @@ public static class ToString
         [TestMethod]
         public void CustomMonetaryFormat()
         {
-            ListStringShouldBe(_bag.ToString("CNB0", EnUS), "$0, ￥500, $1");
+            ListStringShouldBe(_bag.ToString("CNB0", EnUS), $"$0, {Yen}500, $1");
         }
 
         [TestMethod]
         public void CustomMonetaryWithZeroAmountsIgnoredFormat()
         {
-            ListStringShouldBe(_bag.ToString("!CNB0", EnUS), "￥500, $1");
+            ListStringShouldBe(_bag.ToString("!CNB0", EnUS), $"{Yen}500, $1");
         }
 
         private void ListStringShouldBe(string? values1, string values2)
