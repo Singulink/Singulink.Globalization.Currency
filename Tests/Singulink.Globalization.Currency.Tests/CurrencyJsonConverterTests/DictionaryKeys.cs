@@ -29,7 +29,7 @@ public class DictionaryKeys
     {
         var options = new JsonSerializerOptions { Converters = { new CurrencyJsonConverter(TestRegistry) } };
 
-        var result = JsonSerializer.Deserialize<Dictionary<Currency, MonetaryValue>>("""{"USD":{"amount":1,"currency":"EUR"}}""", options)!;
+        var result = JsonSerializer.Deserialize<Dictionary<Currency, MonetaryValue>>("""{"USD":{"amount":1.00,"currency":"EUR"}}""", options)!;
         result.Keys.Single().ShouldBeSameAs(TestUsd);
         result[TestUsd].Currency.ShouldBeSameAs(Currency.GetCurrency("EUR"));
     }
@@ -42,10 +42,12 @@ public class DictionaryKeys
     }
 
     [TestMethod]
-    public void MonetaryValueKeys_AreNotSupported()
+    public void MonetaryValueKeys_UseRoundTripText()
     {
+        // Monetary value keys are covered in MonetaryValueJsonConverterTests.Forms; this checks that they work next to currency keys.
+
         var values = new Dictionary<MonetaryValue, int> { [new MonetaryValue(1m, "USD")] = 1 };
 
-        Should.Throw<NotSupportedException>(() => JsonSerializer.Serialize(values));
+        JsonSerializer.Serialize(values).ShouldBe("""{"USD 1.00":1}""");
     }
 }

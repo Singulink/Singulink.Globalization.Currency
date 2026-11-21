@@ -57,7 +57,7 @@ public static class Bags
 
     public abstract class Tests<TBag> where TBag : class, IReadOnlyMoneyBag
     {
-        private const string Json = """[{"amount":12.34,"currency":"USD"},{"amount":5,"currency":"EUR"}]""";
+        private const string Json = """[{"amount":12.34,"currency":"USD"},{"amount":5.00,"currency":"EUR"}]""";
 
         // A registry with its own USD and EUR, which are different currencies than the default registry's USD and EUR.
         private static readonly Currency TestUsd = new("USD", "Test Dollar");
@@ -91,11 +91,11 @@ public static class Bags
         {
             var bag = CreateDefault(new MonetaryValue(1m, "USD"), new MonetaryValue(2m, "EUR"), new MonetaryValue(3m, "CAD"), new MonetaryValue(4m, "JPY"));
 
-            string expected = "[" + string.Join(",", bag.Select(v => $$"""{"amount":{{v.Amount}},"currency":"{{v.Currency.CurrencyCode}}"}""")) + "]";
+            string expected = "[" + string.Join(",", bag.Select(v => $$"""{"amount":{{v.ToString("O")[4..]}},"currency":"{{v.Currency.CurrencyCode}}"}""")) + "]";
             JsonSerializer.Serialize(bag).ShouldBe(expected);
 
             if (bag.IsSorted)
-                JsonSerializer.Serialize(bag).ShouldBe("""[{"amount":3,"currency":"CAD"},{"amount":2,"currency":"EUR"},{"amount":4,"currency":"JPY"},{"amount":1,"currency":"USD"}]""");
+                JsonSerializer.Serialize(bag).ShouldBe("""[{"amount":3.00,"currency":"CAD"},{"amount":2.00,"currency":"EUR"},{"amount":4,"currency":"JPY"},{"amount":1.00,"currency":"USD"}]""");
         }
 
         [TestMethod]
@@ -129,13 +129,13 @@ public static class Bags
             // The bag is bound to the default registry, which the factory's registry does not match. The codes are written regardless.
 
             var bag = CreateDefault(new MonetaryValue(1m, "CAD"));
-            JsonSerializer.Serialize(bag, TestRegistryOptions).ShouldBe("""[{"amount":1,"currency":"CAD"}]""");
+            JsonSerializer.Serialize(bag, TestRegistryOptions).ShouldBe("""[{"amount":1.00,"currency":"CAD"}]""");
         }
 
         [TestMethod]
         public void CodeNotInRegistry_ThrowsJsonException()
         {
-            var ex = Should.Throw<JsonException>(() => JsonSerializer.Deserialize<TBag>("""[{"amount":1,"currency":"USD"},{"amount":1,"currency":"CAD"}]""", TestRegistryOptions));
+            var ex = Should.Throw<JsonException>(() => JsonSerializer.Deserialize<TBag>("""[{"amount":1.00,"currency":"USD"},{"amount":1.00,"currency":"CAD"}]""", TestRegistryOptions));
             ex.Message.ShouldBe("Currency code 'CAD' was not found in the 'Test' currency registry.");
             ex.Path.ShouldBe("$");
         }
@@ -163,7 +163,7 @@ public static class Bags
             var bag = CreateDefault(new MonetaryValue(0m, "USD"), new MonetaryValue(0.00m, "EUR"));
 
             string json = JsonSerializer.Serialize(bag);
-            json.ShouldContain("""{"amount":0,"currency":"USD"}""");
+            json.ShouldContain("""{"amount":0.00,"currency":"USD"}""");
             json.ShouldContain("""{"amount":0.00,"currency":"EUR"}""");
 
             var result = JsonSerializer.Deserialize<TBag>(json)!;
@@ -174,7 +174,7 @@ public static class Bags
         [TestMethod]
         public void DuplicateCurrencies_AreAdded()
         {
-            const string json = """[{"amount":1.25,"currency":"USD"},{"amount":5,"currency":"EUR"},{"amount":2,"currency":"USD"},{"amount":-0.25,"currency":"USD"}]""";
+            const string json = """[{"amount":1.25,"currency":"USD"},{"amount":5.00,"currency":"EUR"},{"amount":2.00,"currency":"USD"},{"amount":-0.25,"currency":"USD"}]""";
 
             var result = JsonSerializer.Deserialize<TBag>(json)!;
             result.Count.ShouldBe(2);
@@ -183,16 +183,16 @@ public static class Bags
         }
 
         [TestMethod]
-        [DataRow("""{"amount":1,"currency":"USD"}""", "Expected an array of monetary values for a money bag but found a token of type 'StartObject'.", DisplayName = "Object")]
+        [DataRow("""{"amount":1.00,"currency":"USD"}""", "Expected an array of monetary values for a money bag but found a token of type 'StartObject'.", DisplayName = "Object")]
         [DataRow("12", "Expected an array of monetary values for a money bag but found a token of type 'Number'.", DisplayName = "Number")]
         [DataRow("\"USD 12\"", "Expected an array of monetary values for a money bag but found a token of type 'String'.", DisplayName = "String")]
-        [DataRow("""[{"amount":1,"currency":"USD"},null]""", "The money bag contains a null element at index 1.", DisplayName = "Null element")]
-        [DataRow("""[12]""", "Expected a monetary value object or null but found a token of type 'Number'.", DisplayName = "Number element")]
-        [DataRow("""[["USD",1]]""", "Expected a monetary value object or null but found a token of type 'StartArray'.", DisplayName = "Array element")]
+        [DataRow("""[{"amount":1.00,"currency":"USD"},null]""", "Expected a monetary value object or a string but found a token of type 'Null'.", DisplayName = "Null element")]
+        [DataRow("""[12]""", "Expected a monetary value object or a string but found a token of type 'Number'.", DisplayName = "Number element")]
+        [DataRow("""[["USD",1]]""", "Expected a monetary value object or a string but found a token of type 'StartArray'.", DisplayName = "Array element")]
         [DataRow("""[{"amount":"1","currency":"USD"}]""", "Expected a number for the 'amount' property but found a token of type 'String'.", DisplayName = "String amount")]
         [DataRow("""[{"amount":1}]""", "The monetary value is missing the 'currency' property.", DisplayName = "Missing currency")]
         [DataRow("""[{"currency":"USD"}]""", "The monetary value is missing the 'amount' property.", DisplayName = "Missing amount")]
-        [DataRow("""[{"amount":1,"currency":"ZZZ"}]""", "Currency code 'ZZZ' was not found in the '", DisplayName = "Unknown code")]
+        [DataRow("""[{"amount":1.00,"currency":"ZZZ"}]""", "Currency code 'ZZZ' was not found in the '", DisplayName = "Unknown code")]
         public void BadInput_ThrowsJsonException(string json, string message)
         {
             var ex = Should.Throw<JsonException>(() => JsonSerializer.Deserialize<TBag>(json));
@@ -203,7 +203,7 @@ public static class Bags
         [TestMethod]
         public void TruncatedInput_ThrowsJsonException()
         {
-            Should.Throw<JsonException>(() => JsonSerializer.Deserialize<TBag>("""[{"amount":1,"currency":"USD"}"""));
+            Should.Throw<JsonException>(() => JsonSerializer.Deserialize<TBag>("""[{"amount":1.00,"currency":"USD"}"""));
         }
 
         [TestMethod]
@@ -212,7 +212,7 @@ public static class Bags
             var holder = new Holder { Bag = CreateDefault(new MonetaryValue(1m, "USD")), Missing = null };
 
             string json = JsonSerializer.Serialize(holder);
-            json.ShouldBe("""{"Bag":[{"amount":1,"currency":"USD"}],"Missing":null}""");
+            json.ShouldBe("""{"Bag":[{"amount":1.00,"currency":"USD"}],"Missing":null}""");
 
             var result = JsonSerializer.Deserialize<Holder>(json, TestRegistryOptions)!;
             result.Bag!.Registry.ShouldBeSameAs(TestRegistry);
@@ -223,7 +223,7 @@ public static class Bags
         [TestMethod]
         public void BadElementInProperty_ExceptionHasPath()
         {
-            var ex = Should.Throw<JsonException>(() => JsonSerializer.Deserialize<Holder>("""{"Bag":[{"amount":1,"currency":"ZZZ"}]}"""));
+            var ex = Should.Throw<JsonException>(() => JsonSerializer.Deserialize<Holder>("""{"Bag":[{"amount":1.00,"currency":"ZZZ"}]}"""));
             ex.Path.ShouldBe("$.Bag");
         }
 
@@ -233,7 +233,7 @@ public static class Bags
             List<TBag> bags = [CreateDefault(new MonetaryValue(1m, "USD")), CreateDefault(), CreateDefault(new MonetaryValue(2m, "EUR"))];
 
             string json = JsonSerializer.Serialize(bags);
-            json.ShouldBe("""[[{"amount":1,"currency":"USD"}],[],[{"amount":2,"currency":"EUR"}]]""");
+            json.ShouldBe("""[[{"amount":1.00,"currency":"USD"}],[],[{"amount":2.00,"currency":"EUR"}]]""");
 
             var result = JsonSerializer.Deserialize<List<TBag>>(json, TestRegistryOptions)!;
             result.Count.ShouldBe(3);
@@ -247,7 +247,7 @@ public static class Bags
             var accounts = new Dictionary<string, TBag> { ["cash"] = CreateDefault(new MonetaryValue(1m, "USD")), ["card"] = CreateDefault(new MonetaryValue(2m, "EUR")) };
 
             string json = JsonSerializer.Serialize(accounts);
-            json.ShouldBe("""{"cash":[{"amount":1,"currency":"USD"}],"card":[{"amount":2,"currency":"EUR"}]}""");
+            json.ShouldBe("""{"cash":[{"amount":1.00,"currency":"USD"}],"card":[{"amount":2.00,"currency":"EUR"}]}""");
 
             var result = JsonSerializer.Deserialize<Dictionary<string, TBag>>(json)!;
             result["cash"].ShouldBe(accounts["cash"]);
@@ -275,7 +275,7 @@ public static class Bags
             result.Currencies.ShouldBe([Currency.GetCurrency("USD"), Currency.GetCurrency("EUR")], ignoreOrder: true);
 
             // Values outside bags still use the value converter.
-            JsonSerializer.Deserialize<MonetaryValue>("""{"amount":1,"currency":"USD"}""", options).Currency.ShouldBeSameAs(TestUsd);
+            JsonSerializer.Deserialize<MonetaryValue>("""{"amount":1.00,"currency":"USD"}""", options).Currency.ShouldBeSameAs(TestUsd);
         }
 
         [TestMethod]
@@ -297,19 +297,19 @@ public static class Bags
             var bag = CreateDefault(new MonetaryValue(1m, "USD"));
 
             string json = JsonSerializer.Serialize(bag, options);
-            json.ShouldBe("""[{"AMOUNT":1,"CURRENCY":"USD"}]""");
+            json.ShouldBe("""[{"AMOUNT":1.00,"CURRENCY":"USD"}]""");
             JsonSerializer.Deserialize<TBag>(json, options).ShouldBe(bag);
 
-            Should.Throw<JsonException>(() => JsonSerializer.Deserialize<TBag>("""[{"amount":1,"currency":"USD"}]""", options));
+            Should.Throw<JsonException>(() => JsonSerializer.Deserialize<TBag>("""[{"amount":1.00,"currency":"USD"}]""", options));
         }
 
         [TestMethod]
         public void CaseInsensitive_PassesThroughToEntries()
         {
-            Should.Throw<JsonException>(() => JsonSerializer.Deserialize<TBag>("""[{"Amount":1,"CURRENCY":"USD"}]"""));
+            Should.Throw<JsonException>(() => JsonSerializer.Deserialize<TBag>("""[{"Amount":1.00,"CURRENCY":"USD"}]"""));
 
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            JsonSerializer.Deserialize<TBag>("""[{"Amount":1,"CURRENCY":"USD"}]""", options).ShouldBe(CreateDefault(new MonetaryValue(1m, "USD")));
+            JsonSerializer.Deserialize<TBag>("""[{"Amount":1.00,"CURRENCY":"USD"}]""", options).ShouldBe(CreateDefault(new MonetaryValue(1m, "USD")));
         }
 
         public class Holder

@@ -24,6 +24,10 @@ partial struct MonetaryValue
     /// <param name="s">The string representation of the monetary value to convert.</param>
     /// <param name="style">A combination of <see cref="MonetaryStyles"/> values that indicate the styles that can be parsed.</param>
     /// <param name="provider">A format provider that supplies culture-specific parsing information.</param>
+    /// <remarks>
+    /// A zero amount without a currency is read as the <see cref="MonetaryValue.Default"/> value, which has no currency. The round-trip format <c>"O"</c>
+    /// writes the default value that way.
+    /// </remarks>
     public static MonetaryValue Parse(ReadOnlySpan<char> s, MonetaryStyles style = MonetaryStyles.CurrencyCode, IFormatProvider? provider = null)
         => CurrencyRegistry.Default.ParseMonetaryValue(s, style, provider);
 
@@ -51,6 +55,10 @@ partial struct MonetaryValue
     /// <param name="provider">A format provider that supplies culture-specific parsing information.</param>
     /// <param name="result">The parsed monetary value if parsing was successful; otherwise a default monetary value.</param>
     /// <returns><see langword="true"/> if parsing was successful; otherwise <see langword="false"/>.</returns>
+    /// <remarks>
+    /// A zero amount without a currency is read as the <see cref="MonetaryValue.Default"/> value, which has no currency. The round-trip format <c>"O"</c>
+    /// writes the default value that way.
+    /// </remarks>
     public static bool TryParse(ReadOnlySpan<char> s, MonetaryStyles style, IFormatProvider? provider, out MonetaryValue result)
     {
         return CurrencyRegistry.Default.TryParseMonetaryValue(s, style, provider, out result);

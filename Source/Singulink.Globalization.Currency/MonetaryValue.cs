@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
@@ -9,7 +10,8 @@ namespace Singulink.Globalization;
 /// </summary>
 [DebuggerDisplay("{ToString(),nq}")]
 [JsonConverter(typeof(MonetaryValueJsonConverter))]
-public readonly partial struct MonetaryValue : IComparable<MonetaryValue>, IEquatable<MonetaryValue>
+[TypeConverter(typeof(MonetaryValueTypeConverter))]
+public readonly partial struct MonetaryValue : IComparable<MonetaryValue>, IComparable, IEquatable<MonetaryValue>
 {
     /// <summary>
     /// Gets the default <see cref="MonetaryValue"/> value, which is not associated with any currency and has a zero amount.
@@ -32,6 +34,14 @@ public readonly partial struct MonetaryValue : IComparable<MonetaryValue>, IEqua
     {
         _amount = amount;
         _currency = currency;
+    }
+
+    // Not called by this library. Entity Framework Core binds a constructor to mapped properties by parameter name, and it also binds private constructors.
+    // A complex property that maps CurrencyOrDefault (and not Currency) is therefore created through this constructor, so it can hold the default value.
+    // The parameter names must stay equal to the property names, and the parameter order must differ from the public constructor.
+    private MonetaryValue(Currency? currencyOrDefault, decimal amount)
+    {
+        this = CreateOrDefault(amount, currencyOrDefault);
     }
 
     /// <summary>
@@ -109,13 +119,41 @@ public readonly partial struct MonetaryValue : IComparable<MonetaryValue>, IEqua
     public bool IsDefault => _currency is null;
 
     /// <summary>
-    /// Compares this value to the specified value. Values in different currencies are ordered by their currencies first.
+    /// Deconstructs this value into its amount and its currency, i.e. <c>var (amount, currency) = value;</c>. The currency is <see langword="null"/> for the
+    /// default value, as <see cref="CurrencyOrDefault"/> is.
+    /// </summary>
+    /// <param name="amount">The amount of this value.</param>
+    /// <param name="currency">The currency of this value, or <see langword="null"/> if this is the default value.</param>
+    public void Deconstruct(out decimal amount, out Currency? currency)
+    {
+        amount = _amount;
+        currency = _currency;
+    }
+
+    /// <summary>
+    /// Compares this value to the specified value. Values in different currencies cannot be compared.
     /// </summary>
     /// <exception cref="ArgumentException">Invalid comparison between values that have different currencies.</exception>
     public int CompareTo(MonetaryValue other)
     {
         EnsureSameCurrencyForCompare(_currency, other._currency);
         return _amount.CompareTo(other._amount);
+    }
+
+    /// <summary>
+    /// Compares this value to the specified object, which must be a <see cref="MonetaryValue"/> or <see langword="null"/>. Any value is greater than <see
+    /// langword="null"/>. Values in different currencies cannot be compared.
+    /// </summary>
+    /// <exception cref="ArgumentException">The object is not a <see cref="MonetaryValue"/>, or the values have different currencies.</exception>
+    public int CompareTo(object? obj)
+    {
+        if (obj is null)
+            return 1;
+
+        if (obj is not MonetaryValue other)
+            throw new ArgumentException($"Object must be of type {nameof(MonetaryValue)}.", nameof(obj));
+
+        return CompareTo(other);
     }
 
     /// <summary>
@@ -128,6 +166,40 @@ public readonly partial struct MonetaryValue : IComparable<MonetaryValue>, IEqua
     }
 
     /// <summary>
+    /// Returns a value in the same currency with the amount rounded to the specified number of decimal places using the specified midpoint rounding mode
+    /// (which defaults to <see cref="MidpointRounding.ToEven"/> "banker's rounding"), whatever the currency's own decimal digits are.
+    /// </summary>
+    /// <param name="decimals">The number of decimal places to round the amount to, from <c>0</c> to <c>28</c>.</param>
+    /// <param name="mode">The midpoint rounding mode.</param>
+    /// <remarks>
+    /// Use this method for amounts that are finer than the currency, such as a unit price or a rate. An amount that already has no more than the specified
+    /// decimal places is returned unchanged.
+    /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="decimals"/> is less than <c>0</c> or greater than <c>28</c>.</exception>
+    public MonetaryValue Round(int decimals, MidpointRounding mode = MidpointRounding.ToEven)
+    {
+        if (decimals is < 0 or > 28)
+            throw new ArgumentOutOfRangeException(nameof(decimals), "Decimals must be between 0 and 28.");
+
+        return _currency is null ? this : new MonetaryValue(Math.Round(_amount, decimals, mode), _currency);
+    }
+
+    /// <summary>
+    /// Returns a value in the same currency with the amount rounded according to the specified rounding policy using the specified midpoint rounding
+    /// mode (which defaults to <see cref="MidpointRounding.ToEven"/> "banker's rounding").
+    /// </summary>
+    /// <param name="policy">The rounding policy to round the amount to, including its rounding increment, such as a policy that rounds to <c>0.05</c>.</param>
+    /// <param name="mode">The midpoint rounding mode.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="policy"/> is <see langword="null"/>.</exception>
+    public MonetaryValue Round(RoundingPolicy policy, MidpointRounding mode = MidpointRounding.ToEven)
+    {
+        if (policy is null)
+            throw new ArgumentNullException(nameof(policy));
+
+        return _currency is null ? this : new MonetaryValue(policy.RoundAmount(_amount, mode), _currency);
+    }
+
+    /// <summary>
     /// Returns a value rounded according to the currency's <see cref="Currency.CashRoundingPolicy"/> using the specified midpoint rounding mode (which
     /// defaults to <see cref="MidpointRounding.ToEven"/> "banker's rounding").
     /// </summary>
@@ -136,6 +208,29 @@ public readonly partial struct MonetaryValue : IComparable<MonetaryValue>, IEqua
     public MonetaryValue RoundToCash(MidpointRounding mode = MidpointRounding.ToEven)
     {
         return _currency is null ? this : new MonetaryValue(_currency.GetRequiredCashRoundingPolicy().RoundAmount(_amount, mode), _currency);
+    }
+
+    /// <summary>
+    /// Returns a value in the same currency with the amount that the specified function returns for this value's amount.
+    /// </summary>
+    /// <param name="transform">The function that is called once with the amount and returns the new amount.</param>
+    /// <remarks>
+    /// <para>
+    /// A value with a currency keeps its currency whatever the function returns, so a result of zero is a zero in that currency, not <see
+    /// cref="Default"/>.</para>
+    /// <para>
+    /// The default value has no currency. The function is called with <c>0</c>: a result of zero returns the default value, and any other result throws
+    /// the same exception as <see cref="CreateOrDefault(decimal, Currency?)"/> with a non-zero amount and no currency. Check <see cref="IsDefault"/> first
+    /// if the function can turn zero into another amount.</para>
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="transform"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">This value is the default value and the function returns a non-zero amount.</exception>
+    public MonetaryValue TransformAmount(Func<decimal, decimal> transform)
+    {
+        if (transform is null)
+            throw new ArgumentNullException(nameof(transform));
+
+        return CreateOrDefault(transform(_amount), _currency);
     }
 
     /// <summary>

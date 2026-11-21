@@ -21,6 +21,10 @@ partial class CurrencyRegistry
     /// <param name="result">The parsed monetary value if parsing was successful; otherwise a default monetary value.</param>
     /// <param name="error">An error message if parsing failed; otherwise an empty string.</param>
     /// <returns><see langword="true"/> if parsing was successful; otherwise <see langword="false"/>.</returns>
+    /// <remarks>
+    /// A zero amount without a currency is read as the <see cref="MonetaryValue.Default"/> value, which has no currency. The round-trip format <c>"O"</c>
+    /// writes the default value that way.
+    /// </remarks>
     public bool TryParseMonetaryValue(ReadOnlySpan<char> s, MonetaryStyles style, IFormatProvider? provider, out MonetaryValue result, out string error)
         => TryParseMonetaryValue(s, style, provider, out result, true, out error);
 
@@ -42,6 +46,10 @@ partial class CurrencyRegistry
     /// culture.</param>
     /// <returns>The parsed monetary value.</returns>
     /// <exception cref="FormatException">The string is not in a valid format.</exception>
+    /// <remarks>
+    /// A zero amount without a currency is read as the <see cref="MonetaryValue.Default"/> value, which has no currency. The round-trip format <c>"O"</c>
+    /// writes the default value that way.
+    /// </remarks>
     public MonetaryValue ParseMonetaryValue(ReadOnlySpan<char> s, MonetaryStyles style = MonetaryStyles.CurrencyCode, IFormatProvider? provider = null)
     {
         if (!TryParseMonetaryValue(s, style, provider, out var result, true, out string error))
@@ -113,6 +121,15 @@ partial class CurrencyRegistry
 
             if (currencyIndicator.Length is 0)
             {
+                // A value without a currency can only be the default value, which has a zero amount. The round-trip format writes it as "0".
+
+                if (amount is 0)
+                {
+                    error = string.Empty;
+                    result = default;
+                    return true;
+                }
+
                 error = buildError ? $"The input string '{original.ToString()}' does not contain a currency code." : string.Empty;
                 goto Error;
             }
@@ -172,6 +189,9 @@ partial class CurrencyRegistry
                     errors.Add($"Unambiguous currency symbol: {unambiguousSymbolError}");
 
                 error += string.Join(", ", errors);
+
+                if (GetNoCurrencyDataHint() is string hint)
+                    error += $". {hint}";
 
                 goto Error;
             }
@@ -425,6 +445,8 @@ partial class CurrencyRegistry
 
             NumberFormatInfo formatInfo;
 
+            // The literal "$" is a deliberate whitelist: it is the one currency symbol that the runtime's cultures (kea-CV, pt-CV) use as a decimal
+            // separator. Add another separator here only together with tests for it.
             if (alteredNumberFormatInfo.NumberDecimalSeparator is "$")
             {
                 if (currencyIndicator.Length is 0)
@@ -437,8 +459,9 @@ partial class CurrencyRegistry
                     }
                     else
                     {
-                        result = 0;
-                        return false;
+                        // No currency at all: read the number as it is read next to a currency code, so that a zero parses as the default value and any
+                        // other amount fails for its missing currency, as in every other culture.
+                        formatInfo = originalFormatInfo;
                     }
                 }
                 else

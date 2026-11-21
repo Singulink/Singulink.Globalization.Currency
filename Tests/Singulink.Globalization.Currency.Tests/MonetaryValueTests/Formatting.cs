@@ -43,6 +43,37 @@ public class Formatting
     }
 
     [TestMethod]
+    [DataRow("en-US", true)]
+    [DataRow("en-GB", true)]
+    [DataRow("en-IE", true)]
+    [DataRow("ga-IE", true)]
+    [DataRow("mt-MT", true)]
+    [DataRow("", true)] // The invariant culture is based on English
+    [DataRow("lv-LV", false)] // Latvian wrote the code first until the end of 2017
+    [DataRow("nl-NL", false)] // Dutch writes the symbol first and the code last
+    [DataRow("de-DE", false)]
+    [DataRow("fr-FR", false)]
+    [DataRow("pt-PT", false)]
+    [DataRow("ja-JP", false)]
+    public void DefaultFormat_CodePositionFollowsTheLanguage(string cultureName, bool codeFirst)
+    {
+        // The rule of the EU's Interinstitutional Style Guide (7.3.3): the code goes before the amount in English, Irish and Maltese and after it in
+        // every other language. The culture is passed, so the result does not depend on the culture of the machine that runs the test.
+
+        var culture = CultureInfo.GetCultureInfo(cultureName);
+
+        foreach (string? format in new[] { null, "G" })
+        {
+            string text = MonetaryValue.Create(1234.5m, "EUR").ToString(format, culture);
+
+            if (codeFirst)
+                text.ShouldStartWith($"EUR{Sp}");
+            else
+                text.ShouldEndWith($"{Sp}EUR");
+        }
+    }
+
+    [TestMethod]
     public void CurrencyFormat_ResultFormatIsInternational()
     {
         CultureInfo.CurrentCulture = EnUS;
@@ -95,7 +126,8 @@ public class Formatting
 
         MonetaryValue.Create(1123.45m, "CVE").ToString("L", KeaCV).ShouldBe($"1{Sp}123$45");
         MonetaryValue.Create(1123.45m, "CVE").ToString("C", KeaCV).ShouldBe($"1{Sp}123$45");
-        MonetaryValue.Create(1123.45m, "USD").ToString("C", KeaCV).ShouldBe($"1{Sp}123$45");
+        MonetaryValue.Create(1123.45m, "USD").ToString("C", KeaCV).ShouldBe($"1{Sp}123,45{Sp}$");
+        MonetaryValue.Create(1123.45m, "CAD").ToString("C", KeaCV).ShouldBe($"1{Sp}123,45{Sp}$");
         MonetaryValue.Create(1123.45m, "EUR").ToString("C", KeaCV).ShouldBe($"1{Sp}123,45{Sp}€");
         MonetaryValue.Create(1123.45m, "GBP").ToString("C", KeaCV).ShouldBe($"1{Sp}123,45{Sp}£");
 
@@ -103,9 +135,50 @@ public class Formatting
 
         MonetaryValue.Create(1123.45m, "CVE").ToString("L").ShouldBe($"1{Sp}123$45");
         MonetaryValue.Create(1123.45m, "CVE").ToString("C").ShouldBe($"1{Sp}123$45");
-        MonetaryValue.Create(1123.45m, "USD").ToString("C").ShouldBe($"1{Sp}123$45");
+        MonetaryValue.Create(1123.45m, "USD").ToString("C").ShouldBe($"1{Sp}123,45{Sp}$");
+        MonetaryValue.Create(1123.45m, "CAD").ToString("C").ShouldBe($"1{Sp}123,45{Sp}$");
         MonetaryValue.Create(1123.45m, "EUR").ToString("C").ShouldBe($"1{Sp}123,45{Sp}€");
         MonetaryValue.Create(1123.45m, "GBP").ToString("C").ShouldBe($"1{Sp}123,45{Sp}£");
+    }
+
+    [TestMethod]
+    public void CurrencyFormat_Symbol_SymbolAsDecimalSeparatorCulture_AlwaysWritesDecimals()
+    {
+        CultureInfo.CurrentCulture = EnUS;
+
+        // The decimal separator is the only sign of the currency, so a format that would leave the decimals out writes zeros.
+
+        MonetaryValue.Create(5m, "CVE").ToString("C*", KeaCV).ShouldBe("5$00");
+        MonetaryValue.Create(5m, "CVE").ToString("L*", KeaCV).ShouldBe("5$00");
+        MonetaryValue.Create(-5m, "CVE").ToString("C*", KeaCV).ShouldBe("-5$00");
+        MonetaryValue.Create(1123.45m, "CVE").ToString("CB0", KeaCV).ShouldBe($"1{Sp}123$00");
+        MonetaryValue.Create(1123.5m, "CVE").ToString("CA0", KeaCV).ShouldBe($"1{Sp}124$00");
+        MonetaryValue.Create(1123.45m, "CVE").ToString("CB1", KeaCV).ShouldBe($"1{Sp}123$4");
+
+        MonetaryValue.Parse("5$00", MonetaryStyles.LocalSymbol, KeaCV).ShouldBe(MonetaryValue.Create(5m, "CVE"));
+
+        // Another currency, also one with the same symbol, and a currency code are written without decimals.
+
+        MonetaryValue.Create(5m, "EUR").ToString("C*", KeaCV).ShouldBe($"5{Sp}€");
+        MonetaryValue.Create(5m, "CAD").ToString("C*", KeaCV).ShouldBe($"5{Sp}$");
+        MonetaryValue.Create(5m, "CVE").ToString("G*", KeaCV).ShouldBe($"5{Sp}CVE");
+    }
+
+    [TestMethod]
+    public void CurrencyFormat_Symbol_SymbolAsDecimalSeparatorFormatInfoWithAnotherCulture()
+    {
+        // The format info of such a culture, passed while another culture is current, does not make that culture's currency the escudo: no
+        // currency is written with its symbol in place of the separator.
+
+        CultureInfo.CurrentCulture = EnUS;
+
+        MonetaryValue.Create(1123.45m, "CVE").ToString("C", KeaCV.NumberFormat).ShouldBe($"1{Sp}123,45{Sp}$");
+        MonetaryValue.Create(1123.45m, "USD").ToString("C", KeaCV.NumberFormat).ShouldBe($"1{Sp}123,45{Sp}$");
+
+        CultureInfo.CurrentCulture = KeaCV;
+
+        MonetaryValue.Create(1123.45m, "CVE").ToString("C", KeaCV.NumberFormat).ShouldBe($"1{Sp}123$45");
+        MonetaryValue.Create(1123.45m, "USD").ToString("C", KeaCV.NumberFormat).ShouldBe($"1{Sp}123,45{Sp}$");
     }
 
     [TestMethod]

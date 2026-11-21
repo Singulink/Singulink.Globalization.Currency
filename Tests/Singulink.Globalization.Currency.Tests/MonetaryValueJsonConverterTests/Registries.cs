@@ -12,7 +12,7 @@ public class Registries
     [TestMethod]
     public void Attribute_ReadsFromDefaultRegistry()
     {
-        var result = JsonSerializer.Deserialize<MonetaryValue>("""{"amount":1,"currency":"USD"}""");
+        var result = JsonSerializer.Deserialize<MonetaryValue>("""{"amount":1.00,"currency":"USD"}""");
         result.Currency.ShouldBeSameAs(CurrencyRegistry.Default["USD"]);
     }
 
@@ -21,7 +21,7 @@ public class Registries
     {
         var options = new JsonSerializerOptions { Converters = { new MonetaryValueJsonConverter() } };
 
-        var result = JsonSerializer.Deserialize<MonetaryValue>("""{"amount":1,"currency":"USD"}""", options);
+        var result = JsonSerializer.Deserialize<MonetaryValue>("""{"amount":1.00,"currency":"USD"}""", options);
         result.Currency.ShouldBeSameAs(CurrencyRegistry.Default["USD"]);
     }
 
@@ -30,11 +30,11 @@ public class Registries
     {
         var options = new JsonSerializerOptions { Converters = { new MonetaryValueJsonConverter(TestRegistry) } };
 
-        var result = JsonSerializer.Deserialize<MonetaryValue>("""{"amount":1,"currency":"USD"}""", options);
+        var result = JsonSerializer.Deserialize<MonetaryValue>("""{"amount":1.00,"currency":"USD"}""", options);
         result.Currency.ShouldBeSameAs(TestUsd);
         result.Currency.ShouldNotBeSameAs(CurrencyRegistry.Default["USD"]);
 
-        var order = JsonSerializer.Deserialize<RoundTrip.Order>("""{"Price":{"amount":1,"currency":"USD"},"Discount":{"amount":2,"currency":"XXXX"}}""", options)!;
+        var order = JsonSerializer.Deserialize<RoundTrip.Order>("""{"Price":{"amount":1.00,"currency":"USD"},"Discount":{"amount":2.00,"currency":"XXXX"}}""", options)!;
         order.Price.Currency.ShouldBeSameAs(TestUsd);
         order.Discount!.Value.Currency.ShouldBeSameAs(Common.CurrencyX);
     }
@@ -46,7 +46,7 @@ public class Registries
 
         var options = new JsonSerializerOptions { Converters = { new MonetaryValueJsonConverter(TestRegistry) } };
 
-        var ex = Should.Throw<JsonException>(() => JsonSerializer.Deserialize<MonetaryValue>("""{"amount":1,"currency":"EUR"}""", options));
+        var ex = Should.Throw<JsonException>(() => JsonSerializer.Deserialize<MonetaryValue>("""{"amount":1.00,"currency":"EUR"}""", options));
         ex.Message.ShouldBe("Currency code 'EUR' was not found in the 'Test' currency registry.");
         ex.Path.ShouldBe("$");
     }
@@ -58,7 +58,7 @@ public class Registries
 
         var options = new JsonSerializerOptions { Converters = { new MonetaryValueJsonConverter(TestRegistry) } };
 
-        JsonSerializer.Serialize(new MonetaryValue(3m, "EUR"), options).ShouldBe("""{"amount":3,"currency":"EUR"}""");
-        JsonSerializer.Serialize(new MonetaryValue(3m, Common.CurrencyY)).ShouldBe("""{"amount":3,"currency":"YYYY"}""");
+        JsonSerializer.Serialize(new MonetaryValue(3m, "EUR"), options).ShouldBe("""{"amount":3.00,"currency":"EUR"}""");
+        JsonSerializer.Serialize(new MonetaryValue(3m, Common.CurrencyY)).ShouldBe("""{"amount":3.00,"currency":"YYYY"}""");
     }
 }

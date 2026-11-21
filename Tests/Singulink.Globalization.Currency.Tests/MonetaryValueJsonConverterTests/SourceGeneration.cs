@@ -20,8 +20,8 @@ public partial class SourceGeneration
         };
 
         string json = JsonSerializer.Serialize(wallet, InvoiceContext.Default.Wallet);
-        json.ShouldStartWith("""{"Cash":[{"amount":1,"currency":"USD"},{"amount":2.50,"currency":"EUR"}],""");
-        json.ShouldEndWith("""],"Savings":[{"amount":4,"currency":"CAD"},{"amount":3,"currency":"USD"}],"Archive":[{"amount":0,"currency":"JPY"}],"Ledger":null}""");
+        json.ShouldStartWith("""{"Cash":[{"amount":1.00,"currency":"USD"},{"amount":2.50,"currency":"EUR"}],""");
+        json.ShouldEndWith("""],"Savings":[{"amount":4.00,"currency":"CAD"},{"amount":3.00,"currency":"USD"}],"Archive":[{"amount":0,"currency":"JPY"}],"Ledger":null}""");
 
         var result = JsonSerializer.Deserialize(json, InvoiceContext.Default.Wallet)!;
         result.Cash.ShouldBe(wallet.Cash);
@@ -38,7 +38,7 @@ public partial class SourceGeneration
             TypeInfoResolver = InvoiceContext.Default,
         };
 
-        var result = JsonSerializer.Deserialize<Wallet>("""{"Cash":[{"amount":1,"currency":"USD"}],"Ledger":[]}""", options)!;
+        var result = JsonSerializer.Deserialize<Wallet>("""{"Cash":[{"amount":1.00,"currency":"USD"}],"Ledger":[]}""", options)!;
         result.Cash!.Registry.ShouldBeSameAs(TestRegistry);
         result.Cash["USD"].Currency.ShouldBeSameAs(TestUsd);
         result.Ledger!.Registry.ShouldBeSameAs(TestRegistry);
@@ -54,9 +54,9 @@ public partial class SourceGeneration
         };
 
         string json = JsonSerializer.Serialize(wallet, InvoiceContext.Default.InterfaceWallet);
-        json.ShouldBe("""{"Cash":[{"amount":2,"currency":"CAD"},{"amount":1,"currency":"USD"}],"Spending":[{"amount":3,"currency":"EUR"}],"Archive":null}""");
+        json.ShouldBe("""{"Cash":[{"amount":2.00,"currency":"CAD"},{"amount":1.00,"currency":"USD"}],"Spending":[{"amount":3.00,"currency":"EUR"}],"Archive":null}""");
 
-        var result = JsonSerializer.Deserialize("""{"Cash":[{"amount":1,"currency":"USD"}],"Spending":[],"Archive":[{"amount":0,"currency":"JPY"}]}""", InvoiceContext.Default.InterfaceWallet)!;
+        var result = JsonSerializer.Deserialize("""{"Cash":[{"amount":1.00,"currency":"USD"}],"Spending":[],"Archive":[{"amount":0,"currency":"JPY"}]}""", InvoiceContext.Default.InterfaceWallet)!;
         result.Cash.ShouldBeOfType<MoneyBag>().Single().ShouldBe(new MonetaryValue(1m, "USD"));
         result.Spending.ShouldBeOfType<MoneyBag>().Count.ShouldBe(0);
         result.Archive.ShouldBeOfType<ImmutableMoneyBag>().Single().ShouldBe(new MonetaryValue(0m, "JPY"));
@@ -70,10 +70,66 @@ public partial class SourceGeneration
             TypeInfoResolver = InvoiceContext.Default,
         };
 
-        var result = JsonSerializer.Deserialize<InterfaceWallet>("""{"Cash":[{"amount":1,"currency":"USD"}],"Archive":[]}""", options)!;
+        var result = JsonSerializer.Deserialize<InterfaceWallet>("""{"Cash":[{"amount":1.00,"currency":"USD"}],"Archive":[]}""", options)!;
         result.Cash!.Registry.ShouldBeSameAs(TestRegistry);
         result.Cash["USD"].Currency.ShouldBeSameAs(TestUsd);
         result.Archive!.Registry.ShouldBeSameAs(TestRegistry);
+    }
+
+    [TestMethod]
+    public void GeneratedContext_TextFormNumberHandlingAndKeys()
+    {
+        var ledger = new Ledger {
+            Total = new MonetaryValue(12.3m, "USD"),
+            Bag = [new(1m, "EUR"), new(2.5m, "USD")],
+            Counts = new() { [new MonetaryValue(5m, "JPY")] = 3 },
+        };
+
+        var textOptions = new JsonSerializerOptions {
+            Converters = { new MonetaryValueJsonConverter(MonetaryJsonFormat.Text), new MoneyBagJsonConverterFactory(MonetaryJsonFormat.Text) },
+            TypeInfoResolver = InvoiceContext.Default,
+        };
+
+        string json = JsonSerializer.Serialize(ledger, textOptions);
+        json.ShouldBe("""{"Total":"USD 12.30","Bag":["EUR 1.00","USD 2.50"],"Counts":{"JPY 5":3}}""");
+
+        var fromText = JsonSerializer.Deserialize<Ledger>(json, textOptions)!;
+        fromText.Total.ShouldBe(ledger.Total);
+        fromText.Bag.ShouldBe(ledger.Bag);
+        fromText.Counts![new MonetaryValue(5m, "JPY")].ShouldBe(3);
+
+        var numberOptions = new JsonSerializerOptions {
+            NumberHandling = JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString,
+            TypeInfoResolver = InvoiceContext.Default,
+        };
+
+        json = JsonSerializer.Serialize(ledger, numberOptions);
+        json.ShouldBe("""{"Total":{"amount":"12.30","currency":"USD"},"Bag":[{"amount":"1.00","currency":"EUR"},{"amount":"2.50","currency":"USD"}],"Counts":{"JPY 5":"3"}}""");
+
+        var fromNumbers = JsonSerializer.Deserialize<Ledger>(json, numberOptions)!;
+        fromNumbers.Total.ShouldBe(ledger.Total);
+        fromNumbers.Bag.ShouldBe(ledger.Bag);
+
+        // The default value, in the generated context's own options.
+        string defaultJson = JsonSerializer.Serialize(new Ledger(), InvoiceContext.Default.Ledger);
+        defaultJson.ShouldBe("""{"Total":{"amount":0,"currency":null},"Bag":null,"Counts":null}""");
+        JsonSerializer.Deserialize(defaultJson, InvoiceContext.Default.Ledger)!.Total.IsDefault.ShouldBeTrue();
+
+        // An amount with more than 15 significant digits throws in the default form and is written in full with LossyNumberObject.
+        var exact = new Ledger { Total = new MonetaryValue(10m / 3, "USD") };
+        Should.Throw<ArgumentException>(() => JsonSerializer.Serialize(exact, InvoiceContext.Default.Ledger));
+
+        var lossyOptions = new JsonSerializerOptions {
+            Converters = { new MonetaryValueJsonConverter(MonetaryJsonFormat.LossyNumberObject) },
+            TypeInfoResolver = InvoiceContext.Default,
+        };
+
+        string lossyJson = JsonSerializer.Serialize(exact, lossyOptions);
+        lossyJson.ShouldStartWith("""{"Total":{"amount":3.3333333333333333333333333333,"currency":"USD"}""");
+        JsonSerializer.Deserialize(lossyJson, InvoiceContext.Default.Ledger)!.Total.ShouldBe(exact.Total);
+
+        // The generated context's own options read the text form as well.
+        JsonSerializer.Deserialize("""{"Total":"USD 12.3"}""", InvoiceContext.Default.Ledger)!.Total.ShouldBe(ledger.Total);
     }
 
     [TestMethod]
@@ -104,7 +160,7 @@ public partial class SourceGeneration
             TypeInfoResolver = InvoiceContext.Default,
         };
 
-        var result = JsonSerializer.Deserialize<Invoice>("""{"Total":{"amount":1,"currency":"USD"}}""", options)!;
+        var result = JsonSerializer.Deserialize<Invoice>("""{"Total":{"amount":1.00,"currency":"USD"}}""", options)!;
         result.Total.Currency.ShouldBeSameAs(TestUsd);
     }
 
@@ -139,8 +195,18 @@ public partial class SourceGeneration
         public IImmutableMoneyBag? Archive { get; set; }
     }
 
+    public class Ledger
+    {
+        public MonetaryValue Total { get; set; }
+
+        public SortedMoneyBag? Bag { get; set; }
+
+        public Dictionary<MonetaryValue, int>? Counts { get; set; }
+    }
+
     [JsonSerializable(typeof(Invoice))]
     [JsonSerializable(typeof(Wallet))]
     [JsonSerializable(typeof(InterfaceWallet))]
+    [JsonSerializable(typeof(Ledger))]
     internal partial class InvoiceContext : JsonSerializerContext;
 }

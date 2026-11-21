@@ -67,6 +67,11 @@ internal sealed partial class DataCurrencyLocalizer : ICurrencyLocalizer
             locale = i < 0 ? InvariantLocale : locale.Substring(0, i);
         }
 
+        // CLDR gives the Cape Verdean escudo a zero-width space as its symbol in the locales that write "$" as the decimal separator of an amount (kea, pt-CV).
+        // The symbol of the currency there is that "$", as system data has it, so that formatting and parsing treat both sources alike.
+        if (symbol == Constants.ZeroWidthSpace)
+            symbol = "$";
+
         var info = (name ?? currency.CurrencyCode, symbol ?? currency.CurrencyCode);
         cache.TryAdd(currency, info);
         return info;

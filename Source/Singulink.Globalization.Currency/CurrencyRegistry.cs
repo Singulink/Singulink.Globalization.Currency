@@ -24,6 +24,7 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
     private static CurrencyRegistry? _default;
 
     private readonly string _name;
+    private bool _isSystemRegistry;
     private readonly HashSet<Currency> _currencies = [];
     private ImmutableArray<Currency> _orderedCurrencies;
 
@@ -143,8 +144,32 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
             return currency;
 
             [DoesNotReturn]
-            static void Throw(TargetDependentStringKey currencyCode) => throw new ArgumentException($"Currency code '{currencyCode}' not found in the registry.", nameof(currencyCode));
+            void Throw(TargetDependentStringKey currencyCode) => throw new ArgumentException(GetCodeNotFoundMessage(currencyCode.ToString()), nameof(currencyCode));
         }
+    }
+
+    /// <summary>
+    /// Gets the message for a currency code that is not in this registry, which every lookup that reports an unknown code uses.
+    /// </summary>
+    internal string GetCodeNotFoundMessage(string currencyCode)
+    {
+        string message = $"Currency code '{currencyCode}' was not found in the '{_name}' currency registry.";
+        string? hint = GetNoCurrencyDataHint();
+
+        return hint is null ? message : $"{message} {hint}";
+    }
+
+    /// <summary>
+    /// Gets an explanation if this is the registry built from system data and the system provided no currencies, as in invariant globalization mode;
+    /// otherwise <see langword="null"/>.
+    /// </summary>
+    internal string? GetNoCurrencyDataHint()
+    {
+        if (!_isSystemRegistry || _currencies.Count is not 0)
+            return null;
+
+        return "The system provides no currency data in invariant globalization mode. Install the Singulink.Globalization.Currency.Cldr package and " +
+            "register its data at startup with CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider).";
     }
 
     /// <summary>
@@ -352,12 +377,14 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
                     else
                     {
                         // Tie-breaker rules:
+                        // - A currency sign or a symbol in Latin letters wins over the currency code, which a culture reports when it has no symbol
                         // - Less specific culture wins
                         // - Latin culture wins
                         // - All ASCII wins
                         // - Shorter symbol wins
 
                         setSymbol =
+                            ShouldOverrideIfNotCode(symbol, existingSymbolInfo.Value, currencyCode) ??
                             ShouldOverrideIfLessSpecific(sourceCulture, existingSymbolInfo.SourceCulture) ??
                             ShouldOverrideIfLatin(sourceCulture, existingSymbolInfo.SourceCulture) ??
                             ShouldOverrideIfAscii(symbol, existingSymbolInfo.Value) ??
@@ -396,7 +423,7 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
 
         CultureInfo.InvariantCulture.ClearCachedData(); // Clears all cached data, not just the culture it is called on
 
-        return new CurrencyRegistry("System", currencyLookup.Values);
+        return new CurrencyRegistry("System", currencyLookup.Values) { _isSystemRegistry = true };
 
         static bool IsRightToLeft(string value) => value.Any(c => c is '\u200E' or '\u200F'); // Check for left-to-right mark
 
@@ -429,6 +456,42 @@ public sealed partial class CurrencyRegistry : IReadOnlySet<Currency>, ISet<Curr
                 return false; // New culture is more specific, so it should not override
 
             return null;
+        }
+
+        static bool? ShouldOverrideIfNotCode(string newSymbol, string existingSymbol, string currencyCode)
+        {
+            // Without this rule, one culture that reports the code would replace the symbol that every other culture reports, since the code is ASCII: the
+            // euro's symbol would be "EUR" wherever the system's data has such a culture, and "€" elsewhere.
+
+            bool isNewCode = newSymbol == currencyCode;
+            bool isExistingCode = existingSymbol == currencyCode;
+
+            if (isNewCode == isExistingCode)
+                return null;
+
+            // The code gives way only to a symbol that readers of any language can read: a currency sign such as "€" or Latin letters such as "zł". A word
+            // in another script, such as the Persian word for the rial, is left to the rules that follow, which keep the code.
+
+            if (!IsSignOrLatin(isNewCode ? existingSymbol : newSymbol))
+                return null;
+
+            return isExistingCode;
+
+            static bool IsSignOrLatin(string symbol)
+            {
+                if (symbol.Length is 0)
+                    return false;
+
+                foreach (char c in symbol)
+                {
+                    // U+024F is the last character of the Latin Extended-B block.
+
+                    if (c > '\u024F' && char.GetUnicodeCategory(c) is not UnicodeCategory.CurrencySymbol)
+                        return false;
+                }
+
+                return true;
+            }
         }
 
         static bool? ShouldOverrideIfAscii(string newValue, string existingValue)

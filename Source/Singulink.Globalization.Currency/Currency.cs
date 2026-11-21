@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 
@@ -8,6 +9,7 @@ namespace Singulink.Globalization;
 /// </summary>
 [DebuggerDisplay("{CurrencyCode,nq}")]
 [JsonConverter(typeof(CurrencyJsonConverter))]
+[TypeConverter(typeof(CurrencyTypeConverter))]
 public partial class Currency : IFormattable
 {
     private readonly ICurrencyLocalizer _localizer;

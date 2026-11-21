@@ -44,9 +44,9 @@ public class Factory
         };
 
         string json = JsonSerializer.Serialize(holder);
-        json.ShouldContain("""{"ReadOnlyBag":[{"amount":2,"currency":"CAD"},{"amount":1,"currency":"USD"}],""");   // sorted, as the bag it holds
-        json.ShouldContain("""],"MutableBag":[{"amount":3,"currency":"USD"}],""");
-        json.ShouldEndWith("""],"ImmutableBag":[{"amount":5,"currency":"EUR"},{"amount":4,"currency":"USD"}]}""");
+        json.ShouldContain("""{"ReadOnlyBag":[{"amount":2.00,"currency":"CAD"},{"amount":1.00,"currency":"USD"}],""");   // sorted, as the bag it holds
+        json.ShouldContain("""],"MutableBag":[{"amount":3.00,"currency":"USD"}],""");
+        json.ShouldEndWith("""],"ImmutableBag":[{"amount":5.00,"currency":"EUR"},{"amount":4.00,"currency":"USD"}]}""");
 
         var result = JsonSerializer.Deserialize<InterfaceHolder>(json)!;
         result.ReadOnlyBag.ShouldBeOfType<MoneyBag>().ShouldBe(holder.ReadOnlyBag, ignoreOrder: true);
@@ -63,7 +63,7 @@ public class Factory
         IMoneyBag mutableBag = [new(1m, "USD")];
         IImmutableMoneyBag immutableBag = [new(1m, "USD")];
 
-        const string json = """[{"amount":1,"currency":"USD"}]""";
+        const string json = """[{"amount":1.00,"currency":"USD"}]""";
 
         JsonSerializer.Deserialize<IReadOnlyMoneyBag>(json)!.GetType().ShouldBe(readOnlyBag.GetType());
         JsonSerializer.Deserialize<IMoneyBag>(json)!.GetType().ShouldBe(mutableBag.GetType());

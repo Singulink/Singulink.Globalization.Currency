@@ -104,8 +104,8 @@ public sealed class CurrencyJsonConverter : JsonConverter<Currency>
     }
 
     [DoesNotReturn]
-    private static void ThrowNotFound(string code, CurrencyRegistry registry)
+    internal static void ThrowNotFound(string code, CurrencyRegistry registry)
     {
-        throw new JsonException($"Currency code '{code}' was not found in the '{registry.Name}' currency registry.");
+        throw new JsonException(registry.GetCodeNotFoundMessage(code));
     }
 }

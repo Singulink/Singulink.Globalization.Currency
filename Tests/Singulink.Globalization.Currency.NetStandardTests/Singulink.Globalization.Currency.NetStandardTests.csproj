@@ -12,6 +12,19 @@
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\CreateOrDefault.cs" Link="MonetaryValueTests\CreateOrDefault.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\CurrencyProperty.cs" Link="MonetaryValueTests\CurrencyProperty.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Formatting.cs" Link="MonetaryValueTests\Formatting.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\ValueOnlyFormat.cs" Link="MonetaryValueTests\ValueOnlyFormat.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\CurrencySpacing.cs" Link="MonetaryValueTests\CurrencySpacing.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\RoundTripFormat.cs" Link="MonetaryValueTests\RoundTripFormat.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\MinorUnits.cs" Link="MonetaryValueTests\MinorUnits.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Deconstruct.cs" Link="MonetaryValueTests\Deconstruct.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\RoundToDecimals.cs" Link="MonetaryValueTests\RoundToDecimals.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\RoundToPolicy.cs" Link="MonetaryValueTests\RoundToPolicy.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\TransformAmount.cs" Link="MonetaryValueTests\TransformAmount.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\DefaultValueFormatting.cs" Link="MonetaryValueTests\DefaultValueFormatting.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\ParseDollarDecimalSeparator.cs" Link="MonetaryValueTests\ParseDollarDecimalSeparator.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\EntityFrameworkConstructor.cs" Link="MonetaryValueTests\EntityFrameworkConstructor.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\CurrencyRegistryTests\CodeNotFoundMessages.cs" Link="CurrencyRegistryTests\CodeNotFoundMessages.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\TypeConverterTests\TypeConverters.cs" Link="TypeConverterTests\TypeConverters.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Operators.cs" Link="MonetaryValueTests\Operators.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Parse.cs" Link="MonetaryValueTests\Parse.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueTests\Round.cs" Link="MonetaryValueTests\Round.cs" />
@@ -29,6 +42,9 @@
     <Compile Include="..\Singulink.Globalization.Currency.Tests\CurrencyJsonConverterTests\DictionaryKeys.cs" Link="CurrencyJsonConverterTests\DictionaryKeys.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyBagJsonConverterFactoryTests\Bags.cs" Link="MoneyBagJsonConverterFactoryTests\Bags.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyBagJsonConverterFactoryTests\Factory.cs" Link="MoneyBagJsonConverterFactoryTests\Factory.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueJsonConverterTests\Forms.cs" Link="MonetaryValueJsonConverterTests\Forms.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MonetaryValueJsonConverterTests\NumberDigits.cs" Link="MonetaryValueJsonConverterTests\NumberDigits.cs" />
+    <Compile Include="..\Singulink.Globalization.Currency.Tests\MoneyBagJsonConverterFactoryTests\Forms.cs" Link="MoneyBagJsonConverterFactoryTests\Forms.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Tests\BagTests\InterfaceTypeArguments.cs" Link="BagTests\InterfaceTypeArguments.cs" />
     <!-- RegisterAsDefault tests are excluded since they replace the process-wide default registry that the other tests depend on. -->
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\Registries.cs" Link="CldrCurrencyDataTests\Registries.cs" />
@@ -36,6 +52,13 @@
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\Localization.cs" Link="CldrCurrencyDataTests\Localization.cs" />
     <Compile Include="..\Singulink.Globalization.Currency.Cldr.Tests\CldrCurrencyDataTests\DataProvider.cs" Link="CldrCurrencyDataTests\DataProvider.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Used only to test the type converters. -->
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Newtonsoft.Json" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Referenced directly so that its source generator runs for the JSON source generation tests. -->
     <PackageReference Include="System.Text.Json" />

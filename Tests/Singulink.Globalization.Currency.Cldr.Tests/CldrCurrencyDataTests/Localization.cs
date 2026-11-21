@@ -63,6 +63,46 @@ public class Localization
     }
 
     [TestMethod]
+    public void EscudoSymbolIsTheDollarDecimalSeparator()
+    {
+        // CLDR gives the Cape Verdean escudo a zero-width space as its symbol in the locales that write "$" as the decimal separator of an amount. The
+        // symbol is "$" there, as it is with system data, so that an amount is written and parsed in the local form.
+
+        const char Sp = '\u00A0';
+
+        var registry = CurrencyData.Load(CldrCurrencyData.Provider).Registry;
+        var cve = registry["CVE"];
+
+        foreach (string name in new[] { "pt-CV", "kea-CV" })
+        {
+            var culture = CultureInfo.GetCultureInfo(name);
+            string gs = culture.NumberFormat.CurrencyGroupSeparator;
+
+            culture.NumberFormat.CurrencyDecimalSeparator.ShouldBe("$", name);
+            cve.GetLocalizedSymbol(culture).ShouldBe("$", name);
+
+            new MonetaryValue(1234.56m, cve).ToString("C", culture).ShouldBe($"1{gs}234$56", name);
+            new MonetaryValue(1234.56m, cve).ToString("L", culture).ShouldBe($"1{gs}234$56", name);
+            new MonetaryValue(-5m, cve).ToString("C", culture).ShouldBe("-5$00", name);
+            new MonetaryValue(5m, cve).ToString("C*", culture).ShouldBe("5$00", name);
+            new MonetaryValue(1234.56m, cve).ToString("G", culture).ShouldBe($"1{gs}234,56{Sp}CVE", name);
+
+            registry.ParseMonetaryValue("1234$56", MonetaryStyles.LocalSymbol, culture).ShouldBe(new MonetaryValue(1234.56m, cve), name);
+            registry.ParseMonetaryValue($"1{gs}234$56", MonetaryStyles.Any, culture).ShouldBe(new MonetaryValue(1234.56m, cve), name);
+            registry.ParseMonetaryValue("-5$00", MonetaryStyles.Any, culture).ShouldBe(new MonetaryValue(-5m, cve), name);
+
+            // No other currency has that symbol with CLDR data, so only the escudo is written this way.
+
+            registry.TryGetCurrenciesBySymbol("$", culture, out var currencies).ShouldBeTrue(name);
+            currencies.ShouldBe([cve], name);
+            new MonetaryValue(5m, registry["USD"]).ToString("C", culture).ShouldBe($"5,00{Sp}US$", name);
+        }
+
+        cve.GetLocalizedSymbol(CultureInfo.GetCultureInfo("kea")).ShouldBe("$");
+        cve.Symbol.ShouldBe("CVE");
+    }
+
+    [TestMethod]
     public void UnknownCultureFallsBackThroughChain()
     {
         // Regional variants that CLDR does not have data for inherit from the language.
