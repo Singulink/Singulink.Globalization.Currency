@@ -2,6 +2,7 @@
 
 [![Chat on Discord](https://img.shields.io/discord/906246067773923490)](https://discord.gg/EkQhJFsBu6)
 [![Build and Test](https://github.com/Singulink/Singulink.Globalization.Currency/workflows/build%20and%20test/badge.svg)](https://github.com/Singulink/Singulink.Globalization.Currency/actions?query=workflow%3A%22build+and+test%22)
+[![View documentation](https://img.shields.io/badge/View-Documentation-blue)](https://www.singulink.com/Docs/Singulink.Globalization.Currency/)
 
 | Library | Package |
 | --- | --- |
@@ -11,6 +12,9 @@
 
 **Singulink.Globalization.Currency** is a .NET library that provides types like `Currency`, `MonetaryValue` and a range of collections and interfaces that make it easy to work with money and currencies in your applications while following best practices. The library is well-documented and follows the same design principles as built-in .NET types and collections. It has been painstakingly tested and optimized to ensure that it is both fast and reliable.
 
+> [!TIP]
+> **Coming from NodaMoney, or choosing between the two?** [Comparison with NodaMoney](https://www.singulink.com/Docs/Singulink.Globalization.Currency/articles/concepts/nodamoney.html) runs the same code in both and shows where the libraries differ and why: when amounts are rounded, where a currency comes from, what text they write by default, and what global state there is.
+
 **Singulink.Globalization.Currency.Cldr** is an optional data package that provides up-to-date currency data from Unicode CLDR instead of the globalization data that ships with the runtime, and behaves identically on every runtime and operating system. It includes localized names and symbols for every locale, currencies that are not tied to a region (such as `XAU` or `XDR`), historical currencies, and cash rounding rules. The data package does not depend on the core library, so it can always be updated to the latest CLDR release without changing the core library version. Its version mirrors the CLDR version.
 
 **Singulink.Globalization.Currency.DataProviders** contains the `ICurrencyDataProvider` abstraction that data packages implement. It is referenced by the other two packages and does not normally need to be referenced directly.
@@ -19,15 +23,18 @@
 
 ✔️ Wide range of string formatting options for every scenario (including `ISpanFormattable` support)  
 ✔️ Four types of money bag collections for working with multiple currencies at once  
-✔️ [JSON serialization](https://www.singulink.com/Docs/Singulink.Globalization.Currency/articles/guides/storing-values.html) of monetary values, currencies and money bags with System.Text.Json, with no setup and native AOT support  
+✔️ [JSON serialization](https://www.singulink.com/Docs/Singulink.Globalization.Currency/articles/guides/storing-values.html) of monetary values, currencies and money bags with System.Text.Json, as objects or as round-trip text, with no setup and native AOT support  
+✔️ Type converters for Newtonsoft.Json and configuration binding  
 ✔️ Collection expression/literal syntax support  
 ✔️ Builds currency data from built-in system globalization data, or from embedded Unicode CLDR data with the optional CLDR package  
 ✔️ Standard and cash rounding rules for every currency (cash rounding requires the CLDR package)  
 ✔️ Support for custom currency registries, such as for cryptocurrencies  
 ✔️ Generic math support (.NET)  
-✔️ Extensive `ReadOnlySpan<char>` lookup support (.NET 9+)  
+✔️ Extensive `ReadOnlySpan<char>` lookup support (.NET)  
 ✔️ Full AOT and WinRT support  
 ✔️ Extensive test coverage  
+
+**Documentation**: guides, examples and the fully documented API are on the [project documentation site](https://www.singulink.com/Docs/Singulink.Globalization.Currency/).
 
 ### About Singulink
 
@@ -149,5 +156,5 @@ The [project documentation site](https://www.singulink.com/Docs/Singulink.Global
 
 - guides on calculating with money (monetary values, rounding and allocation, money bags and storing values), showing and reading money (formatting and parsing) and choosing your currency data (registries, CLDR data and custom data providers);
 - a page that explains each exception the library throws;
-- concept articles on why two USD currencies are not equal and how names and symbols are localized;
+- concept articles on why two USD currencies are not equal, how names and symbols are localized, and how this library compares with NodaMoney;
 - the fully documented API.

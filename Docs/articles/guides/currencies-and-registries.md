@@ -60,7 +60,7 @@ CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider); // too late: thr
 
 ### System registry and its limits
 
-The system registry depends on the operating system, has no cash rounding rules, and leaves out currencies that are not the currency of a region. [CLDR Currency Data](cldr-data.md#why-use-it) describes each limit and how the CLDR package removes it.
+The system registry depends on the operating system, has no cash rounding rules, and leaves out currencies that are not the currency of a region. With invariant globalization turned on, it is empty. [CLDR Currency Data](cldr-data.md#why-use-it) describes each limit and how the CLDR package removes it.
 
 ## Looking Up Currencies
 
@@ -76,7 +76,7 @@ registry.TryGetCurrency("JPY", out var jpy);
 registry.Contains("CAD");
 ```
 
-Codes are matched case-insensitively. On .NET 9 and later, every lookup also accepts a <xref:System.ReadOnlySpan`1> of characters, so codes can be sliced out of larger strings without allocating.
+Codes are matched case-insensitively. On .NET, every lookup also accepts a <xref:System.ReadOnlySpan`1> of characters, so codes can be sliced out of larger strings without allocating.
 
 By symbol, which can match several currencies because symbols are not unique:
 

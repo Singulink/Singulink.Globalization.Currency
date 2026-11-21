@@ -55,14 +55,14 @@ MonetaryValue.Parse("$5", MonetaryStyles.UnambiguousSymbols, enUS);  // throws F
 
 Composite values bundle each currency flag with all the number flags: <xref:Singulink.Globalization.MonetaryStyles.CurrencyCode> (the default), <xref:Singulink.Globalization.MonetaryStyles.LocalSymbol>, <xref:Singulink.Globalization.MonetaryStyles.UnambiguousSymbols>, and combinations such as <xref:Singulink.Globalization.MonetaryStyles.CurrencyCodeOrLocalSymbol> and <xref:Singulink.Globalization.MonetaryStyles.Any>.
 
-When several currency flags are set, the text is matched as a code first, then as the local symbol, then as an unambiguous symbol. A code is unique in the registry and does not depend on the culture, so `USD` always parses as US dollars, even in a culture whose local symbol is spelled like a code, and text written with the default format reads back as the same currency in every culture.
+When several currency flags are set, the text is matched as a code first, then as the local symbol, then as an unambiguous symbol. A code is unique in the registry and does not depend on the culture, so `USD` always parses as US dollars, even in a culture whose local symbol is spelled like a code. For the same reason, text written with the default format reads back as the same currency in every culture.
 
 > [!TIP]
 > For user input, <xref:Singulink.Globalization.MonetaryStyles.Any> with the user's culture gives the most forgiving behavior. For machine-generated data, stick to <xref:Singulink.Globalization.MonetaryStyles.CurrencyCode> and a fixed culture.
 
 ## What the Parser Accepts
 
-The currency indicator can appear before or after the number, with or without a space, following the same patterns that formatting produces. Each of these is allowed by its own flag, exactly as with <xref:System.Decimal.Parse*>: whitespace, signs, parentheses for negatives, group separators and the decimal point.
+The currency indicator can appear before or after the number, with or without a space, following the same patterns that formatting produces. The space can be an ordinary space or the no-break space that formatting writes. Each of these is allowed by its own flag, exactly as with <xref:System.Decimal.Parse*>: whitespace, signs, parentheses for negatives, group separators and the decimal point.
 
 With <xref:Singulink.Globalization.MonetaryStyles.CurrencyCode> in `en-US`:
 
@@ -75,6 +75,7 @@ With <xref:Singulink.Globalization.MonetaryStyles.CurrencyCode> in `en-US`:
 "USD (1,234.50)"   // USD -1234.50, parentheses mean negative
 "USD 1,234.567"    // USD 1234.567, parsing does not round
 "1234.50"          // fails: no currency code
+"0"                // MonetaryValue.Default: a zero without a currency is the default value
 "$1,234.50"        // fails: "$" is not a code
 "USD 1 234.50"     // fails: not the culture's number format
 ```

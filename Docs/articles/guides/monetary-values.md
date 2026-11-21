@@ -29,6 +29,7 @@ Because it is a struct, `default(MonetaryValue)` exists whether the library like
 - Adding it to any value, or subtracting it from any value, returns that value unchanged.
 - <xref:Singulink.Globalization.MonetaryValue.Currency> throws <xref:System.InvalidOperationException> on it. Use <xref:Singulink.Globalization.MonetaryValue.CurrencyOrDefault>, which returns `null`, or check <xref:Singulink.Globalization.MonetaryValue.IsDefault>.
 - It is not equal to a zero in any currency. `default != new MonetaryValue(0m, "USD")`.
+- It formats as `0`, a zero without a currency, which parses back as the default value. See [Formatting](formatting.md#default-value).
 - Money bags ignore it when added and return it for currencies they do not contain.
 
 <xref:Singulink.Globalization.MonetaryValue.CreateOrDefault*> also accepts a `null` currency: with a zero amount it returns the default value, and with a non-zero amount it throws. <xref:Singulink.Globalization.MonetaryValue.ToDefaultIfZero*> converts a zero in any currency to the default value, which is useful for normalizing totals.
@@ -52,9 +53,29 @@ price / 2;                  // USD 9.995
 price / new MonetaryValue(10m, "USD"); // 1.999m, a ratio with no currency
 ```
 
-Dividing two values gives a plain <xref:System.Decimal> ratio, which is the only operation that yields a number rather than a value. Increment and decrement operators add or subtract one unit of the currency.
+Dividing two values gives a plain <xref:System.Decimal> ratio, which is the only operation that yields a number rather than a value. The increment and decrement operators add or subtract 1, as they do for a <xref:System.Decimal>. They do not add or subtract one cent:
+
+```csharp
+var amount = new MonetaryValue(10.50m, "USD");
+amount++;                   // USD 11.50
+```
 
 Adding, subtracting or dividing values in different currencies throws <xref:System.ArgumentException>. There is no implicit currency conversion in the library; convert explicitly, as shown in [Converting Between Currencies](#converting-between-currencies).
+
+For a change that no operator expresses, <xref:Singulink.Globalization.MonetaryValue.TransformAmount*> applies a function to the amount and keeps the currency:
+
+```csharp
+var price = new MonetaryValue(19.97m, "USD");
+
+price.TransformAmount(Math.Ceiling);              // USD 20.00
+price.TransformAmount(a => Math.Min(a, 15m));     // USD 15.00, capped
+```
+
+On the default value, which has no currency, the function gets 0 and must return 0. Any other result throws <xref:System.ArgumentException>, as `MonetaryValue.Default + 5m` does. When the function can turn zero into another amount, check <xref:Singulink.Globalization.MonetaryValue.IsDefault> first:
+
+```csharp
+var fee = total.IsDefault ? total : total.TransformAmount(a => Math.Max(a, 2m));
+```
 
 ## Converting Between Currencies
 
@@ -87,6 +108,8 @@ Equality is the exception. `==` and <xref:Singulink.Globalization.MonetaryValue.
 
 Sorting a sequence of values with <xref:System.Linq.Enumerable.OrderBy*> or <xref:System.Collections.Generic.List`1.Sort*> therefore only works when they share a currency. Group by <xref:Singulink.Globalization.MonetaryValue.CurrencyOrDefault> first, or use a money bag, when a sequence can contain several currencies.
 
+The type also implements the non-generic <xref:System.IComparable>, which `Comparer.Default` and the sorting of WPF and WinUI collection views use. It compares as the generic <xref:Singulink.Globalization.MonetaryValue.CompareTo*> does, and `null` sorts first.
+
 ## Other Helpers
 
 - <xref:Singulink.Globalization.MonetaryValue.Abs*> returns the value with a non-negative amount.
@@ -94,9 +117,17 @@ Sorting a sequence of values with <xref:System.Linq.Enumerable.OrderBy*> or <xre
 - <xref:Singulink.Globalization.MonetaryValue.Allocate*> and <xref:Singulink.Globalization.MonetaryValue.AllocateToCash*> split a value into parts without losing minor units.
 - <xref:Singulink.Globalization.MonetaryValue.ToString*>, <xref:Singulink.Globalization.MonetaryValue.TryFormat*>, <xref:Singulink.Globalization.MonetaryValue.Parse*> and <xref:Singulink.Globalization.MonetaryValue.TryParse*> convert to and from strings. See [Formatting](formatting.md) and [Parsing](parsing.md).
 
+### Deconstruction
+
+A value deconstructs into its amount and its currency. The currency is `null` for the default value, as <xref:Singulink.Globalization.MonetaryValue.CurrencyOrDefault> is:
+
+```csharp
+var (amount, currency) = new MonetaryValue(12.3m, "USD");   // 12.3 and the USD currency
+```
+
 ### Generic math
 
-On .NET, the type implements the <xref:System.Numerics> operator interfaces, so generic code constrained on those interfaces can use it. They cover addition, subtraction, multiplication and division by <xref:System.Decimal>, comparison, negation, increment and decrement. It does not implement <xref:System.Numerics.INumber`1>, because concepts such as `One`, or parsing without a currency, do not apply to money.
+On .NET, the type implements the <xref:System.Numerics> operator interfaces, so generic code constrained on those interfaces can use it. They cover addition, subtraction, multiplication and division by <xref:System.Decimal>, comparison, negation, increment and decrement. It also implements <xref:System.Numerics.IAdditiveIdentity`2>, whose identity is <xref:Singulink.Globalization.MonetaryValue.Default>, so a generic sum that starts from the additive identity works with values in any currency. It does not implement <xref:System.Numerics.INumber`1>, because concepts such as `One`, or parsing without a currency, do not apply to money.
 
 ## Next Steps
 

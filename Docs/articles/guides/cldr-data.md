@@ -27,6 +27,18 @@ The core library's system registry is built from the globalization data that shi
 
 The CLDR package fixes all three. Its data is embedded in the package, so behavior is identical everywhere, every currency CLDR knows about is available, and every currency has a cash rounding policy.
 
+### Invariant globalization mode
+
+With invariant globalization turned on (`<InvariantGlobalization>true</InvariantGlobalization>` in the project, or `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1`), the runtime has no culture or region data, so the system registry is empty:
+
+```csharp
+CurrencyRegistry.Default.Count;          // 0
+new MonetaryValue(10m, "USD");           // ArgumentException: "Currency code 'USD' was not found in the 'System' currency registry.
+                                         // The system provides no currency data in invariant globalization mode. ..."
+```
+
+Many container images and some native AOT apps run this way. The message names the fix: register the CLDR package at startup to give the default registry a full set of currencies. The package does not depend on the runtime's data. Parsing, the JSON converters and the type converters report a missing code with the same explanation.
+
 ## Registering the Data
 
 Register the provider once at application startup:

@@ -44,7 +44,7 @@ var more = total + 5m;         // ArgumentException: "Non-zero amount monetary v
 ## Currency Not in the Registry
 
 ```csharp
-Currency.GetCurrency("XAU");             // ArgumentException: "Currency code 'XAU' not found in the registry."
+Currency.GetCurrency("XAU");             // ArgumentException: "Currency code 'XAU' was not found in the 'System' currency registry."
 new MonetaryValue(1m, "XAU");            // the same
 
 var storeRegistry = new CurrencyRegistry("Store", [Currency.GetCurrency("USD")]);
@@ -62,6 +62,24 @@ The library looked the code up in the default registry, or in the money bag's ow
 | The system data does not have the currency | Use the [CLDR package](cldr-data.md) or a [custom currency](currencies-and-registries.md#custom-currencies) |
 | A money bag is bound to a smaller registry | Add only currencies of that registry; see [Custom Registries](currencies-and-registries.md#custom-registries) |
 
+## Every Currency Code Is Missing
+
+```csharp
+new MonetaryValue(10m, "USD");          // ArgumentException: "Currency code 'USD' was not found in the 'System' currency registry.
+                                        // The system provides no currency data in invariant globalization mode. Install the
+                                        // Singulink.Globalization.Currency.Cldr package and register its data at startup with
+                                        // CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider)."
+CurrencyRegistry.Default.Count;         // 0
+```
+
+The app runs with invariant globalization, as many container images do, so the runtime has no region data and the system registry is empty. Register the CLDR data provider at startup:
+
+```csharp
+CurrencyRegistry.SetDefaultProvider(CldrCurrencyData.Provider);   // the first line of startup
+```
+
+Parsing, the JSON converters and the type converters give the same explanation. See [Invariant Globalization Mode](cldr-data.md#invariant-globalization-mode).
+
 ## Currency Code Not Found in JSON
 
 ```csharp
@@ -72,7 +90,43 @@ JsonSerializer.Deserialize<SortedMoneyBag>("""[{"amount":10,"currency":"XAU"}]""
 // the same, for a value in a money bag
 ```
 
-The JSON converters look codes up in their registry: <xref:Singulink.Globalization.CurrencyRegistry.Default> unless you added a <xref:Singulink.Globalization.MonetaryValueJsonConverter>, <xref:Singulink.Globalization.CurrencyJsonConverter> or <xref:Singulink.Globalization.MoneyBagJsonConverterFactory> for another registry to the options. Money bags use the factory's registry, not the value converter's. The exception's <xref:System.Text.Json.JsonException.Path> says which value or bag it was. Read with the registry that has the code, include the currency in the default registry as in the table above, or catch the exception if the data may hold codes that you do not support. See [Codes the Registry Does Not Have](storing-values.md#codes-the-registry-does-not-have) and [Money Bags in JSON](storing-values.md#money-bags-in-json).
+The JSON converters look each code up in their registry. That is <xref:Singulink.Globalization.CurrencyRegistry.Default>, unless you added a <xref:Singulink.Globalization.MonetaryValueJsonConverter>, <xref:Singulink.Globalization.CurrencyJsonConverter> or <xref:Singulink.Globalization.MoneyBagJsonConverterFactory> for another registry to the options. Money bags use the factory's registry, not the value converter's. The exception's <xref:System.Text.Json.JsonException.Path> tells you which value or bag had the code.
+
+To fix it, do one of these:
+
+- Read with the registry that has the code.
+- Include the currency in the default registry, as in the table above.
+- Catch the exception, if the data may hold codes that you do not support.
+
+See [Codes the Registry Does Not Have](storing-values.md#codes-the-registry-does-not-have) and [Money Bags in JSON](storing-values.md#money-bags-in-json).
+
+## Amount Has Too Many Digits for a JSON Number
+
+```csharp
+JsonSerializer.Serialize(new MonetaryValue(10m, "USD") / 3);
+// ArgumentException: "The amount of USD 3.3333333333333333333333333333 has 29 significant digits, but a JSON reader that uses
+// double-precision numbers, such as JavaScript, keeps only 15, so it would read a different amount. ..."
+```
+
+The object form writes the amount as a JSON number, and a reader such as JavaScript would read a different number without an error.
+
+To fix it, do one of these:
+
+- Round the value before you write it: to the currency with `Round()`, or to a number of decimals with `Round(4)`.
+- Write amounts as strings with `JsonNumberHandling.WriteAsString`.
+- Use the text form.
+- If every reader keeps all the digits of a number, use <xref:Singulink.Globalization.MonetaryJsonFormat.LossyNumberObject?displayProperty=nameWithType>.
+
+See [Amounts With Many Digits](storing-values.md#amounts-with-many-digits).
+
+## JSON String Is Not a Monetary Value
+
+```csharp
+JsonSerializer.Deserialize<MonetaryValue>("\"$12.30\"");
+// JsonException: "The string '$12.30' is not a monetary value in the round-trip format, such as "USD 12.34"."
+```
+
+The JSON converters read a string only in the round-trip format, such as `"USD 12.30"`. Text formatted for a culture can read back as a different amount or currency, so the converters do not guess. Write the value with the round-trip format or the object form; see [Object or Text](storing-values.md#object-or-text).
 
 ## Text That Does Not Parse
 

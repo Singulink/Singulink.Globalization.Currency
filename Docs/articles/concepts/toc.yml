@@ -3,3 +3,6 @@
 
 - name: How Names and Symbols Are Localized
   href: localization.md
+
+- name: Comparison with NodaMoney
+  href: nodamoney.md

@@ -10,6 +10,9 @@ Install `Singulink.Globalization.Currency`. It contains everything shown in this
 
 Optionally install `Singulink.Globalization.Currency.Cldr` as well. It provides currency data from the Unicode Common Locale Data Repository (CLDR) instead of the runtime, which adds cash rounding rules, currencies that are not tied to a region, localized names and symbols for every locale, and identical behavior on every operating system. See [CLDR Currency Data](cldr-data.md) for when it is worth adding.
 
+> [!IMPORTANT]
+> An app that runs with invariant globalization, as many container images do, has no system currency data, so it must register the CLDR package; see [Invariant Globalization Mode](cldr-data.md#invariant-globalization-mode).
+
 ### How the pieces fit
 
 | Type | What it is | Guide |

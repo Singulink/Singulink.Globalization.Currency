@@ -15,16 +15,16 @@
   - name: Money Bags
     href: money-bags.md
 
-  - name: Storing Monetary Values
-    href: storing-values.md
-
-- name: Showing and Reading Money
+- name: Showing, Reading and Storing Money
   items:
   - name: Formatting
     href: formatting.md
 
   - name: Parsing
     href: parsing.md
+
+  - name: Storing Monetary Values
+    href: storing-values.md
 
 - name: Choosing Your Currency Data
   items:

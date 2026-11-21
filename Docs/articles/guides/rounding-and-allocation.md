@@ -34,7 +34,36 @@ new MonetaryValue(10.005m, "USD").Round();            // USD 10.00 (to even)
 new MonetaryValue(10.005m, "USD").Round(MidpointRounding.AwayFromZero); // USD 10.01
 ```
 
-Money bags have the same pair of methods, <xref:Singulink.Globalization.IMoneyBag.Round*> and <xref:Singulink.Globalization.IMoneyBag.RoundToCash*>, which round every value in the bag according to its own currency.
+Some amounts are finer than the currency, such as a unit price or an exchange rate. Pass a number of decimal places, from 0 to 28, to round to that many decimals, whatever the currency's own number of digits:
+
+```csharp
+var unitPrice = new MonetaryValue(1.234567m, "USD");
+
+unitPrice.Round(4);   // USD 1.2346
+unitPrice.Round();    // USD 1.23
+```
+
+Pass a <xref:Singulink.Globalization.RoundingPolicy> to round to any unit, including an increment such as a quarter:
+
+```csharp
+var price = new MonetaryValue(19.97m, "USD");
+
+price.Round(new RoundingPolicy(2, 25));   // USD 20.00, to the nearest quarter
+```
+
+These two overloads also accept a <xref:System.MidpointRounding> mode, and both keep the currency. For a rule that no policy and mode can express, apply your own with <xref:Singulink.Globalization.MonetaryValue.TransformAmount*>. Always rounding up on .NET Framework is such a rule, because .NET Framework lacks the directed modes:
+
+```csharp
+price.TransformAmount(a => Math.Ceiling(a * 4) / 4);   // rounds up to the next quarter
+```
+
+Money bags have the same pair of methods, <xref:Singulink.Globalization.IMoneyBag.Round*> and <xref:Singulink.Globalization.IMoneyBag.RoundToCash*>, which round every value in the bag according to its own currency. To round every value to decimals or a policy instead, use <xref:Singulink.Globalization.IMoneyBag.TransformValues*>:
+
+```csharp
+MoneyBag rates = [new(1.234567m, "USD"), new(0.987654m, "EUR")];
+
+rates.TransformValues(v => v.Round(4).Amount);   // USD 1.2346, EUR 0.9877
+```
 
 ### Cash rounding
 
@@ -93,6 +122,34 @@ The overloads that take a <xref:Singulink.Globalization.RoundingPolicy> allocate
 total.Allocate(3, new RoundingPolicy(0));       // USD 34, USD 33, USD 33
 total.Allocate([1, 3], new RoundingPolicy(0));  // USD 25, USD 75
 ```
+
+## Minor Units
+
+Payment APIs usually take an amount as a whole number of the currency's minor unit, such as cents. <xref:Singulink.Globalization.MonetaryValue.ToMinorUnits*> and <xref:Singulink.Globalization.MonetaryValue.FromMinorUnits*> convert between the two:
+
+```csharp
+var total = new MonetaryValue(12.34m, "USD");
+
+long cents = total.ToMinorUnits();                        // 1234, the amount to send
+var received = MonetaryValue.FromMinorUnits(1234, "USD"); // USD 12.34, from an amount that comes back
+
+MonetaryValue.FromMinorUnits(1234, "JPY");                // JPY 1234, the yen has no minor unit
+MonetaryValue.FromMinorUnits(1234, "BHD");                // BHD 1.234, three decimal digits
+```
+
+The minor unit follows the currency's decimal digits: `0.01` for two, `1` for none and `0.001` for three. A rounding increment in the currency's <xref:Singulink.Globalization.RoundingPolicy> does not change it.
+
+An amount that is not a whole number of minor units is not rounded silently. Choose what happens:
+
+```csharp
+var withTax = new MonetaryValue(12.345m, "USD");
+
+withTax.ToMinorUnits();                                   // throws InvalidOperationException
+withTax.ToMinorUnits(MidpointRounding.AwayFromZero);      // 1235
+withTax.Round().ToMinorUnits();                           // 1234, with the currency's rounding policy
+```
+
+The default value gives `0`. A number of minor units outside the range of a `long` throws <xref:System.OverflowException>.
 
 ## Next Steps
 

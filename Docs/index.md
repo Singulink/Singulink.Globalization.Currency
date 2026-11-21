@@ -4,6 +4,9 @@
 
 **Singulink.Globalization.Currency** is a .NET library that provides types like <xref:Singulink.Globalization.Currency>, <xref:Singulink.Globalization.MonetaryValue> and a range of collections and interfaces that make it easy to work with money and currencies in your applications. The library is well-documented and follows the same design principles as built-in .NET types and collections. It has been painstakingly tested and optimized to ensure that it is both fast and reliable.
 
+> [!TIP]
+> **Coming from NodaMoney, or choosing between the two?** [Comparison with NodaMoney](articles/concepts/nodamoney.md) runs the same code in both and shows where the libraries differ and why: when amounts are rounded, where a currency comes from, what text they write by default, and what global state there is.
+
 This package is part of our **Singulink Libraries** collection. Visit https://github.com/Singulink to see our full list of publicly available libraries and other open-source projects.
 
 ### Packages
@@ -19,11 +22,12 @@ This package is part of our **Singulink Libraries** collection. Visit https://gi
 ✔️ Wide range of string formatting options for every scenario (including `ISpanFormattable` support)  
 ✔️ Culture-aware parsing of currency codes and symbols  
 ✔️ Four types of money bag collections for working with multiple currencies at once  
-✔️ [JSON serialization](articles/guides/storing-values.md) of monetary values, currencies and money bags with System.Text.Json, with no setup and native AOT support  
+✔️ [JSON serialization](articles/guides/storing-values.md) of monetary values, currencies and money bags with System.Text.Json, as objects or as round-trip text, with no setup and native AOT support  
+✔️ Type converters for Newtonsoft.Json and configuration binding  
 ✔️ Collection expression/literal syntax support  
 ✔️ Builds currency data from built-in system globalization data, or from embedded Unicode CLDR data with the optional CLDR package  
 ✔️ Support for custom currencies, registries and data providers, such as for cryptocurrencies  
-✔️ Extensive `ReadOnlySpan<char>` lookup support (.NET 9+)  
+✔️ Extensive `ReadOnlySpan<char>` lookup support (.NET)  
 ✔️ Full AOT and WinRT support  
 ✔️ Extensive test coverage  
 
@@ -43,7 +47,7 @@ End-of-life runtime versions that are no longer officially supported are not tes
 Here are some additional links to get you started:
 
 - [Getting Started](articles/guides/getting-started.md) - Visit here first for a quick walkthrough of the core types. It is the first of the guides, which cover currencies, values, rounding, formatting, parsing, money bags and data providers in depth and are listed in the sidebar.
-- [Concepts](articles/concepts/currency-identity.md) - Why two USD currencies are not equal, and how names and symbols are localized.
+- [Concepts](articles/concepts/currency-identity.md) - Why two USD currencies are not equal, how names and symbols are localized, and how this library compares with NodaMoney.
 - [API Documentation](api/Singulink.Globalization.yml) - Browse the fully documented API here.
 - [Chat on Discord](https://discord.gg/EkQhJFsBu6) - Have questions or want to discuss the library? This is the place for all Singulink project discussions.
 - [GitHub Repo](https://github.com/Singulink/Singulink.Globalization.Currency) - File issues, contribute pull requests or check out the code for yourself!
