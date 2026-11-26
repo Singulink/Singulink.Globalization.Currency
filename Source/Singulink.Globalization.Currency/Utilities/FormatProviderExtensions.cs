@@ -37,8 +37,9 @@ internal static class FormatProviderExtensions
             // Appears to happen on the "mn-Mong-MN" culture on some net9.0 + Windows 11 26100.4061 systems.
             // Better to just drop the group separator in that case rather than risk failing.
 
-            alteredFormatInfo.NumberGroupSeparator = originalFormatInfo.CurrencyGroupSeparator != originalFormatInfo.CurrencyDecimalSeparator ?
-                                                     originalFormatInfo.CurrencyGroupSeparator : string.Empty;
+            alteredFormatInfo.NumberGroupSeparator = originalFormatInfo.CurrencyGroupSeparator != originalFormatInfo.CurrencyDecimalSeparator
+                ? originalFormatInfo.CurrencyGroupSeparator
+                : string.Empty;
             alteredFormatInfo.NumberGroupSizes = originalFormatInfo.CurrencyGroupSizes;
             alteredFormatInfo.PositiveSign = originalFormatInfo.PositiveSign;
             alteredFormatInfo.NegativeSign = originalFormatInfo.NegativeSign;

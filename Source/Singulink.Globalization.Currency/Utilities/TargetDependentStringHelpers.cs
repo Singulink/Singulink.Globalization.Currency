@@ -5,7 +5,7 @@
 #if NET9_0_OR_GREATER
 global using TargetDependentStringKey = System.ReadOnlySpan<char>;
 #else
-global using TargetDependentStringKey = System.String;
+global using TargetDependentStringKey = string;
 #endif
 
 // TargetDependentString allows the primary implementation of a member to use spans on .NET and strings .NET Standard.
@@ -13,7 +13,7 @@ global using TargetDependentStringKey = System.String;
 #if NET
 global using TargetDependentString = System.ReadOnlySpan<char>;
 #else
-global using TargetDependentString = System.String;
+global using TargetDependentString = string;
 #endif
 
 namespace Singulink.Globalization.Utilities;

@@ -97,9 +97,9 @@ partial class CurrencyRegistry
 
         // If decimal separator is local currency symbol then it will always be buried in the amount, so just look for the regular number decimal separator
         // if it leads/trails the amount
-        string searchDecimalSeparator = alteredNumberFormatInfo.NumberDecimalSeparator is "$" ?
-            originalFormatInfo.NumberDecimalSeparator :
-            alteredNumberFormatInfo.NumberDecimalSeparator;
+        string searchDecimalSeparator = alteredNumberFormatInfo.NumberDecimalSeparator is "$"
+            ? originalFormatInfo.NumberDecimalSeparator
+            : alteredNumberFormatInfo.NumberDecimalSeparator;
 
         s = s.TrimEnd('\0');
         var original = s; // Keep the original for error messages

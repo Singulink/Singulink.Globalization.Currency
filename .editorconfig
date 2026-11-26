@@ -432,3 +432,6 @@ dotnet_diagnostic.IDE0059.severity = warning
 
 # RS0030: Do not use banned APIs
 dotnet_diagnostic.RS0030.severity = error
+
+# SA1504: All accessors should be single-line or multi-line
+dotnet_diagnostic.SA1504.severity = none

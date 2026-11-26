@@ -5,4 +5,5 @@
 
 [assembly: SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "Collections have correct suffixes")]
 [assembly: SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "Parameter names have been standardized across codebase")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1315:Parameter names should match inherited names", Justification = "Parameter names have been standardized across codebase")]
 [assembly: SuppressMessage("Maintainability", "CA1510: Use ArgumentNullException throw helper", Justification = "Throw helpers not available in .NET Standard")]

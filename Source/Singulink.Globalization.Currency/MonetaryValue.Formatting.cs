@@ -245,9 +245,9 @@ partial struct MonetaryValue
                 formatInfo = alteredNumberFormatInfo.CurrencyDecimalSeparator is "$" ? originalFormatInfo : alteredNumberFormatInfo;
                 currencySymbol = symbol;
 
-                pattern = _amount >= 0 ?
-                    PositiveCurrencyPatterns[originalFormatInfo.CurrencyPositivePattern] :
-                    NegativeCurrencyPatterns[originalFormatInfo.CurrencyNegativePattern];
+                pattern = _amount >= 0
+                    ? PositiveCurrencyPatterns[originalFormatInfo.CurrencyPositivePattern]
+                    : NegativeCurrencyPatterns[originalFormatInfo.CurrencyNegativePattern];
             }
         }
         else
