@@ -64,8 +64,10 @@ public static partial class SubtractRange
         [TestMethod]
         public void DisallowedCurrencies_ThrowsArgumentException()
         {
-            IEnumerable<MonetaryValue> values = [new(-100m, "USD"), new(-100m, Common.CurrencyX), new(-100m, Common.CurrencyX), new(-50m, "CAD"),
-            new(100m, Common.CurrencyY), new(100m, Common.CurrencyY), new(-25m, "EUR"),];
+            IEnumerable<MonetaryValue> values = [
+                new(-100m, "USD"), new(-100m, Common.CurrencyX), new(-100m, Common.CurrencyX), new(-50m, "CAD"),
+                new(100m, Common.CurrencyY), new(100m, Common.CurrencyY), new(-25m, "EUR"),
+            ];
 
             Should.Throw<ArgumentException>(() => _bag.SubtractRange(values))
                 .Message.ShouldBe($"The following currencies are not present in the bag's currency registry: {Common.CurrencyX}, {Common.CurrencyY} (Parameter 'values')");
